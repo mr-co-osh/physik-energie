@@ -51,12 +51,17 @@
   .expl { font-size: 16px; background: var(--mint); color: var(--text); border-radius: 10px; padding: 10px 12px; }
   .expl.bad { background: var(--bad-soft); }
   .item-t { font-size: 18px; font-weight: 700; color: var(--ink); }
-  .sort { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-  .sort li { display: grid; grid-template-columns: 30px 22px 1fr auto; gap: 8px; position: relative; cursor: grab; user-select: none; -webkit-user-select: none; align-items: center; background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 17px; }
+  /* Sortieren: Karten von links nach rechts mit Pfeilen dazwischen, Umbruch wie Text */
+  .sort { list-style: none; margin: 0; padding: 0 22px 0 0; display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 12px 26px; }
+  .sort li { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr auto; gap: 6px 8px; position: relative; cursor: grab; user-select: none; -webkit-user-select: none; align-content: start; background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 16px; line-height: 1.35; min-width: 0; }
+  .sort li > .tx { grid-column: 1 / -1; overflow-wrap: anywhere; hyphens: auto; }
+  .sort li > .mv { grid-column: 1 / -1; justify-content: space-between; }
+  .sort li:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: -23px; width: 20px; height: 18px; margin-top: -9px; background: var(--blue); clip-path: polygon(0 30%, 55% 30%, 55% 0, 100% 50%, 55% 100%, 55% 70%, 0 70%); }
+  .sort li.drag::after { display: none; }
   .sort .nr { font-weight: 700; color: var(--blue); text-align: center; font-variant-numeric: tabular-nums; }
   .sort .mv { display: flex; gap: 4px; }
   /* Ziehen und Ablegen: Griff links (auf Touch-Geräten nur am Griff, damit die Seite weiter scrollt) */
-  .sort .grip { touch-action: none; cursor: grab; color: var(--muted); font-size: 22px; line-height: 1; text-align: center; padding: 8px 0; margin: -8px 0; }
+  .sort .grip { touch-action: none; cursor: grab; color: var(--muted); font-size: 22px; line-height: 1; text-align: left; padding: 8px 0; margin: -8px 0; }
   .sort li.drag { z-index: 5; cursor: grabbing; border-color: var(--blue); background: var(--surface); box-shadow: 0 8px 22px rgba(16, 50, 77, .25); transition: none; }
   .sort li.drag .grip { cursor: grabbing; }
   .sort-hint { font-size: 14px; color: var(--muted); margin: -4px 0 4px; }
@@ -284,9 +289,9 @@
       var ol = $('k' + i).querySelector('ol'), k = ks[i], o = orders[i];
       ol.innerHTML = o.map(function (v, p) {
         var cls = mark ? (v === p ? 'right' : 'wrong') : '';
-        return '<li class="' + cls + '" data-p="' + p + '"><span class="nr">' + (p + 1) + '</span><span class="grip" aria-hidden="true">⠿</span><span>' + A.fmt(k.schritte[v]) + '</span><span class="mv">' +
-          '<button type="button" data-d="-1" data-p="' + p + '" aria-label="nach oben"' + (p === 0 ? ' disabled' : '') + '>↑</button>' +
-          '<button type="button" data-d="1" data-p="' + p + '" aria-label="nach unten"' + (p === o.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
+        return '<li class="' + cls + '" data-p="' + p + '"><span class="nr">' + (p + 1) + '</span><span class="grip" aria-hidden="true">⠿</span><span class="tx">' + A.fmt(k.schritte[v]) + '</span><span class="mv">' +
+          '<button type="button" data-d="-1" data-p="' + p + '" aria-label="nach vorne (links)"' + (p === 0 ? ' disabled' : '') + '>←</button>' +
+          '<button type="button" data-d="1" data-p="' + p + '" aria-label="nach hinten (rechts)"' + (p === o.length - 1 ? ' disabled' : '') + '>→</button></span></li>';
       }).join('');
       ol.querySelectorAll('li').forEach(function (li) { li.addEventListener('pointerdown', function (e) { startDrag(e, i, li); }); });
       ol.querySelectorAll('button').forEach(function (b) {
@@ -301,15 +306,22 @@
       if (e.pointerType !== 'mouse' && !e.target.closest('.grip')) return;
       if (e.button) return;
       e.preventDefault();
-      var ol = li.parentNode, o = orders[i], y0 = e.clientY, moved = false;
+      var ol = li.parentNode, o = orders[i], r0 = li.getBoundingClientRect(), gx = e.clientX - r0.left, gy = e.clientY - r0.top;
       li.classList.add('drag'); $('k' + i).className = 'card';
       function idx(el) { return Array.prototype.indexOf.call(ol.children, el); }
+      /* Karte folgt dem Zeiger; liegt der Zeiger über einer anderen Karte, rückt sie an deren Platz (auch in die nächste Zeile) */
       function mv(ev) {
-        var dy = ev.clientY - y0; moved = moved || Math.abs(dy) > 3;
-        var p = idx(li), nx = li.nextElementSibling, pv = li.previousElementSibling, gap = 6;
-        if (nx && dy > nx.offsetHeight / 2) { ol.insertBefore(nx, li); var t = o[p]; o[p] = o[p + 1]; o[p + 1] = t; y0 += nx.offsetHeight + gap; dy = ev.clientY - y0; }
-        else if (pv && dy < -pv.offsetHeight / 2) { ol.insertBefore(li, pv); var t2 = o[p]; o[p] = o[p - 1]; o[p - 1] = t2; y0 -= pv.offsetHeight + gap; dy = ev.clientY - y0; }
-        li.style.transform = 'translateY(' + dy + 'px)';
+        var tgt = null;
+        Array.prototype.forEach.call(ol.children, function (c) {
+          if (c === li) return; var r = c.getBoundingClientRect();
+          if (ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) tgt = c;
+        });
+        if (tgt) {
+          var from = idx(li), to = idx(tgt), v = o.splice(from, 1)[0]; o.splice(to, 0, v);
+          ol.insertBefore(li, to > from ? tgt.nextSibling : tgt);
+        }
+        li.style.transform = ''; var r = li.getBoundingClientRect();
+        li.style.transform = 'translate(' + (ev.clientX - gx - r.left) + 'px,' + (ev.clientY - gy - r.top) + 'px)';
         Array.prototype.forEach.call(ol.children, function (c, j) { c.querySelector('.nr').textContent = j + 1; });
       }
       function up() {
@@ -319,6 +331,15 @@
       window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
     }
     ks.forEach(function (_, i) { draw(i, false); });
+    /* Karten gleichmäßig auf die Zeilen verteilen (keine einzelne Karte allein in der letzten Zeile, wenn vermeidbar) */
+    function cols() {
+      ks.forEach(function (k, i) {
+        var ol = $('k' + i).querySelector('ol'), w = ol.clientWidth - 22, n = k.schritte.length;
+        var max = Math.max(2, Math.floor((w + 26) / (130 + 26))), rows = Math.ceil(n / max);
+        ol.style.setProperty('--cols', Math.ceil(n / rows));
+      });
+    }
+    cols(); window.addEventListener('resize', cols);
     $('check').onclick = function () {
       var ok = 0, n = 0;
       ks.forEach(function (k, i) { draw(i, true); var good = orders[i].every(function (v, p) { return v === p; }); n++; if (good) ok++; $('k' + i).className = 'card ' + (good ? 'ok' : 'bad'); });
