@@ -1,30 +1,34 @@
 /* Übungen in den Themenbereichen – Energie (Physik 9/10). Alle Texte, Zahlen und Abbildungen selbst erstellt.
    Typen: zuordnen · sortieren · quiz · luecke · schaetzen
+   ohneMarke: true = Fragetexte nicht hervorheben (wenn die Hervorhebung die Antwort verraten würde).
+   zuordnen mit modus: 'stapel' = eine Karte nach der anderen, Rückmeldung sofort (sonst alle Karten auf einmal).
    n = 'basis' | 'stern' | 'beide' (Übung);  bei Fragen/Elementen: stern: true = nur „Basis + ★“, ein: true = auch im Einstieg
    Schreibweise: E_pot -> tiefgestellt, √{…} -> Wurzel. */
 window.UEBUNGEN = [
 
   // ======================= Energieformen & Umwandlung =======================
-  { id: 'energieformen', r: 'formen', typ: 'zuordnen', n: 'basis', ein: true, titel: 'Energieformen zuordnen',
+  { id: 'energieformen', r: 'formen', typ: 'zuordnen', modus: 'stapel', n: 'basis', ein: true, titel: 'Energieformen zuordnen',
     intro: 'In welcher Energieform steckt die Energie vor allem? Ordne jedes Beispiel der passenden Energieform zu.',
     kategorien: ['Lageenergie', 'Bewegungsenergie', 'Spannenergie', 'chemische Energie', 'elektrische Energie', 'Strahlungsenergie', 'thermische Energie'],
     elemente: [
-      { t: 'Wasser in einem hoch gelegenen Stausee', k: 0, ein: true },
-      { t: 'ein Radfahrer, der schnell fährt', k: 1, ein: true },
-      { t: 'die gespannte Feder in einem Kugelschreiber', k: 2 },
-      { t: 'ein Butterbrot in der Brotdose', k: 3, ein: true },
-      { t: 'eine geladene Batterie im Schrank', k: 3, e: 'In der Batterie ist die Energie chemisch gespeichert. Erst beim Benutzen wird daraus elektrische Energie.' },
-      { t: 'Sonnenlicht, das auf ein Dach fällt', k: 5, ein: true },
-      { t: 'eine Tasse heißer Tee', k: 6, ein: true },
-      { t: 'Energie, die durch das Ladekabel zum Handy fließt', k: 4 },
-      { t: 'ein Apfel, der oben am Baum hängt', k: 0 },
-      { t: 'ein gedehntes Gummiband', k: 2 },
-      { t: 'ein rollender Fußball', k: 1, ein: true },
-      { t: 'Holz, das neben dem Kamin liegt', k: 3 }
+      { t: 'Wasser in einem hoch gelegenen Stausee', k: 0, ein: true, b: 'stausee', e: 'Das Wasser liegt hoch oben. Energie, die in der Höhe steckt, ist Lageenergie.' },
+      { t: 'ein Radfahrer, der schnell fährt', k: 1, ein: true, b: 'radfahrer', e: 'Der Radfahrer bewegt sich schnell. Darin steckt Bewegungsenergie.',
+        k2: 3, e2: 'Auch richtig: In seinen Muskeln steckt chemische Energie aus der Nahrung. Weil er gerade schnell fährt, steckt die Energie aber vor allem in der Bewegung.' },
+      { t: 'die gespannte Feder in einem Kugelschreiber', k: 2, b: 'feder', e: 'Die Feder ist zusammengedrückt, also gespannt. Darin steckt Spannenergie.' },
+      { t: 'ein Butterbrot in der Brotdose', k: 3, ein: true, b: 'butterbrot', e: 'Nahrung enthält chemische Energie. Unser Körper kann sie nutzen.' },
+      { t: 'eine geladene Batterie im Schrank', k: 3, b: 'batterie', e: 'In der Batterie ist die Energie chemisch gespeichert. Erst beim Benutzen wird daraus elektrische Energie.' },
+      { t: 'Sonnenlicht, das auf ein Dach fällt', k: 5, ein: true, b: 'sonnedach', e: 'Licht ist Strahlungsenergie.' },
+      { t: 'eine Tasse heißer Tee', k: 6, ein: true, b: 'tee', e: 'Der Tee ist heiß. Darin steckt thermische Energie.' },
+      { t: 'Strom im Ladekabel des Handys', k: 4, b: 'ladekabel', e: 'Durch das Kabel fließt elektrischer Strom. Er transportiert elektrische Energie.' },
+      { t: 'ein Apfel, der oben am Baum hängt', k: 0, b: 'apfelbaum', e: 'Der Apfel hängt hoch oben und kann herunterfallen. Darin steckt Lageenergie.',
+        k2: 3, e2: 'Auch richtig: Im Apfel steckt als Nahrung chemische Energie. Hier geht es aber vor allem um die Höhe am Baum.' },
+      { t: 'ein gedehntes Gummiband', k: 2, b: 'gummiband', e: 'Das Gummiband ist gedehnt, also gespannt. Darin steckt Spannenergie.' },
+      { t: 'ein rollender Fußball', k: 1, ein: true, b: 'fussball', e: 'Der Ball rollt, er bewegt sich also. Darin steckt Bewegungsenergie.' },
+      { t: 'Holz, das neben dem Kamin liegt', k: 3, b: 'holz', e: 'Holz ist ein Brennstoff. Darin steckt chemische Energie. Erst beim Verbrennen wird daraus thermische Energie.' }
     ] },
 
   { id: 'umwandlungsketten', r: 'formen', typ: 'sortieren', n: 'beide', titel: 'Umwandlungsketten sortieren',
-    intro: 'Bringe die Schritte jeder Kette in die richtige Reihenfolge. Verschiebe sie mit den Pfeilen.',
+    intro: 'Bringe die Schritte jeder Kette in die richtige Reihenfolge.',
     ketten: [
       { titel: 'Wasserkraftwerk', schritte: [
         'Das Wasser im Stausee hat Lageenergie.',
@@ -45,7 +49,7 @@ window.UEBUNGEN = [
         'Turbine und Generator erzeugen daraus elektrische Energie.'] }
     ] },
 
-  { id: 'alltag-physik', r: 'formen', typ: 'quiz', n: 'basis', ein: true, titel: 'Alltag oder Physik?',
+  { id: 'alltag-physik', r: 'formen', typ: 'quiz', ohneMarke: true, n: 'basis', ein: true, titel: 'Alltag oder Physik?',
     intro: 'Ist der Satz physikalisch richtig oder Alltagssprache? Lies danach die Erklärung.',
     fragen: [
       { f: '„Mein Handy-Akku ist leer, die Energie ist weg.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 1, ein: true,

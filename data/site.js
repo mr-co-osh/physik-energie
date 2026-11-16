@@ -4,6 +4,12 @@
 window.SITE = {
   prefix: 'phy-ene',
   fach: 'Physik 9/10', rahmen: 'Rahmenthema 3', titel: 'Energie',
+  /* Fachbegriffe, die in Übungen und im Kraftwerke-Labor fett hervorgehoben werden (aus dem Glossar; Energieformen werden automatisch farbig) */
+  begriffe: ['Energiewandler', 'Energieumwandlungskette', 'Energieumwandlung', 'Umwandlungskette', 'Energieflussdiagramm', 'Energietransport', 'Energieentwertung', 'Energieerhaltung',
+    'Perpetuum mobile', 'Ortsfaktor', 'Energiebilanz', 'Leistung', 'Kilowattstunde', 'Stromkosten', 'Energiekostenmessgerät', 'Energielabel', 'Energieeffizienz', 'Wirkungsgrad',
+    'Nutzenergie', 'Wärmekraftwerk', 'Kessel', 'Turbine', 'Generator', 'Kühlturm', 'Kraft-Wärme-Kopplung', 'Fernwärme', 'fossile Energieträger', 'Treibhauseffekt', 'Treibhausgas',
+    'Kohlenstoffdioxid', 'Rückstrahlvermögen', 'Kippelement', 'Klimawandel', 'erneuerbare Energien', 'Windkraftanlage', 'Photovoltaik', 'Solarthermie', 'Biogas', 'Geothermie',
+    'Wärmepumpe', 'Strommix', 'Energiespeicher', 'Akku', 'Pumpspeicherkraftwerk', 'Elektrolyse', 'Wasserstoff'],
   leitfrage: 'Wie kommt Energie in unsere Steckdose – und wie bekommen wir sie klimafreundlich dorthin?',
   phasen: [
     { n: 1, name: 'Energie verstehen', ds: 'DS 1–6', anzahl: 6 },

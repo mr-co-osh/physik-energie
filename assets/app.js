@@ -18,6 +18,27 @@
         .replace(/([A-Za-zη])_([A-Za-z0-9]+)/g, '$1<sub>$2</sub>')
         .replace(/√\{([^{}]*)\}/g, '<span class="rad" role="math" aria-label="Wurzel aus $1"><span class="rad-s">√</span><span class="rad-b">$1</span></span>');
     },
+    /* Hervorheben (Webseiten-Standard 9): Energieformen fett in ihrer Farbe, Fachbegriffe fett.
+       Nur für Texte, in denen das Wort nicht die Lösung ist (nie in Antwortoptionen, Lücken, Zuordnen-Karten). */
+    mark: function (html, nurFormen) {
+      var forms = [[/^(chemisch)/i, 'CE'], [/^(elektrisch)/i, 'EE'], [/^(thermisch)/i, 'TE'], [/^lage|^potenziell/i, 'LE'], [/^beweg|^kinetisch/i, 'BE'], [/^spann/i, 'SpE'], [/^strahl/i, 'StE']];
+      if (!App._re) {
+        var B = ((window.SITE && SITE.begriffe) || []).slice().sort(function (a, b) { return b.length - a.length; })
+          .map(function (w) { return w.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'); });
+        App._ref = /\b((?:chemisch|elektrisch|thermisch|potenziell|kinetisch)(?:e|en|er|es)? Energie|(?:Lage|Bewegungs|Spann|Strahlungs)energie)\b/;
+        App._re = new RegExp('(' + App._ref.source.slice(2, -2) + ')' + (B.length ? '|\\b(' + B.join('|') + ')(?:n|s|en|es|e)?\\b' : ''), 'g');
+      }
+      return html.split(/(<[^>]+>)/).map(function (part, i, all) {
+        if (i % 2) return part;
+        var inTag = all.slice(0, i).join('').match(/<(sub|b|strong|span class="rad[^"]*")[^>]*>[^<]*$/);
+        if (inTag) return part;
+        return part.replace(App._re, function (m, f, t) {
+          if (f) { var c = 'TE'; forms.some(function (x) { if (x[0].test(f)) { c = x[1]; return true; } }); return '<b class="ef ef-' + c + '">' + f + '</b>'; }
+          return nurFormen ? m : '<b class="fbg">' + m + '</b>';
+        });
+      }).join('');
+    },
+    fmtM: function (s, nurFormen) { return App.mark(App.fmt(s), nurFormen); },
     /* Zahl deutsch: Komma, Leerzeichen als Tausendertrennung ab 10 000 */
     num: function (x, dec) {
       var s = dec == null ? String(+x.toPrecision(10)) : x.toFixed(dec);
