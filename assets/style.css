@@ -167,6 +167,7 @@ footer .wrap { padding-block: 18px 28px; display: flex; gap: 12px 24px; flex-wra
 :root { --ef-CE: #6E4BA8; --ef-EE: #8A6A00; --ef-BE: #1F67AE; --ef-LE: #2B7A49; --ef-TE: #BF3A35; --ef-StE: #B05A0C; --ef-SpE: #5E5E5E; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ef-CE: #C3AAEB; --ef-EE: #F5D25C; --ef-BE: #8CC0F0; --ef-LE: #86CFA0; --ef-TE: #F29591; --ef-StE: #F7B878; --ef-SpE: #C4C4C4; } }
 :root[data-theme="dark"] { --ef-CE: #C3AAEB; --ef-EE: #F5D25C; --ef-BE: #8CC0F0; --ef-LE: #86CFA0; --ef-TE: #F29591; --ef-StE: #F7B878; --ef-SpE: #C4C4C4; }
+.ef, .fbg { -webkit-hyphens: manual; hyphens: manual; }   /* hervorgehobene Wörter nicht mitten im Wort trennen */
 .ef { font-weight: 700; }
 .ef-CE { color: var(--ef-CE); } .ef-EE { color: var(--ef-EE); } .ef-BE { color: var(--ef-BE); } .ef-LE { color: var(--ef-LE); }
 .ef-TE { color: var(--ef-TE); } .ef-StE { color: var(--ef-StE); } .ef-SpE { color: var(--ef-SpE); }

@@ -80,7 +80,7 @@
         list.map(function (t) {
           return '<details class="g-row"' + (q ? ' open' : '') + '><summary><b>' + hi(A.esc(t.b), q) + '</b>' + (t.k ? '<span class="k">' + A.fmt(t.k) + '</span>' : '') +
             '<span class="g-meta">' + (t.n === 'stern' ? '<span class="tag star">★</span>' : '<span class="tag">Basis</span>') + ' DS ' + A.esc(t.ds) + '</span></summary>' +
-            '<div class="g-body"><p>' + hi(A.fmt(t.e), q) + '</p><p class="g-ex"><b>Beispiel:</b> ' + A.fmt(t.s) + '</p></div></details>';
+            '<div class="g-body"><p>' + hi(A.fmtM(t.e, true), q) + '</p><p class="g-ex"><b>Beispiel:</b> ' + A.fmtM(t.s, true) + '</p></div></details>';
         }).join('') + '</div></section>';
     }).join('');
     $('liste').innerHTML = html || '<p class="muted">Kein Begriff gefunden. Prüfe die Schreibweise.</p>';

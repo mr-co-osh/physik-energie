@@ -63,15 +63,15 @@
   function card(f) {
     var b = f.beispiel;
     var leg = '<table class="leg"><thead><tr><th>Größe</th><th>Zeichen</th><th>Einheit</th></tr></thead><tbody>' +
-      f.legende.map(function (r) { return '<tr><td>' + A.esc(r[0]) + '</td><td>' + A.fmt(r[1]) + '</td><td>' + A.esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table>';
+      f.legende.map(function (r) { return '<tr><td>' + A.mark(A.esc(r[0]), true) + '</td><td>' + A.fmt(r[1]) + '</td><td>' + A.esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table>';
     var um = f.umstellen.length ? '<div class="um"><span class="eyebrow">Umstellen</span>' + f.umstellen.map(function (u) {
       return '<div class="um-row"><span>' + A.fmt(u.f) + '</span>' + lv(u.n) + '</div>'; }).join('') + '</div>' : '';
     return '<article class="f-card" id="' + f.id + '"><div class="f-head"><h2>' + A.esc(f.titel) + '</h2><span class="g-meta" style="display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)">' +
       lv(f.n) + ' ' + A.esc(NAMES[f.r]) + ' · DS ' + A.esc(f.ds) + '</span></div><div class="f-body">' +
       '<div style="display:flex;flex-direction:column;gap:12px;min-width:0"><div class="f-box"><div class="formel">' + A.fmt(f.formel) + '</div>' + leg + '</div>' + um +
-      '<p class="hint">' + A.fmt(f.hinweis) + '</p></div>' +
-      '<div class="ex"><span class="eyebrow">Beispielrechnung</span><p>' + A.fmt(b.aufgabe) + '</p><dl><dt>gegeben</dt><dd>' + A.fmt(b.gegeben) + '</dd><dt>gesucht</dt><dd>' + A.fmt(b.gesucht) + '</dd></dl>' +
-      '<ol>' + b.rechnung.map(function (r) { return '<li>' + A.fmt(r) + '</li>'; }).join('') + '</ol><p class="ans"><b>Antwort:</b> ' + A.fmt(b.antwort) + '</p></div></div>' +
+      '<p class="hint">' + A.fmtM(f.hinweis, true) + '</p></div>' +
+      '<div class="ex"><span class="eyebrow">Beispielrechnung</span><p>' + A.fmtM(b.aufgabe, true) + '</p><dl><dt>gegeben</dt><dd>' + A.fmt(b.gegeben) + '</dd><dt>gesucht</dt><dd>' + A.fmt(b.gesucht) + '</dd></dl>' +
+      '<ol>' + b.rechnung.map(function (r) { return '<li>' + A.fmtM(r, true) + '</li>'; }).join('') + '</ol><p class="ans"><b>Antwort:</b> ' + A.fmtM(b.antwort, true) + '</p></div></div>' +
       '<div class="f-foot"><a href="formel-trainer.html#' + f.r + '">Im Formel-Trainer üben →</a></div></article>';
   }
   $('reiter').innerHTML = TABS.map(function (t) {

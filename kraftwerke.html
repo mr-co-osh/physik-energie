@@ -761,12 +761,12 @@
     }).join('');
     $('ctrls').querySelectorAll('input[type=range]').forEach(function (inp) { inp.oninput = function () { state[inp.id.slice(2)] = +inp.value; update(); }; });
     $('ctrls').querySelectorAll('.sw button').forEach(function (b) { b.onclick = function () { state[b.dataset.c] = +b.dataset.v; b.parentNode.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); update(); }; });
-    /* Steckbrief: Energieformen und Bauteile fett, damit man den Text schnell überblickt */
-    var terms = ['chemische Energie', 'chemischer Energie', 'thermische Energie', 'thermischer Energie', 'elektrischer Energie', 'Bewegungsenergie', 'elektrische Energie', 'Lageenergie', 'Strahlungsenergie', 'Umweltwärme', 'Kraft-Wärme-Kopplung', 'Wasser-Dampf-Kreislauf', 'Kühlkreislauf', 'Fernwärme', 'Wirkungsgrad']
+    /* Steckbrief: Energieformen farbig (App.mark), Bauteile und Fachbegriffe fett, damit man den Text schnell überblickt */
+    var terms = ['Umweltwärme', 'Kraft-Wärme-Kopplung', 'Wasser-Dampf-Kreislauf', 'Kühlkreislauf', 'Fernwärme', 'Wirkungsgrad']
       .concat((cur.info || []).map(function (it) { return it[2]; }).filter(function (t) { return !/ und /.test(t); }), ['Kessel', 'Turbine', 'Generator', 'Wehr', 'Rotorblätter', 'Solarzellen', 'Wechselrichter', 'Fermenter', 'Gasmotor', 'Kollektor', 'Speicher', 'Wärmetauscher', 'Verdichter', 'Kältemittel', 'Pumpe', 'Elektromotor', 'Motor'])
       .sort(function (a, b) { return b.length - a.length; });
     var re = new RegExp('(^|[^A-Za-zÄÖÜäöüß-])(' + terms.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'); }).join('|') + ')(?=$|[^A-Za-zÄÖÜäöüß])', 'g');
-    $('schritte').innerHTML = cur.steps.map(function (t) { return '<li>' + A.fmt(t).replace(re, '$1<strong>$2</strong>') + '</li>'; }).join('');
+    $('schritte').innerHTML = cur.steps.map(function (t) { return '<li>' + A.mark(A.fmt(t).replace(re, '$1<strong class="fbg">$2</strong>')) + '</li>'; }).join('');
     var rows = Math.max(cur.pro.length, cur.con.length), tb = '';
     for (var i = 0; i < rows; i++) tb += '<tr><td>' + A.esc(cur.pro[i] || '') + '</td><td>' + A.esc(cur.con[i] || '') + '</td></tr>';
     $('pc').innerHTML = tb;
