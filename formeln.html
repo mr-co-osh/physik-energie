@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formelsammlung · Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .toc a { text-decoration: none; }
+  .f-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; scroll-margin-top: 16px; }
+  .mappe .f-card { border: 0; border-radius: 0; overflow: visible; }
+  .mappe .f-card + .f-card { border-top: 2px solid var(--line); padding-top: 8px; }
+  .f-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 16px 20px 0; }
+  .f-head h2 { font-size: 22px; }
+  .f-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; padding: 14px 20px 20px; }
+  @media (max-width: 820px) { .f-body { grid-template-columns: 1fr; } }
+  .f-box { background: var(--sky); border: 1.5px solid var(--blue); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .f-box .formel { text-align: center; }
+  .leg { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .leg th { text-align: left; font-weight: 700; color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 6px; }
+  .leg td { padding: 5px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+  .leg td:nth-child(2) { font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .um { display: flex; flex-direction: column; gap: 6px; }
+  .um-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 19px; font-weight: 700; color: var(--ink); }
+  .hint { font-size: 15px; color: var(--muted); }
+  .ex { display: flex; flex-direction: column; gap: 8px; }
+  .ex .eyebrow { color: var(--blue); }
+  .ex dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; }
+  .ex dt { font-weight: 700; color: var(--muted); }
+  .ex dd { margin: 0; min-width: 0; }
+  .ex ol { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; font-size: 18px; }
+  .ex .ans { background: var(--mint); color: var(--text); border-radius: 10px; padding: 10px 12px; }
+  .ex .ans b { color: var(--green-d); }
+  .conv { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .conv div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 17px; }
+  .conv b { color: var(--ink); }
+  .f-foot { padding: 0 20px 18px; }
+</style>
+</head>
+<body>
+<header class="band band-mini"><div class="wrap"><a class="back" href="./">← Energie</a><h1>Formelsammlung</h1></div></header>
+<main class="wrap">
+  <section class="page-intro" aria-label="Inhalt">
+    <p>Jede Formel mit Legende, den Umstellungen und einer Beispielrechnung. Rechne immer so: <b>gegeben – gesucht – Formel – Rechnung – Antwortsatz</b>.</p>
+  </section>
+  <div>
+    <div class="reiter" role="tablist" aria-label="Themen" id="reiter" style="--n:4"></div>
+    <div class="mappe" role="tabpanel" id="liste"></div>
+  </div>
+</main>
+<script src="data/site.js"></script>
+<script src="data/formeln.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var A = window.App, F = window.FORMELN, $ = function (id) { return document.getElementById(id); };
+  var NAMES = {}; window.SITE.bereiche.forEach(function (b) { NAMES[b.id] = b.titel; });
+  function lv(n) { return n === 'stern' ? '<span class="tag star">★</span>' : '<span class="tag">Basis</span>'; }
+  var TABS = [['berechnen', 'Energie berechnen'], ['strom', 'Strom & Kosten'], ['wirkung', 'Wirkungsgrad'], ['umrechnen', 'Umrechnen']];
+  function card(f) {
+    var b = f.beispiel;
+    var leg = '<table class="leg"><thead><tr><th>Größe</th><th>Zeichen</th><th>Einheit</th></tr></thead><tbody>' +
+      f.legende.map(function (r) { return '<tr><td>' + A.esc(r[0]) + '</td><td>' + A.fmt(r[1]) + '</td><td>' + A.esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table>';
+    var um = f.umstellen.length ? '<div class="um"><span class="eyebrow">Umstellen</span>' + f.umstellen.map(function (u) {
+      return '<div class="um-row"><span>' + A.fmt(u.f) + '</span>' + lv(u.n) + '</div>'; }).join('') + '</div>' : '';
+    return '<article class="f-card" id="' + f.id + '"><div class="f-head"><h2>' + A.esc(f.titel) + '</h2><span class="g-meta" style="display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)">' +
+      lv(f.n) + ' ' + A.esc(NAMES[f.r]) + ' · DS ' + A.esc(f.ds) + '</span></div><div class="f-body">' +
+      '<div style="display:flex;flex-direction:column;gap:12px;min-width:0"><div class="f-box"><div class="formel">' + A.fmt(f.formel) + '</div>' + leg + '</div>' + um +
+      '<p class="hint">' + A.fmt(f.hinweis) + '</p></div>' +
+      '<div class="ex"><span class="eyebrow">Beispielrechnung</span><p>' + A.fmt(b.aufgabe) + '</p><dl><dt>gegeben</dt><dd>' + A.fmt(b.gegeben) + '</dd><dt>gesucht</dt><dd>' + A.fmt(b.gesucht) + '</dd></dl>' +
+      '<ol>' + b.rechnung.map(function (r) { return '<li>' + A.fmt(r) + '</li>'; }).join('') + '</ol><p class="ans"><b>Antwort:</b> ' + A.fmt(b.antwort) + '</p></div></div>' +
+      '<div class="f-foot"><a href="formel-trainer.html#' + f.r + '">Im Formel-Trainer üben →</a></div></article>';
+  }
+  $('reiter').innerHTML = TABS.map(function (t) {
+    var n = F.filter(function (f) { return f.r === t[0]; }).length;
+    return '<button type="button" role="tab" data-t="' + t[0] + '" aria-controls="liste">' + t[1] + '<small>' + (n ? n + (n === 1 ? ' Formel' : ' Formeln') : 'Einheiten') + '</small></button>';
+  }).join('');
+  function show(t, scrollTo) {
+    $('reiter').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.t === t)); });
+    $('liste').innerHTML = t === 'umrechnen'
+      ? '<h2>Umrechnen</h2><div class="conv">' + window.UMRECHNUNGEN.map(function (u) { return '<div><b>' + A.esc(u[0]) + '</b> = ' + A.esc(u[1]) + '</div>'; }).join('') + '</div><p><a href="formel-trainer.html#umrechnen">Umrechnen im Formel-Trainer üben →</a></p>'
+      : F.filter(function (f) { return f.r === t; }).map(card).join('');
+    A.save('formeln-reiter', t);
+    if (scrollTo) { var el = document.getElementById(scrollTo); if (el) el.scrollIntoView(); }
+  }
+  $('reiter').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { show(b.dataset.t); try { history.replaceState(null, '', '#' + b.dataset.t); } catch (err) { } } });
+  function fromHash() {   /* #strom, #wirkung … oder alte Links auf eine Formel (#lageenergie) */
+    var h = location.hash.slice(1), f = F.filter(function (x) { return x.id === h; })[0];
+    if (f) show(f.r, f.id); else show(TABS.some(function (t) { return t[0] === h; }) ? h : A.load('formeln-reiter', 'berechnen'));
+  }
+  window.addEventListener('hashchange', fromHash); fromHash();
+})();
+</script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+</body>
+</html>

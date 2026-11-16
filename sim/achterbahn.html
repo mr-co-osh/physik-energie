@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Achterbahn-Prüfstand</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/fonts/sim-fonts.css">
+<style>
+/* Layout: Prüfstand-Leitstand – links die Teststrecke auf Millimeterpapier, rechts der Auftragszettel des Ingenieurbüros */
+:root{
+  --paper:#F2F5F3; --grid:#D9E3DE; --grid-strong:#BFD0C8; --panel:#FFFFFF; --line:#C9D6D0;
+  --ink:#16262A; --muted:#55686B; --accent:#E3A11B; --accent-ink:#2E2200; --accent-soft:#FBEFD2;
+  --pot:#3E9E63; --kin:#2F7FC6; --therm:#D9534F; --ok:#23845A; --ok-soft:#DDF1E6; --bad:#B8362B; --bad-soft:#F8E0DD;
+  --rail:#2B3A3E; --support:#9AAAA6; --sky:#F7FAF8; --ground:#E4DDD2; --ground-line:#7A6A52;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0E191C; --grid:#172A2E; --grid-strong:#21393E; --panel:#132226; --line:#284045;
+  --ink:#E3EDEA; --muted:#93A8A8; --accent:#F0B43E; --accent-ink:#241A00; --accent-soft:#3A2F14;
+  --pot:#5CC184; --kin:#5EA6E8; --therm:#EE6E69; --ok:#4CC08A; --ok-soft:#163528; --bad:#F07A6E; --bad-soft:#3A1C19;
+  --rail:#CFDAD6; --support:#4E6468; --sky:#11201F; --ground:#2A2620; --ground-line:#8C7B60; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0E191C; --grid:#172A2E; --grid-strong:#21393E; --panel:#132226; --line:#284045;
+  --ink:#E3EDEA; --muted:#93A8A8; --accent:#F0B43E; --accent-ink:#241A00; --accent-soft:#3A2F14;
+  --pot:#5CC184; --kin:#5EA6E8; --therm:#EE6E69; --ok:#4CC08A; --ok-soft:#163528; --bad:#F07A6E; --bad-soft:#3A1C19;
+  --rail:#CFDAD6; --support:#4E6468; --sky:#11201F; --ground:#2A2620; --ground-line:#8C7B60; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,5vw,54px);line-height:.95;letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h1 span{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:0 .18em;margin-left:.12em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.stamp-id{font-family:var(--f-mono);font-size:12px;color:var(--muted);border:1.5px solid var(--line);padding:6px 10px;background:var(--panel);text-align:right;line-height:1.4}
+.rail{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rail .grp{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.chip{font-family:var(--f-mono);font-weight:600;font-size:14px;min-width:44px;height:40px;padding:0 10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.chip:hover{border-color:var(--ink)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip[aria-current="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.done{border-color:var(--ok);color:var(--ok)}
+.chip.done[aria-current="true"]{background:var(--ok);color:var(--panel)}
+.sep{width:1px;height:28px;background:var(--line);margin:0 6px}
+.main{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.stage{background:var(--panel);border:1.5px solid var(--line);display:grid;min-width:0}
+.stage-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1.5px solid var(--line);font-family:var(--f-mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.stage-head b{color:var(--ink);font-weight:600}
+.canvas-box{position:relative;width:100%;aspect-ratio:16/7.2;max-width:100%}
+@media (max-width:560px){.canvas-box{aspect-ratio:16/10}}
+canvas{display:block;width:100%;height:100%}
+.verdict{position:absolute;left:50%;top:16%;transform:translate(-50%,0) rotate(-4deg);font-family:var(--f-display);font-weight:800;font-size:clamp(22px,4.4vw,46px);letter-spacing:.06em;text-transform:uppercase;padding:2px 16px;border:4px solid currentColor;background:color-mix(in srgb,var(--panel) 82%,transparent);pointer-events:none;white-space:nowrap}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.tele{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,2.2fr);gap:0;border-top:1.5px solid var(--line)}
+@media (max-width:560px){.tele{grid-template-columns:1fr 1fr}.bars{grid-column:1/-1}}
+.gauge{padding:10px 12px;border-right:1.5px solid var(--line)}
+.gauge .lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gauge .val{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.gauge .val small{font-size:13px;color:var(--muted);font-weight:400}
+.bars{padding:8px 12px;display:grid;gap:5px}
+.bar{display:grid;grid-template-columns:122px minmax(0,1fr) 74px;align-items:center;gap:8px;font-size:12px}
+.bar .t{color:var(--muted)}
+.bar .track{height:12px;background:var(--grid);position:relative;overflow:hidden}
+.bar .fill{position:absolute;inset:0 auto 0 0;width:0}
+.bar .num{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.f-pot{background:var(--pot)} .f-kin{background:var(--kin)} .f-therm{background:var(--therm)}
+.card{background:var(--panel);border:1.5px solid var(--line);min-width:0}
+.card-head{padding:10px 14px;border-bottom:1.5px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card-head .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.card-head h2{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.lvl-tag{font-family:var(--f-mono);font-size:11px;padding:2px 6px;border:1.5px solid currentColor;white-space:nowrap}
+.lvl-tag.basis{color:var(--muted)} .lvl-tag.star{color:var(--accent)}
+.card-body{padding:14px;display:grid;gap:12px}
+.story{margin:0}
+.spec{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14px;margin:0;padding:10px 12px;background:var(--paper);border:1px dashed var(--line)}
+.spec dt{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+.spec dd{margin:0;font-family:var(--f-mono)}
+.ask{font-weight:600}
+form.entry{display:grid;gap:10px}
+.inrow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.inrow label{flex-basis:100%;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.inrow input{flex:1 1 140px;min-width:0;font-family:var(--f-mono);font-size:22px;padding:8px 10px;border:2px solid var(--ink);background:var(--panel);color:var(--ink);font-variant-numeric:tabular-nums}
+.inrow select,.unit{font-family:var(--f-mono);font-size:16px;padding:0 10px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);display:inline-flex;align-items:center}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font-family:var(--f-body);font-weight:600;font-size:15px;cursor:pointer;border:2px solid var(--ink);padding:10px 14px;background:var(--panel);color:var(--ink)}
+button.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 180px;font-family:var(--f-display);font-size:22px;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px}
+button.go:hover{filter:brightness(1.05)}
+button.ghost{border-color:var(--line)}
+button[disabled]{opacity:.5;cursor:not-allowed}
+.msg{padding:10px 12px;border-left:5px solid var(--muted);background:var(--paper);font-size:14px}
+.msg.ok{border-color:var(--ok);background:var(--ok-soft)} .msg.bad{border-color:var(--bad);background:var(--bad-soft)}
+.msg.hint{border-color:var(--accent);background:var(--accent-soft)}
+.msg .calc{font-family:var(--f-mono);display:block;margin-top:4px}
+.words{display:grid;gap:10px;padding:12px 14px;border-top:1.5px solid var(--line)}
+.word{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.word .wl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:118px}
+.slot{width:34px;height:40px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:800;font-size:26px;color:var(--ok);background:var(--panel)}
+.slot.got{border-color:var(--ok);background:var(--ok-soft)}
+.diploma{font-size:14px;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;margin-right:5px;vertical-align:-1px}
+.foot{font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){.verdict{transform:translate(-50%,0)}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Achterbahn-<span>Prüfstand</span></h1>
+      <p class="sub">Ihr arbeitet im Ingenieurbüro. Jede Bahn wird erst freigegeben, wenn eure Rechnung stimmt: Euer Ergebnis stellt das Bauteil ein – dann startet die Testfahrt.</p>
+    </div>
+    <div class="stamp-id">PRÜFPROTOKOLL PHY-ENE-05A<br>g = 9,81 m/s² · ohne Reibung, außer Level 9</div>
+  </header>
+
+  <nav class="rail" aria-label="Level auswählen" id="rail"></nav>
+
+  <div class="main">
+    <section class="stage" aria-label="Teststrecke">
+      <div class="stage-head"><span>TESTSTRECKE · <b id="trackName">–</b></span><span id="trackScale">Raster: 5 m</span></div>
+      <div class="canvas-box">
+        <canvas id="cv" aria-label="Animierte Achterbahn"></canvas>
+        <div class="verdict" id="verdict" hidden></div>
+      </div>
+      <div class="tele">
+        <div class="gauge"><div class="lab">Höhe h</div><div class="val"><span id="gH">0,0</span> <small>m</small></div></div>
+        <div class="gauge"><div class="lab">Geschwindigkeit v</div><div class="val"><span id="gV">0,0</span> <small>m/s</small></div></div>
+        <div class="bars" aria-label="Energiekonto des Zuges">
+          <div class="bar"><span class="t">Lageenergie</span><span class="track"><span class="fill f-pot" id="bPot"></span></span><span class="num" id="nPot">0 kJ</span></div>
+          <div class="bar"><span class="t">Bewegungsenergie</span><span class="track"><span class="fill f-kin" id="bKin"></span></span><span class="num" id="nKin">0 kJ</span></div>
+          <div class="bar"><span class="t">thermische Energie</span><span class="track"><span class="fill f-therm" id="bTherm"></span></span><span class="num" id="nTherm">0 kJ</span></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card" aria-live="polite">
+      <div class="card-head"><div><div class="no" id="lvlNo">Level 1 von 9</div><h2 id="lvlTitle">–</h2></div><span class="lvl-tag basis" id="lvlTag">Basis</span></div>
+      <div class="card-body">
+        <p class="story" id="story"></p>
+        <dl class="spec" id="spec"></dl>
+        <p class="ask" id="ask"></p>
+        <form class="entry" id="form" autocomplete="off">
+          <div class="inrow">
+            <label for="ans" id="ansLabel">Ergebnis</label>
+            <input id="ans" inputmode="decimal" placeholder="z. B. 12,5" aria-describedby="ansLabel">
+            <select id="unitE" aria-label="Einheit"><option value="J">J</option><option value="kJ">kJ</option></select>
+            <span class="unit" id="unitFix" hidden>m/s</span>
+          </div>
+          <div class="btns">
+            <button type="submit" class="go" id="go">Testfahrt starten</button>
+            <button type="button" class="ghost" id="hintBtn">Tipp</button>
+            <button type="button" class="ghost" id="solBtn" hidden>Lösungsweg</button>
+          </div>
+        </form>
+        <div id="feedback"></div>
+      </div>
+      <div class="words">
+        <div class="word"><span class="wl">Lösungswort Basis</span><span id="w1"></span></div>
+        <div class="word"><span class="wl">Lösungswort ★</span><span id="w2"></span></div>
+        <p class="diploma" id="diploma">Jede freigegebene Bahn liefert einen Buchstaben.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--pot)"></i>Lageenergie</span>
+    <span><i style="background:var(--kin)"></i>Bewegungsenergie</span>
+    <span><i style="background:var(--therm)"></i>thermische Energie (Bremse, Reibung)</span>
+    <span><i style="background:var(--accent)"></i>einstellbares Bauteil</span>
+  </div>
+  <p class="foot">Toleranz: Ergebnisse dürfen bis zu 3,5 % abweichen (Rundung, g ≈ 10 m/s²). Dezimalzahlen mit Komma oder Punkt eingeben.</p>
+</div>
+
+<script>
+(()=>{
+const G = 9.81, TOL = 0.035;
+const fmt = (x,d=1)=> x.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtJ = j => Math.round(j).toLocaleString('de-DE')+' J';
+const fmtkJ = j => fmt(j/1000, j<10000?2:1)+' kJ';
+
+/* ---------- Level-Daten ---------- */
+const LEVELS = [
+ {id:1, star:false, letter:'J', title:'Der Lifthügel', kind:'lift', m:400, H:25,
+  story:'Der Kettenlift zieht den Zug auf den ersten Hügel. Der Liftmotor muss dem Zug dabei genau die Lageenergie zuführen, die er oben braucht.',
+  spec:[['Masse','m = 400 kg'],['Höhe','h = 25 m']],
+  ask:'Wie viel Lageenergie muss der Liftmotor zuführen?', q:'E', truth:L=>L.m*G*L.H,
+  hint1:'E<sub>pot</sub> = m · g · h', hint2:'E<sub>pot</sub> = 400 kg · 9,81 m/s² · 25 m',
+  low:'Zu wenig Energie: Der Liftmotor gibt bei {h} m auf. Die Rücklaufsperre hält den Zug fest – er kommt nicht über den Hügel.',
+  high:'Zu viel Energie: Der Zug ist so schnell, dass er auf dem zweiten Hügel von den Schienen abhebt.'},
+ {id:2, star:false, letter:'O', title:'Die Endbremse', kind:'brake', m:500, startH:16*16/(2*G), brakeY:0, vIn:16,
+  story:'Vor dem Bahnhof misst ein Sensor die Geschwindigkeit des Zuges. Die Magnetbremse muss die gesamte Bewegungsenergie aufnehmen, damit der Zug genau am Bahnsteig hält.',
+  spec:[['Masse','m = 500 kg'],['Geschwindigkeit vor der Bremse','v = 16 m/s']],
+  ask:'Wie viel Bewegungsenergie muss die Bremse aufnehmen?', q:'E', truth:L=>0.5*L.m*16*16,
+  hint1:'E<sub>kin</sub> = ½ · m · v²', hint2:'E<sub>kin</sub> = ½ · 500 kg · (16 m/s)²  –  erst quadrieren, dann multiplizieren',
+  low:'Die Bremse nimmt zu wenig Energie auf. Der Zug kracht mit {v} m/s in den Prellbock.',
+  high:'Die Bremse ist zu stark eingestellt. Der Zug bleibt {d} m vor dem Bahnsteig stehen.'},
+ {id:3, star:false, letter:'U', title:'Der Katapultstart', kind:'launch', m:600, vL:20,
+  story:'Ein Linearmotor schießt den Zug aus dem Bahnhof. Am Ende der Abschussstrecke soll der Zug 20 m/s schnell sein.',
+  spec:[['Masse','m = 600 kg'],['Geschwindigkeit nach dem Abschuss','v = 20 m/s']],
+  ask:'Wie viel Bewegungsenergie muss der Linearmotor dem Zug geben?', q:'E', truth:L=>0.5*L.m*L.vL*L.vL,
+  hint1:'E<sub>kin</sub> = ½ · m · v²', hint2:'E<sub>kin</sub> = ½ · 600 kg · (20 m/s)²',
+  low:'Zu wenig Bewegungsenergie: Der Zug schafft den ersten Hügel nicht und rollt zurück.',
+  high:'Zu viel Bewegungsenergie: Der Zug hebt auf dem zweiten Hügel ab.'},
+ {id:4, star:false, letter:'L', title:'Die Talbremse', kind:'brake', m:500, startH:30, brakeY:0,
+  story:'Der Zug startet in Ruhe oben auf dem Hügel und rollt ohne Reibung ins Tal. Dort wartet die Bremse.',
+  spec:[['Masse','m = 500 kg'],['Starthöhe','h = 30 m (Start in Ruhe)'],['Bremse','im Tal, h = 0 m']],
+  ask:'Wie viel Bewegungsenergie hat der Zug unten im Tal?', q:'E', truth:L=>L.m*G*30,
+  hint1:'Energieerhaltung: Ohne Reibung wird die gesamte Lageenergie zu Bewegungsenergie. E<sub>kin</sub> (unten) = E<sub>pot</sub> (oben)',
+  hint2:'E<sub>kin</sub> = m · g · h = 500 kg · 9,81 m/s² · 30 m',
+  low:'Die Bremse nimmt zu wenig Energie auf. Der Zug kracht mit {v} m/s in den Prellbock.',
+  high:'Die Bremse ist zu stark eingestellt. Der Zug bleibt {d} m vor dem Bahnsteig stehen.'},
+ {id:5, star:false, letter:'E', title:'Bremse auf dem Plateau', kind:'brake', m:450, startH:36, brakeY:16, dip:4,
+  story:'Diesmal liegt der Bahnhof auf einem Plateau in 16 m Höhe. Der Zug startet in Ruhe auf 36 m, taucht in ein Tal und fährt dann auf das Plateau.',
+  spec:[['Masse','m = 450 kg'],['Starthöhe','36 m (Start in Ruhe)'],['Bremse','auf dem Plateau, h = 16 m']],
+  ask:'Wie viel Bewegungsenergie hat der Zug, wenn er auf dem Plateau ankommt?', q:'E', truth:L=>L.m*G*(36-16),
+  hint1:'Nur der Höhenunterschied wird zu Bewegungsenergie. Das Tal dazwischen spielt keine Rolle.',
+  hint2:'E<sub>kin</sub> = m · g · (36 m − 16 m) = 450 kg · 9,81 m/s² · 20 m',
+  low:'Die Bremse nimmt zu wenig Energie auf. Der Zug kracht mit {v} m/s in den Prellbock.',
+  high:'Die Bremse ist zu stark eingestellt. Der Zug bleibt {d} m vor dem Bahnsteig stehen.'},
+ {id:6, star:true, letter:'L', title:'Wie hoch darf der Hügel sein?', kind:'hill', m:400, vIn:14,
+  story:'Der Zug rauscht mit 14 m/s durch das Tal. Oben auf dem nächsten Hügel liegt ein Bahnhof. Der Zug soll genau dort ankommen und fast stehen bleiben.',
+  spec:[['Masse','m = 400 kg'],['Geschwindigkeit im Tal','v = 14 m/s']],
+  ask:'Wie hoch muss der Hügel mit dem Bahnhof sein?', q:'h', truth:L=>L.vIn*L.vIn/(2*G),
+  hint1:'½ · m · v² = m · g · h  →  h = v² / (2 · g). Die Masse kürzt sich heraus!', hint2:'h = (14 m/s)² / (2 · 9,81 m/s²)',
+  low:'Der Hügel ist zu niedrig. Der Zug kommt oben noch mit {v} m/s an und kracht in den Prellbock.',
+  high:'Der Hügel ist zu hoch. Der Zug schafft es nicht nach oben und rollt zurück.'},
+ {id:7, star:true, letter:'O', title:'Tempo im Tal', kind:'brake', m:500, startH:32, brakeY:0, vInput:true,
+  story:'Die neue Magnetbremse im Tal wird nicht über die Energie, sondern über die Einfahrtsgeschwindigkeit eingestellt. Der Zug startet in Ruhe auf 32 m.',
+  spec:[['Masse','m = 500 kg'],['Starthöhe','32 m (Start in Ruhe)'],['Bremse','im Tal, h = 0 m']],
+  ask:'Mit welcher Geschwindigkeit fährt der Zug in die Bremse?', q:'v', truth:L=>Math.sqrt(2*G*32),
+  hint1:'m · g · h = ½ · m · v²  →  v = √(2 · g · h)', hint2:'v = √(2 · 9,81 m/s² · 32 m)',
+  low:'Die Bremse ist für eine zu kleine Geschwindigkeit eingestellt. Der Zug kracht mit {v} m/s in den Prellbock.',
+  high:'Die Bremse ist für eine zu große Geschwindigkeit eingestellt. Der Zug bleibt {d} m vor dem Bahnsteig stehen.'},
+ {id:8, star:true, letter:'O', title:'Tempo auf dem Plateau', kind:'brake', m:450, startH:45, brakeY:20, dip:6, vInput:true,
+  story:'Der Zug startet in Ruhe auf 45 m. Die Bremse liegt auf einem Plateau in 20 m Höhe und wird wieder über die Geschwindigkeit eingestellt.',
+  spec:[['Masse','m = 450 kg'],['Starthöhe','45 m (Start in Ruhe)'],['Bremse','auf dem Plateau, h = 20 m']],
+  ask:'Wie schnell ist der Zug, wenn er auf dem Plateau ankommt?', q:'v', truth:L=>Math.sqrt(2*G*25),
+  hint1:'Nur der Höhenunterschied zählt: v = √(2 · g · Δh)', hint2:'v = √(2 · 9,81 m/s² · (45 m − 20 m))',
+  low:'Die Bremse ist für eine zu kleine Geschwindigkeit eingestellt. Der Zug kracht mit {v} m/s in den Prellbock.',
+  high:'Die Bremse ist für eine zu große Geschwindigkeit eingestellt. Der Zug bleibt {d} m vor dem Bahnsteig stehen.'},
+ {id:9, star:true, letter:'P', title:'Mit Reibung', kind:'hill', m:500, startH:40, loss:0.2,
+  story:'Echte Bahnen haben Reibung. Der Zug startet in Ruhe auf 40 m. Bis zum Bahnhof auf dem nächsten Hügel werden 20 % seiner Energie durch Reibung und Luftwiderstand zu thermischer Energie.',
+  spec:[['Masse','m = 500 kg'],['Starthöhe','40 m (Start in Ruhe)'],['Energieentwertung','20 % bis zum Bahnhof']],
+  ask:'Wie hoch darf der Hügel mit dem Bahnhof höchstens sein?', q:'h', truth:L=>0.8*40,
+  hint1:'Es bleiben nur 80 % der Lageenergie übrig: m · g · h<sub>neu</sub> = 0,8 · m · g · 40 m', hint2:'h<sub>neu</sub> = 0,8 · 40 m',
+  low:'Der Hügel ist zu niedrig. Der Zug kommt oben noch mit {v} m/s an und kracht in den Prellbock.',
+  high:'Der Hügel ist zu hoch. Selbst mit Schwung schafft es der Zug nicht nach oben und rollt zurück.'},
+];
+
+/* ---------- Strecke ---------- */
+function buildPath(pts){
+  const xs=[],ys=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [x0,y0]=pts[i],[x1,y1]=pts[i+1]; const n=Math.max(2,Math.ceil((x1-x0)/0.25));
+    for(let k=0;k<n;k++){const t=k/n; xs.push(x0+(x1-x0)*t); ys.push(y0+(y1-y0)*(1-Math.cos(Math.PI*t))/2);}
+  }
+  const [xl,yl]=pts[pts.length-1]; xs.push(xl); ys.push(yl);
+  const s=[0]; for(let i=1;i<xs.length;i++) s.push(s[i-1]+Math.hypot(xs[i]-xs[i-1],ys[i]-ys[i-1]));
+  const P={xs,ys,s,len:s[s.length-1]};
+  P.at=function(q){ q=Math.max(0,Math.min(P.len,q)); let lo=0,hi=s.length-1;
+    while(hi-lo>1){const mid=(lo+hi)>>1; if(s[mid]<=q) lo=mid; else hi=mid;}
+    const t=(q-s[lo])/((s[hi]-s[lo])||1); return {x:xs[lo]+(xs[hi]-xs[lo])*t, y:ys[lo]+(ys[hi]-ys[lo])*t, ang:Math.atan2(ys[hi]-ys[lo],xs[hi]-xs[lo])};};
+  P.sAtX=function(x){ for(let i=1;i<xs.length;i++) if(xs[i]>=x){const t=(x-xs[i-1])/((xs[i]-xs[i-1])||1); return s[i-1]+(s[i]-s[i-1])*t;} return P.len;};
+  P.yAtX=function(x){ return P.at(P.sAtX(x)).y; };
+  return P;
+}
+
+/* Strecke + Bauteile je Level; val = (für Hügel-Level) eingestellte Höhe */
+function makeTrack(L, val){
+  const T={zones:[], signs:[]};
+  if(L.kind==='lift'){
+    const H=L.H; T.pts=[[0,0],[12,0],[42,H],[47,H],[75,0],[98,14],[120,0],[150,0]];
+    T.lift=[12,42]; T.start=4; T.crest2=98; T.ab=[124,144]; T.buffer=148;
+    T.signs.push({x:22,y:H*0.5+5,t:'LIFT'});
+  } else if(L.kind==='launch'){
+    const Ecrit=(1-TOL)*L.truth(L)/L.m/G; // Kammhöhe: knapp darunter schafft es der Zug nicht
+    T.pts=[[0,0],[30,0],[58,Ecrit],[61,Ecrit],[88,0],[108,8],[128,0],[160,0]];
+    T.launch=[3,30]; T.start=3; T.crest2=108; T.ab=[134,154]; T.buffer=158;
+    T.signs.push({x:16,y:5,t:'KATAPULT'});
+  } else if(L.kind==='brake'){
+    const h0=L.startH, hb=L.brakeY, Lb=40;
+    if(L.dip!==undefined) T.pts=[[0,h0],[8,h0],[34,L.dip],[52,hb],[62,hb],[62+Lb/(1-TOL)+12,hb]];
+    else T.pts=[[0,h0],[8,h0],[44,hb],[62,hb],[62+Lb/(1-TOL)+12,hb]];
+    T.start=8.6; T.brake=[62,62+Lb]; T.Lb=Lb; T.platform=[62+Lb/(1+TOL),62+Lb/(1-TOL)]; T.buffer=62+Lb/(1-TOL)+2.7;
+    if(L.vIn) T.signs.push({x:55,y:hb+6,t:'v = 16 m/s'});
+  } else if(L.kind==='hill'){
+    const h=Math.max(0.5,val||1);
+    if(L.vIn){ T.pts=[[0,0],[40,0],[72,h],[96,h]]; T.start=1; T.v0=L.vIn; T.signs.push({x:12,y:5,t:'v = 14 m/s'}); }
+    else { T.pts=[[0,L.startH],[8,L.startH],[42,0],[78,h],[102,h]]; T.start=8.6; T.v0=0; }
+    T.top=T.pts[T.pts.length-2][0]; T.ab=[T.top+1,T.top+16]; T.buffer=T.top+21; T.pts[T.pts.length-1][0]=T.top+22;
+  }
+  T.path=buildPath(T.pts);
+  return T;
+}
+
+/* ---------- Canvas ---------- */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let DPR=1, CW=0, CH=0, view={};
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function resize(){const r=cv.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1); CW=r.width; CH=r.height; cv.width=Math.round(CW*DPR); cv.height=Math.round(CH*DPR); fitView(); draw();}
+function fitView(){
+  if(!S.track) return; const P=S.track.path;
+  const xmin=-6, xmax=Math.max(...P.xs)+6; const ymax=Math.max(...P.ys)+10, ymin=-5;
+  const sc=Math.min(CW/(xmax-xmin), CH/(ymax-ymin));
+  view={sc, ox:(CW-(xmax-xmin)*sc)/2 - xmin*sc, oy:CH-(CH-(ymax-ymin)*sc)/2 + ymin*sc, xmin, xmax, ymin, ymax};
+}
+const X=x=>view.ox+x*view.sc, Y=y=>view.oy-y*view.sc;
+
+function draw(){
+  if(!CW) return; ctx.setTransform(DPR,0,0,DPR,0,0);
+  const C={sky:css('--sky'),grid:css('--grid'),gs:css('--grid-strong'),rail:css('--rail'),sup:css('--support'),gr:css('--ground'),gl:css('--ground-line'),
+    ink:css('--ink'),mut:css('--muted'),acc:css('--accent'),pot:css('--pot'),kin:css('--kin'),th:css('--therm'),ok:css('--ok'),bad:css('--bad'),panel:css('--panel')};
+  ctx.save(); if(S.shake>0){ctx.translate((Math.random()-.5)*S.shake,(Math.random()-.5)*S.shake);}
+  ctx.fillStyle=C.sky; ctx.fillRect(-20,-20,CW+40,CH+40);
+  if(!S.track){ctx.restore();return;}
+  // Raster 5 m
+  ctx.lineWidth=1;
+  for(let x=Math.ceil(view.xmin/5)*5;x<=view.xmax;x+=5){ctx.strokeStyle=x%25===0?C.gs:C.grid; ctx.beginPath(); ctx.moveTo(X(x),0); ctx.lineTo(X(x),CH); ctx.stroke();}
+  for(let y=0;y<=view.ymax;y+=5){ctx.strokeStyle=y%10===0?C.gs:C.grid; ctx.beginPath(); ctx.moveTo(0,Y(y)); ctx.lineTo(CW,Y(y)); ctx.stroke();}
+  ctx.fillStyle=C.mut; ctx.font='11px "IBM Plex Mono",monospace'; ctx.textBaseline='middle';
+  for(let y=10;y<=view.ymax-2;y+=10) ctx.fillText(y+' m',4,Y(y)-7);
+  // Boden
+  ctx.fillStyle=C.gr; ctx.fillRect(0,Y(0),CW,CH-Y(0)); ctx.strokeStyle=C.gl; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,Y(0)); ctx.lineTo(CW,Y(0)); ctx.stroke();
+  const T=S.track, P=T.path;
+  // Stützen
+  ctx.strokeStyle=C.sup; ctx.lineWidth=Math.max(1,view.sc*0.35);
+  for(let x=4;x<Math.max(...P.xs)-1;x+=5){const y=P.yAtX(x); if(y>0.8){ctx.beginPath(); ctx.moveTo(X(x),Y(y)); ctx.lineTo(X(x),Y(0)); ctx.stroke();}}
+  // Bremse
+  const zone=(a,b,col,label)=>{ctx.fillStyle=col; for(let x=a;x<b;x+=1.6){const y=P.yAtX(x); ctx.fillRect(X(x),Y(y)-view.sc*0.2,Math.max(2,view.sc*0.8),view.sc*1.4);} if(label){ctx.fillStyle=C.ink; ctx.font='600 11px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(label,X((a+b)/2),Y(P.yAtX((a+b)/2))+view.sc*3.2); ctx.textAlign='left';}};
+  if(T.brake) zone(T.brake[0],T.buffer-0.4,C.acc,'BREMSE');
+  if(T.launch) zone(T.launch[0],T.launch[1],C.acc,null);
+  if(T.lift){ctx.strokeStyle=C.acc; ctx.setLineDash([view.sc*0.8,view.sc*0.6]); ctx.lineWidth=Math.max(2,view.sc*0.5); ctx.beginPath(); for(let x=T.lift[0];x<=T.lift[1];x+=0.5){const y=P.yAtX(x); x===T.lift[0]?ctx.moveTo(X(x),Y(y)-view.sc*0.6):ctx.lineTo(X(x),Y(y)-view.sc*0.6);} ctx.stroke(); ctx.setLineDash([]);}
+  // Bahnsteig
+  const plat=(a,b)=>{const y=P.yAtX(a); ctx.fillStyle=C.mut; ctx.fillRect(X(a),Y(y)+view.sc*0.6,(b-a)*view.sc,view.sc*1.2); ctx.fillStyle=C.ink; ctx.font='600 11px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText('BAHNSTEIG',X((a+b)/2),Y(y)+view.sc*3.4); ctx.textAlign='left';};
+  if(T.platform) plat(T.platform[0]-4,T.platform[1]); if(T.ab) plat(T.ab[1]-8,T.ab[1]+1);
+  // Schienen
+  ctx.strokeStyle=C.rail; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=Math.max(2,view.sc*0.45);
+  ctx.beginPath(); P.xs.forEach((x,i)=> i?ctx.lineTo(X(x),Y(P.ys[i])):ctx.moveTo(X(x),Y(P.ys[i]))); ctx.stroke();
+  ctx.lineWidth=Math.max(1,view.sc*0.18); ctx.beginPath(); P.xs.forEach((x,i)=> i?ctx.lineTo(X(x),Y(P.ys[i])+view.sc*0.7):ctx.moveTo(X(x),Y(P.ys[i])+view.sc*0.7)); ctx.stroke();
+  // Prellbock
+  if(T.buffer){const y=P.yAtX(T.buffer); const bx=X(T.buffer), w=view.sc*1.2, h=view.sc*2.6; ctx.fillStyle=C.bad; ctx.fillRect(bx,Y(y)-h,w,h); ctx.fillStyle=C.acc; for(let k=0;k<3;k++) ctx.fillRect(bx,Y(y)-h+k*h/3,w,h/6);}
+  // Schilder
+  ctx.font='600 11px "IBM Plex Mono",monospace'; ctx.textAlign='center';
+  T.signs.forEach(s=>{ctx.fillStyle=C.ink; ctx.fillText(s.t,X(s.x),Y(s.y));}); ctx.textAlign='left';
+  // Einstellbare Hügelhöhe markieren
+  if(S.L.kind==='hill' && S.hillVal){const y=S.hillVal, xt=T.top; ctx.strokeStyle=C.acc; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(X(xt-30),Y(y)); ctx.lineTo(X(xt+18),Y(y)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle=C.acc; ctx.font='600 12px "IBM Plex Mono",monospace'; ctx.fillText('h = '+fmt(y,1)+' m',X(xt-29),Y(y)-8);}
+  // Partikel
+  S.parts.forEach(p=>{ctx.fillStyle=p.c; ctx.globalAlpha=Math.max(0,p.life); ctx.fillRect(X(p.x),Y(p.y),p.r,p.r); ctx.globalAlpha=1;});
+  // Wagen
+  const car=S.car; if(car){ctx.save(); ctx.translate(X(car.x),Y(car.y)); ctx.rotate(-car.ang);
+    const L=5.2*view.sc, H=1.9*view.sc; ctx.fillStyle=C.acc; ctx.strokeStyle=C.ink; ctx.lineWidth=Math.max(1.5,view.sc*0.18);
+    ctx.beginPath(); ctx.moveTo(-L/2,-view.sc*0.5); ctx.lineTo(L/2,-view.sc*0.5); ctx.lineTo(L/2-view.sc*0.6,-view.sc*0.5-H); ctx.lineTo(-L/2,-view.sc*0.5-H); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=C.ink; [-L*0.3,L*0.3].forEach(dx=>{ctx.beginPath(); ctx.arc(dx,-view.sc*0.25,Math.max(2,view.sc*0.4),0,7); ctx.fill();});
+    ctx.fillStyle=C.panel; ctx.fillRect(-L/2+view.sc*0.7,-view.sc*0.5-H+view.sc*0.4,L*0.45,H*0.35);
+    ctx.restore();}
+  ctx.restore();
+}
+
+/* ---------- Telemetrie ---------- */
+const el=id=>document.getElementById(id);
+function tele(){
+  const L=S.L, m=L.m, car=S.car; if(!car) return;
+  const v=S.v||0, h=Math.max(0,car.y);
+  const Ep=m*G*h, Ek=0.5*m*v*v, Et=m*S.therm;
+  const scale=S.eScale||1;
+  el('gH').textContent=fmt(h,1); el('gV').textContent=fmt(v,1);
+  el('bPot').style.width=Math.min(100,Ep/scale*100)+'%'; el('bKin').style.width=Math.min(100,Ek/scale*100)+'%'; el('bTherm').style.width=Math.min(100,Et/scale*100)+'%';
+  el('nPot').textContent=fmtkJ(Ep); el('nKin').textContent=fmtkJ(Ek); el('nTherm').textContent=fmtkJ(Et);
+}
+
+/* ---------- Simulation ---------- */
+const S={L:null,track:null,car:null,parts:[],shake:0,running:false,therm:0};
+function placeCar(s){const p=S.track.path.at(s); S.s=s; S.car={x:p.x,y:p.y,ang:p.ang};}
+
+function setup(L, val){
+  S.L=L; S.hillVal=(L.kind==='hill')?val:null; S.track=makeTrack(L,val); S.parts=[]; S.shake=0; S.therm=0; S.v=0; S.mode='idle';
+  placeCar(S.track.path.sAtX(S.track.start));
+  S.eScale = L.kind==='hill' ? L.m*G*Math.max(L.startH||0, (L.vIn||0)**2/(2*G))*1.15 : (L.kind==='brake'? L.m*G*L.startH*1.15 : L.truth(L)*1.3);
+  fitView(); draw(); tele();
+}
+
+function startRun(L, studentVal, outcome){
+  const T=S.track, P=T.path, m=L.m;
+  S.parts=[]; S.shake=0; S.therm=0; S.dir=1; S.rev=0; S.result=null; S.msgVars={};
+  S.abInit=false; S.topCrash=false; S.abActive=false; S.k=0; S.vCrestMax=undefined; S.vTopMax=undefined; S.brakeE=0;
+  placeCar(P.sAtX(T.start));
+  const truth=L.truth(L);
+  const useVal = outcome==='ok' ? truth : studentVal;
+  S.e = G*S.car.y + 0.5*(T.v0||0)**2; // spezifische mechanische Energie (J/kg)
+  S.mode='free';
+  if(L.kind==='lift'){ S.mode='lift'; S.liftE = outcome==='ok' ? truth/m + 0.5*3*3 : useVal/m; }
+  if(L.kind==='launch'){ S.mode='launch'; S.launchE = useVal/m; S.e=0; }
+  if(L.kind==='brake'){ S.brakeE = L.vInput ? 0.5*m*useVal*useVal : useVal; S.e = G*L.startH; }
+  if(L.kind==='hill'){
+    if(L.vIn){ S.e = 0.5*L.vIn*L.vIn; if(outcome==='ok') S.e = G*S.hillVal + 0.5*1.4*1.4; }
+    else {
+      S.e = G*L.startH; const sTop=P.sAtX(T.top); const s0=P.sAtX(T.start);
+      if(outcome==='ok') S.k = (G*L.startH - G*S.hillVal - 0.5*1.4*1.4)/(sTop-s0);
+      else { const Ptrue=buildPath(makeTrack(L,L.truth(L)).pts); S.k = L.loss*G*L.startH/(Ptrue.sAtX(T.top)-Ptrue.sAtX(T.start)); }
+    }
+    S.vTopMax = Math.sqrt(2*G*TOL*L.truth(L));
+  }
+  if(L.kind==='lift'||L.kind==='launch'){ const yc=P.yAtX(T.crest2); S.vCrestMax=Math.sqrt(Math.max(0,2*((1+TOL)*truth/m - G*yc))); }
+  S.running=true; S.last=performance.now(); S.abActive=false;
+  requestAnimationFrame(loop);
+}
+
+function speedFromE(y){ return Math.sqrt(Math.max(0,2*(S.e - G*y))); }
+
+function finish(kind, text){
+  S.running=false; S.mode='done'; S.result=kind;
+  const vd=el('verdict'); vd.hidden=false; vd.className='verdict '+(kind==='ok'?'ok':'bad');
+  vd.textContent={ok:'Freigegeben',crash:'Crash!',buffer:'Aufprall!',stuck:'Zu wenig Energie',early:'Zu früh gestoppt',rollback:'Rollt zurück',fly:'Entgleist!'}[kind]||'';
+  onRunEnd(kind,text);
+}
+
+function boom(x,y,n=40){ const C=[css('--accent'),css('--bad'),css('--ink'),css('--muted')];
+  for(let i=0;i<n;i++) S.parts.push({x,y,vx:(Math.random()-.5)*18,vy:Math.random()*14,r:2+Math.random()*4,life:1.4,c:C[i%4]});
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches) S.shake=10; }
+
+function loop(now){
+  let dt=Math.min(0.04,(now-S.last)/1000); S.last=now; dt*=1.35;
+  const L=S.L, T=S.track, P=T.path, m=L.m;
+  // Partikel
+  S.parts.forEach(p=>{p.vy-=G*dt; p.x+=p.vx*dt; p.y=Math.max(0,p.y+p.vy*dt); if(p.y===0){p.vx*=0.6;p.vy=0;} p.life-=dt*0.5;});
+  S.parts=S.parts.filter(p=>p.life>0); if(S.shake>0) S.shake=Math.max(0,S.shake-dt*14);
+  if(S.running){ for(let i=0;i<6;i++){ if(!S.running) break; step(dt/6); } }
+  draw(); tele();
+  if(S.running || S.parts.length || S.shake>0) requestAnimationFrame(loop);
+}
+
+function step(dt){
+  const L=S.L, T=S.track, P=T.path, m=L.m; const pos=P.at(S.s);
+  if(S.mode==='fly'){ const f=S.fly; f.vy-=G*dt; f.x+=f.vx*dt; f.y+=f.vy*dt; f.ang+=f.spin*dt; S.car={x:f.x,y:f.y,ang:f.ang}; S.v=Math.hypot(f.vx,f.vy);
+    if(f.y<=0.6){ S.car.y=0.6; S.v=0; boom(f.x,0.8,60); finish('fly', L.high); } return; }
+  if(S.mode==='lift'){
+    const vL=8; S.v=vL; S.s+=vL*dt; const p=P.at(S.s); S.car={x:p.x,y:p.y,ang:p.ang};
+    S.e = G*p.y + 0.5*vL*vL;
+    if(G*p.y >= S.liftE){ S.v=0; finish('stuck', L.low.replace('{h}',fmt(S.liftE/G,1))); return; }
+    if(p.x>=T.lift[1]){ S.mode='free'; S.e=Math.max(S.liftE, G*p.y+0.5); }
+    return; }
+  if(S.mode==='launch'){
+    const p=P.at(S.s); const fr=Math.min(1,(p.x-T.launch[0])/(T.launch[1]-T.launch[0]));
+    S.e = Math.max(G*p.y + 0.5*1.5*1.5, fr*S.launchE);
+    const v=speedFromE(p.y); S.v=v; S.s+=v*dt; const q=P.at(S.s); S.car={x:q.x,y:q.y,ang:q.ang};
+    if(q.x>=T.launch[1]){ S.mode='free'; S.e=S.launchE; }
+    return; }
+  // freie Fahrt
+  let v=speedFromE(pos.y);
+  if(v<0.15){ // Umkehrpunkt?
+    const ahead=P.at(S.s+S.dir*0.3); if(ahead.y>pos.y+0.0005){ S.dir*=-1; S.rev++; }
+    v=Math.max(v,0.6);
+  }
+  S.v=v; const ds=S.dir*v*dt; const prevX=pos.x; S.s=Math.max(0,Math.min(P.len,S.s+ds));
+  const p=P.at(S.s); S.car={x:p.x,y:p.y,ang:p.ang};
+  // Reibung
+  if(S.k && S.dir>0 && p.x<=T.top){ S.e-=S.k*Math.abs(ds); S.therm+=S.k*Math.abs(ds); }
+  // Rollt zurück
+  if(S.dir<0 && S.rev>=1){
+    if(L.kind==='launch' && p.x<T.launch[1]){ S.v=0; finish('rollback', L.low); return; }
+    if(L.kind==='hill' && (p.x< (L.vIn?20:T.pts[2][0]) )){ finish('rollback', L.high); return; }
+  }
+  // Abheben auf dem zweiten Hügel
+  if(S.vCrestMax!==undefined && S.dir>0 && prevX<T.crest2 && p.x>=T.crest2 && v>S.vCrestMax+0.05){
+    S.mode='fly'; S.fly={x:p.x,y:p.y+0.4,vx:Math.min(v,24),vy:Math.min(v*0.3,7),ang:0,spin:-1.6}; return; }
+  // Bremse
+  if(T.brake && S.dir>0 && p.x>=T.brake[0]){
+    const a=S.brakeE/(m*T.Lb); S.e-=a*Math.abs(ds); S.therm+=a*Math.abs(ds);
+    if(S.e<=G*p.y+0.02){ S.e=G*p.y; S.v=0;
+      if(p.x>=T.platform[0]-0.05) finish('ok'); else finish('early', L.high.replace('{d}',fmt(T.platform[0]-p.x,1)));
+      return; }
+    if(p.x>=T.platform[1]){ const vv=speedFromE(p.y); S.v=0; boom(T.buffer-1,p.y+1,45); finish('buffer', L.low.replace('{v}',fmt(vv,1))); return; }
+  }
+  // Bahnhof auf dem Hügel (Hügel-Level)
+  if(L.kind==='hill' && S.dir>0 && p.x>=T.top && !S.abActive){
+    if(v>S.vTopMax){ S.topCrash=true; S.topV=v; } S.abActive=true; S.abStart=p.x; S.abV=v; }
+  if(L.kind==='hill' && S.topCrash && p.x>=T.buffer-2.6){ S.v=0; boom(T.buffer-1,p.y+1,45); finish('buffer', L.low.replace('{v}',fmt(S.topV,1))); return; }
+  // automatische Stationsbremse (Lift, Katapult, Hügel)
+  if(T.ab && S.dir>0 && p.x>=T.ab[0] && !S.topCrash){
+    if(!S.abInit){ S.abInit=true; S.abA = (v*v)/(2*Math.max(1,(T.ab[1]-p.x))); }
+    const a=S.abA; S.e-=a*Math.abs(ds); S.therm+=a*Math.abs(ds);
+    if(S.e<=G*p.y+0.01 || p.x>=T.ab[1]){ S.e=G*p.y; S.v=0; finish('ok'); return; }
+  }
+}
+
+/* ---------- UI ---------- */
+let cur=0; const state={done:{},tries:{}};
+try{ const raw=localStorage.getItem('apruef-v1'); if(raw) Object.assign(state,JSON.parse(raw)); }catch(e){}
+const save=()=>{ try{ localStorage.setItem('apruef-v1',JSON.stringify(state)); }catch(e){} };
+
+function renderRail(){
+  const r=el('rail'); r.innerHTML='';
+  const g1=document.createElement('span'); g1.className='grp'; g1.textContent='Basis'; r.appendChild(g1);
+  LEVELS.forEach((L,i)=>{
+    if(i===5){ const s=document.createElement('span'); s.className='sep'; r.appendChild(s); const g=document.createElement('span'); g.className='grp'; g.textContent='★ Profi'; r.appendChild(g); }
+    const b=document.createElement('button'); b.type='button'; b.className='chip'+(state.done[L.id]?' done':''); b.textContent=(L.star?'★':'')+L.id+(state.done[L.id]?' ✓':'');
+    b.setAttribute('aria-label','Level '+L.id+': '+L.title+(state.done[L.id]?' (geschafft)':'')); if(i===cur) b.setAttribute('aria-current','true');
+    b.addEventListener('click',()=>{ if(S.running) return; cur=i; load(); }); r.appendChild(b);
+  });
+}
+function renderWords(){
+  const mk=(ids,box)=>{ const b=el(box); b.innerHTML=''; ids.forEach(id=>{ const L=LEVELS[id-1]; const s=document.createElement('span'); s.className='slot'+(state.done[id]?' got':''); s.textContent=state.done[id]?L.letter:''; b.appendChild(s); }); };
+  mk([1,2,3,4,5],'w1'); mk([6,7,8,9],'w2');
+  const b=[1,2,3,4,5].every(i=>state.done[i]), p=[6,7,8,9].every(i=>state.done[i]);
+  el('diploma').textContent = p&&b ? 'Alle Bahnen freigegeben! Ihr seid jetzt Achterbahn-Ingenieurinnen und -Ingenieure der Stufe ★. Zeigt diese Seite eurer Lehrkraft.'
+    : b ? 'Basis geschafft – alle Energie-Bahnen sind freigegeben. Weiter mit den ★-Bahnen?' : 'Jede freigegebene Bahn liefert einen Buchstaben.';
+}
+function load(){
+  const L=LEVELS[cur]; el('verdict').hidden=true;
+  el('lvlNo').textContent='Level '+L.id+' von 9'; el('lvlTitle').textContent=L.title;
+  const tag=el('lvlTag'); tag.className='lvl-tag '+(L.star?'star':'basis');
+  tag.textContent = L.star ? (L.q==='v'?'★ Geschwindigkeit':'★ Höhe') : 'Basis · Energie';
+  el('trackName').textContent=L.title;
+  el('story').textContent=L.story;
+  el('spec').innerHTML=L.spec.map(([a,b])=>'<dt>'+a+'</dt><dd>'+b+'</dd>').join('') + '<dt>Fallbeschleunigung</dt><dd>g = 9,81 m/s²</dd>';
+  el('ask').textContent=L.ask;
+  const qlab={E:'Energie',v:'Geschwindigkeit v',h:'Höhe h'}[L.q];
+  el('ansLabel').textContent=qlab+(L.q==='E'?' (E = …)':'');
+  el('unitE').hidden = L.q!=='E'; el('unitFix').hidden = L.q==='E'; el('unitFix').textContent = L.q==='v'?'m/s':'m';
+  el('ans').value=''; el('feedback').innerHTML=''; S.hint=0; el('solBtn').hidden = !((state.tries[L.id]||0)>=3);
+  el('go').disabled=false;
+  setup(L, L.kind==='hill'? L.truth(L)*0.6 : null);
+  renderRail(); renderWords();
+}
+function parseNum(str){
+  let s=String(str).trim().replace(/\s| /g,''); if(!s) return NaN;
+  if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,'');
+  return Number(s);
+}
+function solText(L){
+  const t=L.truth(L);
+  if(L.q==='E') return L.hint2.replace(/<[^>]+>/g,'')+' = '+fmtJ(t)+' ≈ '+fmtkJ(t);
+  if(L.q==='v') return L.hint2.replace(/<[^>]+>/g,'')+' ≈ '+fmt(t,1)+' m/s';
+  return L.hint2.replace(/<[^>]+>/g,'')+' ≈ '+fmt(t,1)+' m';
+}
+function onRunEnd(kind,text){
+  const L=LEVELS[cur]; const fb=el('feedback');
+  if(kind==='ok'){
+    state.done[L.id]=true; save();
+    fb.innerHTML='<div class="msg ok"><b>Freigegeben!</b> Eure Rechnung stimmt. Buchstabe für das Lösungswort: <b>'+L.letter+'</b><span class="calc">'+solText(L)+'</span></div>';
+  } else {
+    state.tries[L.id]=(state.tries[L.id]||0)+1; save();
+    fb.innerHTML='<div class="msg bad"><b>Nicht freigegeben.</b> '+text+' Prüft eure Rechnung und startet eine neue Testfahrt.</div>';
+    if(state.tries[L.id]>=3) el('solBtn').hidden=false;
+  }
+  el('go').disabled=false; renderRail(); renderWords();
+}
+
+el('form').addEventListener('submit',ev=>{
+  ev.preventDefault(); if(S.running) return;
+  const L=LEVELS[cur]; let v=parseNum(el('ans').value);
+  if(!isFinite(v)||v<=0){ el('feedback').innerHTML='<div class="msg bad">Bitte gebt eine positive Zahl ein, zum Beispiel <b>12,5</b>.</div>'; el('ans').focus(); return; }
+  if(L.q==='E' && el('unitE').value==='kJ') v*=1000;
+  const r=v/L.truth(L); const outcome = r<1-TOL?'low':(r>1+TOL?'high':'ok');
+  el('verdict').hidden=true; el('feedback').innerHTML='<div class="msg">Testfahrt läuft …</div>'; el('go').disabled=true;
+  if(L.kind==='hill'){ setup(L, Math.min(v,60)); }
+  startRun(L, v, outcome);
+});
+el('hintBtn').addEventListener('click',()=>{
+  const L=LEVELS[cur]; S.hint=Math.min(2,(S.hint||0)+1);
+  const h = S.hint===1 ? L.hint1 : L.hint1+'<span class="calc">'+L.hint2+'</span>';
+  el('feedback').innerHTML='<div class="msg hint"><b>Tipp '+S.hint+':</b> '+h+'</div>';
+});
+el('solBtn').addEventListener('click',()=>{
+  const L=LEVELS[cur]; el('feedback').innerHTML='<div class="msg hint"><b>Lösungsweg:</b><span class="calc">'+solText(L)+'</span>Tragt das Ergebnis ein und startet die Testfahrt.</div>';
+});
+
+new ResizeObserver(resize).observe(cv);
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>draw());
+new MutationObserver(()=>draw()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+load(); resize();
+})();
+</script>
+
+<!-- Lernseite: Zurück-Leiste und Schloss (Simulation selbst unverändert) -->
+<script>window.SIM_ID = 'achterbahn';</script>
+<script src="../data/codes.js"></script>
+<script src="../assets/lock.js"></script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>

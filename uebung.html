@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Übung · Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .u-head { display: flex; flex-direction: column; gap: 10px; }
+  .u-head h2 { font-size: 28px; }
+  .u-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 14px; color: var(--muted); }
+  .u-intro { font-size: 18px; max-width: 70ch; }
+  .setup-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .setup-row > .lbl { font-size: 14px; font-weight: 700; color: var(--muted); }
+  .u-body { display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .card.ok { border-color: var(--green-d); box-shadow: inset 4px 0 0 var(--green-d); }
+  .card.bad { border-color: var(--bad); box-shadow: inset 4px 0 0 var(--bad); }
+  .card h3 { font-size: 19px; }
+  .q { font-size: 19px; color: var(--ink); line-height: 1.4; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+  .opt, .cat { font: 700 16px var(--f-text); text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 10px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .opt:hover:not(:disabled), .cat:hover:not(:disabled) { border-color: var(--blue); }
+  .cat { font-size: 14px; min-height: 40px; padding: 6px 10px; border-radius: 999px; }
+  .cat[aria-pressed="true"] { border-color: var(--blue); background: var(--sky); }
+  .right { border-color: var(--green-d) !important; background: var(--mint) !important; }
+  .wrong { border-color: var(--bad) !important; background: var(--bad-soft) !important; }
+  .cats { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* Zuordnen: Karten aus dem Stapel in Felder ziehen – oder Karte antippen, dann Feld antippen */
+  .zhint { font-size: 14px; color: var(--muted); }
+  .zpool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 64px; padding: 12px; border: 2px dashed var(--line); border-radius: 12px; background: var(--bg); align-items: flex-start; }
+  .zpool.hot { border-color: var(--blue); }
+  .zpool .zempty { color: var(--muted); font-size: 15px; padding: 8px; }
+  .zcard { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 8px 12px 8px 8px; font-size: 16px; line-height: 1.3; cursor: grab; user-select: none; -webkit-user-select: none; max-width: 100%; color: var(--text); }
+  .zcard:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .zcard.sel { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31, 111, 178, .28); }
+  .zcard.ok { border-color: var(--green); background: var(--mint); }
+  .zcard.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .zcard .rk { display: block; font-size: 13px; color: var(--bad); font-weight: 700; }
+  .zcard .grip { touch-action: none; color: var(--muted); font-size: 20px; padding: 6px 2px; margin: -6px 0; cursor: grab; }
+  .zboxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+  .zbox { border: 2px solid var(--line); border-radius: 12px; background: var(--surface); min-height: 110px; display: flex; flex-direction: column; }
+  .zbox-h { font-weight: 700; padding: 8px 12px; border-bottom: 1px solid var(--line); color: var(--ink); display: flex; justify-content: space-between; gap: 8px; }
+  .zbox-h small { font-weight: 400; color: var(--muted); }
+  .zbox-in { display: flex; flex-direction: column; gap: 6px; padding: 8px; flex: 1; }
+  .zboxes.picking .zbox { border-style: dashed; border-color: var(--blue); cursor: pointer; }
+  .zbox.hot { border-color: var(--blue); border-style: solid; box-shadow: 0 0 0 3px rgba(31, 111, 178, .25); }
+  .zghost { position: fixed; z-index: 1000; pointer-events: none; margin: 0; transform: rotate(1.5deg); box-shadow: 0 10px 24px rgba(16, 50, 77, .3); border-color: var(--blue); }
+  .expl { font-size: 16px; background: var(--mint); color: var(--text); border-radius: 10px; padding: 10px 12px; }
+  .expl.bad { background: var(--bad-soft); }
+  .item-t { font-size: 18px; font-weight: 700; color: var(--ink); }
+  .sort { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .sort li { display: grid; grid-template-columns: 30px 22px 1fr auto; gap: 8px; position: relative; cursor: grab; user-select: none; -webkit-user-select: none; align-items: center; background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 17px; }
+  .sort .nr { font-weight: 700; color: var(--blue); text-align: center; font-variant-numeric: tabular-nums; }
+  .sort .mv { display: flex; gap: 4px; }
+  /* Ziehen und Ablegen: Griff links (auf Touch-Geräten nur am Griff, damit die Seite weiter scrollt) */
+  .sort .grip { touch-action: none; cursor: grab; color: var(--muted); font-size: 22px; line-height: 1; text-align: center; padding: 8px 0; margin: -8px 0; }
+  .sort li.drag { z-index: 5; cursor: grabbing; border-color: var(--blue); background: var(--surface); box-shadow: 0 8px 22px rgba(16, 50, 77, .25); transition: none; }
+  .sort li.drag .grip { cursor: grabbing; }
+  .sort-hint { font-size: 14px; color: var(--muted); margin: -4px 0 4px; }
+  .sort .mv button { width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 18px; cursor: pointer; }
+  .sort .mv button:disabled { opacity: .35; cursor: default; }
+  .gaptext { font-size: 19px; line-height: 2.2; max-width: 75ch; }
+  .gaptext select { font: 700 17px var(--f-text); padding: 4px 8px; min-height: 40px; border-radius: 8px; border: 2px solid var(--blue); background: var(--surface); color: var(--ink); max-width: 100%; }
+  .wort { display: flex; flex-wrap: wrap; gap: 6px; background: var(--sky); border-radius: 10px; padding: 10px 12px; }
+  .wort b { width: 100%; font-size: 14px; color: var(--ink); }
+  .wort span { background: var(--surface); border-radius: 6px; padding: 3px 8px; font-size: 15px; }
+  .step { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; }
+  .step label { font-size: 17px; color: var(--ink); }
+  .step small { display: block; color: var(--muted); font-size: 14px; }
+  .step .in { display: flex; gap: 8px; align-items: center; }
+  .step input { width: 130px; font: 700 18px var(--f-text); padding: 8px 10px; min-height: 46px; border: 2px solid var(--blue); border-radius: 10px; background: var(--surface); color: var(--ink); }
+  .step .unit { font-weight: 700; min-width: 40px; }
+  @media (max-width: 560px) { .step { grid-template-columns: 1fr; } }
+  .res { font-size: 18px; background: var(--sky); border-radius: 10px; padding: 12px 14px; }
+  .res b { color: var(--ink); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .score { font-weight: 700; font-size: 18px; }
+  .score.ok { color: var(--green-d); } .score.bad { color: var(--bad); }
+  .label-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .elabel { width: 200px; background: #fff; color: #1a1a1a; border: 2px solid #1a1a1a; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+  .elabel .sc { display: flex; flex-direction: column; gap: 2px; }
+  .elabel .sc i { font-style: normal; font-weight: 700; color: #fff; padding: 1px 6px; border-radius: 0 10px 10px 0; font-size: 12px; }
+  .elabel .sc i.on { outline: 2px solid #1a1a1a; outline-offset: 1px; }
+  .elabel .kwh { font-size: 22px; font-weight: 700; text-align: center; border-top: 1px solid #1a1a1a; padding-top: 6px; }
+  .elabel small { text-align: center; }
+  .dia { overflow-x: auto; background: #fff; border-radius: 10px; padding: 8px; }
+  .dia svg { display: block; }
+  .more { display: flex; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+<header class="band band-mini"><div class="wrap"><a class="back" href="./">← Energie</a><h1 id="kopf">Übung</h1></div></header>
+<main class="wrap">
+  <section class="u-head">
+    <div class="u-meta" id="meta"></div>
+    <h2 id="titel"></h2>
+    <p class="u-intro" id="intro"></p>
+    <div class="setup-row"><span class="lbl">Niveau</span>
+      <div class="seg" id="niveau" role="group" aria-label="Niveau">
+        <button type="button" data-v="ein">Einstieg</button>
+        <button type="button" data-v="basis">Basis</button>
+        <button type="button" data-v="stern">Basis + ★</button>
+      </div>
+    </div>
+  </section>
+  <section class="u-body" id="body" aria-live="polite"></section>
+  <section aria-labelledby="h-more"><div class="sec-head"><h2 id="h-more">Weitere Übungen in diesem Bereich</h2></div><div class="more" id="more"></div></section>
+</main>
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+<script src="data/site.js"></script>
+<script src="data/uebungen.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/fluss.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.App, S = window.SITE, U = window.UEBUNGEN, $ = function (id) { return document.getElementById(id); };
+  var BER = {}; S.bereiche.forEach(function (b) { BER[b.id] = b; });
+  var niveau = A.load('uebung-niveau', 'basis');
+  var status = A.load('uebungen-status', {});
+  var cur = null;
+
+  function pick() { var h = location.hash.slice(1); return U.filter(function (u) { return u.id === h; })[0] || U[0]; }
+  function vis(x) { if (niveau === 'ein') return !!x.ein; if (niveau === 'basis') return !x.stern; return true; }
+  function filt(list) { var f = list.filter(vis); if (!f.length && niveau === 'ein') f = list.filter(function (x) { return !x.stern; }); return f; }
+  function done(pct) { var old = status[cur.id] || 0; if (pct > old) { status[cur.id] = pct; A.save('uebungen-status', status); } }
+  function score(el, ok, n) {
+    el.className = 'score ' + (ok === n ? 'ok' : 'bad');
+    el.textContent = ok === n ? 'Alles richtig! (' + ok + ' von ' + n + ')' : ok + ' von ' + n + ' richtig. Schau dir die rot markierten noch einmal an.';
+    done(Math.round(ok / n * 100));
+  }
+
+  function render() {
+    cur = pick();
+    var b = BER[cur.r];
+    document.title = cur.titel + ' · Energie';
+    $('kopf').textContent = b.titel;
+    $('titel').innerHTML = A.fmt(cur.titel);
+    $('intro').innerHTML = A.fmt(cur.intro);
+    $('meta').innerHTML = '<span>Phase ' + b.phase + ' · ' + b.ds + '</span>' +
+      (cur.n !== 'stern' ? '<span class="tag">Basis</span>' : '') + (cur.n !== 'basis' ? '<span class="tag star">★</span>' : '') + (cur.ein ? '<span class="tag ein">Einstieg</span>' : '');
+    $('niveau').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.v === niveau)); });
+    ({ zuordnen: zuordnen, sortieren: sortieren, quiz: quiz, luecke: luecke, schaetzen: schaetzen })[cur.typ]();
+    $('more').innerHTML = U.filter(function (u) { return u.r === cur.r && u.id !== cur.id; }).map(function (u) {
+      return '<a class="chip" href="#' + u.id + '">' + A.fmt(u.titel) + (status[u.id] === 100 ? ' ✓' : '') + '</a>'; }).join('') +
+      '<a class="chip" href="./">Alle Bereiche</a>';
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Zuordnen ---------- */
+  function zuordnen() {
+    var els = filt(cur.elemente), used = {};
+    els.forEach(function (e) { used[e.k] = 1; });
+    var cats = cur.kategorien.map(function (c, i) { return { c: c, i: i }; }).filter(function (c) { return niveau !== 'ein' || used[c.i]; });
+    var place = {}, pick = null, marked = false;
+    var order = A.shuffle(els.map(function (_, n) { return n; }));
+    function card(n) {
+      var e = els[n], cls = 'zcard' + (pick === n ? ' sel' : '');
+      var mark = '';
+      if (marked && place[n] != null) { var good = place[n] === e.k; cls += good ? ' ok' : ' bad'; if (!good) mark = '<span class="rk">richtig: ' + A.esc(cur.kategorien[e.k]) + '</span>'; }
+      return '<div class="' + cls + '" data-n="' + n + '" tabindex="0" role="button" aria-pressed="' + (pick === n) + '"><span class="grip" aria-hidden="true">⠿</span><span>' + A.fmt(e.t) + mark + '</span></div>';
+    }
+    function render() {
+      var free = order.filter(function (n) { return place[n] == null; });
+      $('body').innerHTML = '<p class="zhint">Ziehe jede Karte in das passende Feld – oder tippe eine Karte an und dann das Feld. Zum Zurücklegen die Karte in den Stapel ziehen.</p>' +
+        '<div class="zpool" id="zpool" aria-label="Kartenstapel">' + (free.length ? free.map(card).join('') : '<span class="zempty">Alle Karten sind zugeordnet. Jetzt prüfen!</span>') + '</div>' +
+        '<div class="zboxes' + (pick != null ? ' picking' : '') + '">' + cats.map(function (c) {
+          var inn = order.filter(function (n) { return place[n] === c.i; });
+          return '<div class="zbox" data-k="' + c.i + '" tabindex="0" role="button" aria-label="Feld ' + A.esc(c.c) + '"><div class="zbox-h">' + A.esc(c.c) + (inn.length ? '<small>' + inn.length + '</small>' : '') + '</div><div class="zbox-in">' + inn.map(card).join('') + '</div></div>';
+        }).join('') + '</div>' +
+        '<div class="actions"><button class="btn" id="check" type="button">Prüfen</button><button class="linkbtn" id="reset-z" type="button">Neu mischen</button><span class="score" id="sc" aria-live="polite"></span></div>';
+      wire();
+    }
+    function put(n, k) { if (k == null) delete place[n]; else place[n] = k; pick = null; marked = false; render(); }
+    function wire() {
+      $('body').querySelectorAll('.zcard').forEach(function (c) {
+        var n = +c.dataset.n;
+        c.addEventListener('click', function (ev) { ev.stopPropagation(); if (c.dataset.dragged) return; pick = pick === n ? null : n; render(); var f = $('body').querySelector('.zcard[data-n="' + n + '"]'); if (f) f.focus(); });
+        c.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); c.click(); } });
+        c.addEventListener('pointerdown', function (ev) { drag(ev, n, c); });
+      });
+      $('body').querySelectorAll('.zbox').forEach(function (b) {
+        b.addEventListener('click', function () { if (pick != null) put(pick, +b.dataset.k); });
+        b.addEventListener('keydown', function (ev) { if ((ev.key === 'Enter' || ev.key === ' ') && pick != null) { ev.preventDefault(); put(pick, +b.dataset.k); } });
+      });
+      $('zpool').addEventListener('click', function () { if (pick != null && place[pick] != null) put(pick, null); });
+      $('check').onclick = function () {
+        marked = true; render();
+        var ok = els.filter(function (e, n) { return place[n] === e.k; }).length, open = els.length - Object.keys(place).length;
+        score($('sc'), ok, els.length);
+        if (open) $('sc').textContent += ' · noch ' + open + ' im Stapel';
+      };
+      $('reset-z').onclick = function () { place = {}; pick = null; marked = false; order = A.shuffle(order); render(); };
+    }
+    /* Ziehen: Maus an der ganzen Karte, Finger/Stift am Griff (sonst scrollt die Seite). Eine Kopie folgt dem Zeiger. */
+    function drag(ev, n, c) {
+      if (ev.button) return;
+      if (ev.pointerType !== 'mouse' && !ev.target.closest('.grip')) return;
+      ev.preventDefault();
+      var r = c.getBoundingClientRect(), dx = ev.clientX - r.left, dy = ev.clientY - r.top, x0 = ev.clientX, y0 = ev.clientY, g = null, hot = null, scr = 0;
+      function target(x, y) { var el = document.elementFromPoint(x, y); return el && (el.closest('.zbox') || el.closest('.zpool')); }
+      function mv(e) {
+        if (!g) { if (Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) < 6) return; g = c.cloneNode(true); g.classList.add('zghost'); g.style.width = r.width + 'px'; document.body.appendChild(g); c.style.opacity = '.35'; }
+        g.style.left = (e.clientX - dx) + 'px'; g.style.top = (e.clientY - dy) + 'px';
+        var t = target(e.clientX, e.clientY); if (t !== hot) { if (hot) hot.classList.remove('hot'); hot = t; if (hot) hot.classList.add('hot'); }
+        scr = e.clientY < 70 ? -14 : e.clientY > innerHeight - 70 ? 14 : 0;
+      }
+      var iv = setInterval(function () { if (scr && g) window.scrollBy(0, scr); }, 30);
+      function up(e) {
+        clearInterval(iv);
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        if (!g) return;   /* nur angetippt: Klick wählt die Karte */
+        g.remove(); c.style.opacity = ''; if (hot) hot.classList.remove('hot');
+        c.dataset.dragged = '1'; setTimeout(function () { delete c.dataset.dragged; }, 0);
+        var t = e.type === 'pointerup' ? target(e.clientX, e.clientY) : null;
+        if (t && t.classList.contains('zbox')) put(n, +t.dataset.k); else if (t && t.id === 'zpool') put(n, null);
+      }
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    }
+    render();
+  }
+
+  /* ---------- Sortieren ---------- */
+  function sortieren() {
+    var ks = filt(cur.ketten);
+    $('body').innerHTML = ks.map(function (k, i) {
+      return '<div class="card" id="k' + i + '"><h3>' + A.fmt(k.titel) + '</h3>' + (i === 0 ? '<p class="sort-hint">Ziehe die Karten am Griff ⠿ in die richtige Reihenfolge – oder nutze die Pfeile.</p>' : '') + '<ol class="sort"></ol><div class="fb"></div></div>';
+    }).join('') + '<div class="actions"><button class="btn" id="check" type="button">Prüfen</button><button class="linkbtn" id="sol" type="button">Lösung zeigen</button><span class="score" id="sc" aria-live="polite"></span></div>';
+    var orders = ks.map(function (k) {
+      var o = A.shuffle(k.schritte.map(function (_, j) { return j; }));
+      if (o.every(function (v, j) { return v === j; })) o.reverse();
+      return o;
+    });
+    function draw(i, mark) {
+      var ol = $('k' + i).querySelector('ol'), k = ks[i], o = orders[i];
+      ol.innerHTML = o.map(function (v, p) {
+        var cls = mark ? (v === p ? 'right' : 'wrong') : '';
+        return '<li class="' + cls + '" data-p="' + p + '"><span class="nr">' + (p + 1) + '</span><span class="grip" aria-hidden="true">⠿</span><span>' + A.fmt(k.schritte[v]) + '</span><span class="mv">' +
+          '<button type="button" data-d="-1" data-p="' + p + '" aria-label="nach oben"' + (p === 0 ? ' disabled' : '') + '>↑</button>' +
+          '<button type="button" data-d="1" data-p="' + p + '" aria-label="nach unten"' + (p === o.length - 1 ? ' disabled' : '') + '>↓</button></span></li>';
+      }).join('');
+      ol.querySelectorAll('li').forEach(function (li) { li.addEventListener('pointerdown', function (e) { startDrag(e, i, li); }); });
+      ol.querySelectorAll('button').forEach(function (b) {
+        b.onclick = function () { var p = +b.dataset.p, q = p + +b.dataset.d, t = o[p]; o[p] = o[q]; o[q] = t; $('k' + i).className = 'card'; draw(i, false);
+          var nb = $('k' + i).querySelectorAll('button[data-p="' + q + '"]')[b.dataset.d === '-1' ? 0 : 1]; if (nb && !nb.disabled) nb.focus(); };
+      });
+    }
+    /* Ziehen und Ablegen mit Maus, Finger oder Stift (Pointer Events). Die Karte folgt dem Zeiger;
+       sobald sie über die halbe Nachbarkarte geschoben ist, tauschen beide den Platz. */
+    function startDrag(e, i, li) {
+      if (e.target.closest('button')) return;
+      if (e.pointerType !== 'mouse' && !e.target.closest('.grip')) return;
+      if (e.button) return;
+      e.preventDefault();
+      var ol = li.parentNode, o = orders[i], y0 = e.clientY, moved = false;
+      li.classList.add('drag'); $('k' + i).className = 'card';
+      function idx(el) { return Array.prototype.indexOf.call(ol.children, el); }
+      function mv(ev) {
+        var dy = ev.clientY - y0; moved = moved || Math.abs(dy) > 3;
+        var p = idx(li), nx = li.nextElementSibling, pv = li.previousElementSibling, gap = 6;
+        if (nx && dy > nx.offsetHeight / 2) { ol.insertBefore(nx, li); var t = o[p]; o[p] = o[p + 1]; o[p + 1] = t; y0 += nx.offsetHeight + gap; dy = ev.clientY - y0; }
+        else if (pv && dy < -pv.offsetHeight / 2) { ol.insertBefore(li, pv); var t2 = o[p]; o[p] = o[p - 1]; o[p - 1] = t2; y0 -= pv.offsetHeight + gap; dy = ev.clientY - y0; }
+        li.style.transform = 'translateY(' + dy + 'px)';
+        Array.prototype.forEach.call(ol.children, function (c, j) { c.querySelector('.nr').textContent = j + 1; });
+      }
+      function up() {
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        li.style.transform = ''; li.classList.remove('drag'); draw(i, false);
+      }
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    }
+    ks.forEach(function (_, i) { draw(i, false); });
+    $('check').onclick = function () {
+      var ok = 0, n = 0;
+      ks.forEach(function (k, i) { draw(i, true); var good = orders[i].every(function (v, p) { return v === p; }); n++; if (good) ok++; $('k' + i).className = 'card ' + (good ? 'ok' : 'bad'); });
+      score($('sc'), ok, n);
+    };
+    $('sol').onclick = function () { orders = ks.map(function (k) { return k.schritte.map(function (_, j) { return j; }); }); ks.forEach(function (_, i) { draw(i, true); $('k' + i).className = 'card'; }); };
+  }
+
+  /* ---------- Quiz ---------- */
+  function diagram(d) {   /* Standard-Energieflussdiagramm der Reihe (assets/fluss.js) */
+    function num(v) { return typeof v === 'number' ? v : parseFloat(String(v)); }
+    function form(n) { n = n.toLowerCase(); return /licht|strahl/.test(n) ? 'StE' : /therm|wärme/.test(n) ? 'TE' : /beweg/.test(n) ? 'BE' : /elektr/.test(n) ? 'EE' : /chem/.test(n) ? 'CE' : /lage/.test(n) ? 'LE' : 'SpE'; }
+    var zu = num(d.zu[1]), known = 0;
+    d.raus.forEach(function (r) { if (r[1] !== '?') known += num(r[1]); });
+    var unit = typeof d.zu[1] === 'string' && d.zu[1].indexOf('%') >= 0 ? '%' : 'J';
+    function lbl(v) { return v === '?' ? '?' : A.num(num(v)) + ' ' + unit; }
+    var vals = d.raus.map(function (r) { return r[1] === '?' ? zu - known : num(r[1]); });
+    var spec = { unit: unit, zu: [[form(d.zu[0]), zu, d.zu[0], lbl(d.zu[1])]],
+      steps: [{ name: d.w.replace(' (', '\n('), out: [[form(d.raus[0][0]), vals[0], d.raus[0][0], lbl(d.raus[0][1])]],
+        loss: [[form(d.raus[1][0]), vals[1], d.raus[1][0] + (/nicht genutzt|Umgebung/.test(d.raus[1][0]) ? '' : ' (nicht genutzt)'), lbl(d.raus[1][1])]] }] };
+    return '<div class="dia">' + Fluss.svg(spec) + '</div>';
+  }
+  function elabel(l) {
+    var C = { A: '#00A651', B: '#50B848', C: '#BED630', D: '#FFF200', E: '#FDB913', F: '#F37021', G: '#ED1C24' };
+    return '<div class="elabel" aria-label="' + A.esc(l.name) + ': Klasse ' + l.klasse + ', ' + l.kwh + ' kWh pro Jahr"><b>' + A.esc(l.name) + '</b><div class="sc">' +
+      'ABCDEFG'.split('').map(function (k, i) { return '<i class="' + (k === l.klasse ? 'on' : '') + '" style="background:' + C[k] + ';width:' + (40 + i * 16) + 'px;color:' + (k === 'D' || k === 'C' ? '#1a1a1a' : '#fff') + '">' + k + '</i>'; }).join('') +
+      '</div><div class="kwh">' + l.kwh + ' kWh</div><small>pro Jahr</small></div>';
+  }
+  function quiz() {
+    var fs = filt(cur.fragen).map(function (q) {   // Antworten mischen (außer feste Paare wie „richtig / Alltagssprache“)
+      var idx = q.o.map(function (_, j) { return j; });
+      if (q.o.length > 2) idx = A.shuffle(idx);
+      return { f: q.f, dia: q.dia, stern: q.stern, e: q.e, o: idx.map(function (j) { return q.o[j]; }), r: idx.indexOf(q.r) };
+    }), answered = 0, ok = 0;
+    $('body').innerHTML = (cur.label ? '<div class="label-row" aria-label="Energielabel">' + cur.label.map(elabel).join('') + '</div><p class="muted" style="font-size:14px">Vereinfachte Darstellung des Energielabels.</p>' : '') +
+      fs.map(function (q, i) {
+        var star = q.stern ? ' <span class="tag star">★</span>' : '';
+        return '<div class="card" id="q' + i + '">' + (q.dia ? diagram(q.dia) : '') + '<p class="q">' + A.fmt(q.f) + star + '</p><div class="opts">' +
+          q.o.map(function (o, j) { return '<button class="opt" type="button" data-i="' + i + '" data-j="' + j + '">' + A.fmt(o) + '</button>'; }).join('') +
+          '</div><div class="fb"></div></div>';
+      }).join('') + '<div class="actions"><span class="score" id="sc" aria-live="polite"></span></div>';
+    $('body').querySelectorAll('.opt').forEach(function (b) {
+      b.onclick = function () {
+        var i = +b.dataset.i, q = fs[i], c = $('q' + i), good = +b.dataset.j === q.r;
+        c.querySelectorAll('.opt').forEach(function (x) { x.disabled = true; if (+x.dataset.j === q.r) x.classList.add('right'); });
+        if (!good) b.classList.add('wrong');
+        c.className = 'card ' + (good ? 'ok' : 'bad');
+        c.querySelector('.fb').innerHTML = '<p class="expl' + (good ? '' : ' bad') + '">' + (good ? '<b>Richtig.</b> ' : '<b>Nicht ganz.</b> ') + A.fmt(q.e) + '</p>';
+        answered++; if (good) ok++;
+        if (answered === fs.length) {
+          score($('sc'), ok, fs.length);
+          $('sc').insertAdjacentHTML('afterend', ' <button class="btn ghost" id="again" type="button">Noch einmal</button>');
+          $('again').onclick = render;
+        }
+      };
+    });
+  }
+
+  /* ---------- Lückentext ---------- */
+  function luecke() {
+    var words = [], i = 0;
+    var html = cur.text.replace(/\{([^}]+)\}/g, function (_, w) { words.push(w); return '%%' + (i++) + '%%'; });
+    var pool = A.shuffle(words.concat(niveau === 'ein' ? [] : cur.extra));
+    html = A.fmt(html).replace(/%%(\d+)%%/g, function (_, n) {
+      return '<label class="sr" for="g' + n + '">Lücke ' + (+n + 1) + '</label><select id="g' + n + '"><option value="">…</option>' +
+        pool.map(function (w) { return '<option>' + A.esc(w) + '</option>'; }).join('') + '</select>';
+    });
+    $('body').innerHTML = '<div class="card"><div class="wort"><b>Wortspeicher</b>' + pool.map(function (w) { return '<span>' + A.esc(w) + '</span>'; }).join('') + '</div>' +
+      '<p class="gaptext">' + html + '</p></div><div class="actions"><button class="btn" id="check" type="button">Prüfen</button><button class="linkbtn" id="sol" type="button">Lösung zeigen</button><span class="score" id="sc" aria-live="polite"></span></div>';
+    $('check').onclick = function () {
+      var ok = 0;
+      words.forEach(function (w, n) { var s = $('g' + n); s.classList.remove('right', 'wrong'); if (s.value === w) { ok++; s.classList.add('right'); } else s.classList.add('wrong'); });
+      score($('sc'), ok, words.length);
+    };
+    $('sol').onclick = function () { words.forEach(function (w, n) { var s = $('g' + n); s.value = w; s.classList.remove('wrong'); s.classList.add('right'); }); };
+  }
+
+  /* ---------- Schätzen ---------- */
+  function schaetzen() {
+    var st = filt(cur.schritte);
+    $('body').innerHTML = '<div class="card">' + st.map(function (s, n) {
+      return '<div class="step"><label for="s' + n + '">' + (n + 1) + '. ' + A.fmt(s.l) + (s.hinweis ? '<small>' + A.esc(s.hinweis) + '</small>' : '') + '</label>' +
+        '<div class="in"><input id="s' + n + '" inputmode="decimal" autocomplete="off"><span class="unit">' + A.esc(s.u) + '</span></div><div class="fb" id="f' + n + '" style="grid-column:1/-1"></div></div>';
+    }).join('') + '</div><div class="actions"><button class="btn" id="check" type="button">' + (cur.rechnung ? 'Ausrechnen' : 'Prüfen') + '</button><button class="linkbtn" id="sol" type="button">Musterlösung zeigen</button></div>' +
+      '<div id="out"></div>';
+    $('check').onclick = function () {
+      var vals = {}, all = true;
+      st.forEach(function (s, n) {
+        var x = A.parse($('s' + n).value), f = $('f' + n), inp = $('s' + n);
+        inp.classList.remove('right', 'wrong'); f.innerHTML = '';
+        if (!isFinite(x)) { all = false; return; }
+        vals[s.id || n] = x;
+        if (s.w != null) {
+          var good = Math.abs(x - s.w) <= Math.abs(s.w) * s.tol + 1e-9;
+          inp.classList.add(good ? 'right' : 'wrong');
+          f.innerHTML = '<p class="expl' + (good ? '' : ' bad') + '">' + (good ? 'Richtig.' : 'Noch nicht. Tipp: ' + A.fmt(s.tipp)) + '</p>';
+        }
+      });
+      if (cur.rechnung === 'zocken') {
+        if (!all) { $('out').innerHTML = '<p class="res">Trage zuerst alle vier Werte ein.</p>'; return; }
+        var P = (vals.pk + vals.pf) / 1000, E = P * vals.h * vals.tage, K = E * 0.37;
+        $('out').innerHTML = '<div class="res"><b>Deine Rechnung:</b><br>P = ' + A.num(vals.pk) + ' W + ' + A.num(vals.pf) + ' W = ' + A.num(+P.toFixed(3)) + ' kW<br>' +
+          'E = ' + A.num(+P.toFixed(3)) + ' kW · ' + A.num(vals.h) + ' h · ' + A.num(vals.tage) + ' = <b>' + A.num(+E.toFixed(1)) + ' kWh</b><br>' +
+          'Kosten = ' + A.num(+E.toFixed(1)) + ' kWh · 0,37 €/kWh ≈ <b>' + A.num(K, 2) + ' €</b> pro Jahr' +
+          (niveau === 'stern' ? '<br>★ CO₂ ≈ ' + A.num(+(E * 0.34).toFixed(0)) + ' kg pro Jahr (0,34 kg pro kWh)' : '') + '</div>';
+        done(100);
+      } else {
+        var allOk = st.every(function (s, n) { return s.w == null || $('s' + n).classList.contains('right'); });
+        if (allOk && all) done(100);
+      }
+    };
+    $('sol').onclick = function () { $('out').innerHTML = '<div class="res"><b>Musterlösung</b><br>' + cur.loesung.map(A.fmt).join('<br>') + '</div>'; };
+  }
+
+  $('niveau').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; niveau = b.dataset.v; A.save('uebung-niveau', niveau); render(); });
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+</body>
+</html>

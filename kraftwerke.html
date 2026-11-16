@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kraftwerke-Labor · Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs a { font: 700 15px var(--f-text); text-decoration: none; padding: 9px 14px; border-radius: 999px; min-height: 42px; display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--line); color: var(--text); background: var(--surface); }
+  .tabs a[aria-current="page"] { border-color: var(--blue); background: var(--blue); color: #fff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs a[aria-current="page"] { color: #0B1824; } }
+  :root[data-theme="dark"] .tabs a[aria-current="page"] { color: #0B1824; }
+  .tabs i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); display: inline-block; }
+  .lab { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 880px) { .lab { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .panel h2 { font-size: 22px; }
+  .panel h3 { font-size: 17px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+  .scene { width: 100%; height: auto; display: block; border-radius: 12px; background: #DCEBF7; }
+  .ctrl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+  .ctrl label { font-weight: 700; color: var(--ink); }
+  .ctrl output { font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .ctrl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--blue); height: 32px; }
+  .ctrl .sw { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .num { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+  .num b { display: block; font-size: 24px; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .num span { font-size: 13px; color: var(--muted); }
+  .num.eta b { color: var(--green-d); }
+  .flow svg { width: 100%; height: auto; display: block; }
+  .flow text { fill: var(--ink); font: 700 13px var(--f-text); }
+  .flow text.in, .flow text.ind { fill: #1f1f1f; }
+  .flow .box { stroke: #1f1f1f; }
+  .flow .box { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+  .note { font-size: 14px; color: var(--muted); }
+  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; align-items: start; }
+  .panel h4 { font-size: 15px; color: var(--ink); margin: 0; }
+  .panel h3, .panel h2, .panel p { margin: 0; }
+  .panel ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+  table.pc { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.pc th, table.pc td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  table.pc th { font-size: 15px; }
+  table.pc th:first-child { color: var(--green-d); } table.pc th:last-child { color: var(--bad); }
+  table.pc td:first-child { border-right: 1px solid var(--line); }
+  /* Energieumwandlungskette: Energien in Pfeilen, Wandler in Kästen */
+  .kette { display: flex; align-items: flex-start; justify-content: safe center; gap: 3px; padding: 4px 0; overflow-x: auto; }
+  .kette .ka { flex: 0 0 auto; width: 92px; display: flex; flex-direction: column; align-items: stretch; gap: 4px; padding-top: 5px; }
+  .kette .ka svg { display: block; }
+  .kette .ka .av { display: none; }
+  .kette .ka text { font: 700 16px var(--f-text); fill: #1f1f1f; }
+  .kette .kc { font-size: 12px; line-height: 1.3; color: var(--muted); text-align: center; padding-right: 16px; }   /* mittig unter dem Rechteck, ohne Spitze */
+  .kette .kw { flex: 0 0 auto; height: 46px; display: grid; place-items: center; border: 2px solid #1f1f1f; border-radius: 6px; padding: 0 8px; background: var(--surface); font: 700 14px var(--f-text); color: var(--ink); text-align: center; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kette .kw { border-color: var(--ink); } }
+  :root[data-theme="dark"] .kette .kw { border-color: var(--ink); }
+  @media (max-width: 720px) {
+    .kette { flex-direction: column; align-items: center; gap: 6px; }
+    .kette .ka { width: auto; padding-top: 0; align-items: center; }
+    .kette .kc { padding-right: 0; }
+    .kette .ka .ah { display: none; } .kette .ka .av { display: block; }
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .kette-extra { font-size: 14px; color: var(--muted); }
+  @media (max-width: 720px) {
+    .kette { flex-direction: column; align-items: center; }
+    .kette .kp { flex: none; min-width: 0; width: min(280px, 86%); padding: 8px 12px 24px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), 50% 100%, 0 calc(100% - 16px)); margin: -1px 0; }
+    .kette .kw { min-width: 60%; }
+  }
+  /* Aufbau: Bild, Regler + Kennzahlen, Auswahl, ein Bereich */
+  .main .scene { max-width: 940px; margin: 0 auto; }
+  .under { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 12px 18px; align-items: center; }
+  @media (max-width: 760px) { .under { grid-template-columns: 1fr; } }
+  .ctrls { display: flex; flex-direction: column; gap: 12px; }
+  .views { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); align-items: end; gap: 0 4px; padding-top: 10px; border-bottom: 2px solid var(--blue); }
+  .views button[hidden] { display: none; }
+  .views button { font: 600 14px/1.2 var(--f-text); padding: 6px 6px; min-height: 44px; border: 1.5px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--bg); color: var(--muted); cursor: pointer; text-align: center; }
+  .views button:hover { color: var(--blue); }
+  .views button[aria-pressed="true"] { font-weight: 700; font-size: 16px; letter-spacing: .01em; min-height: 54px; background: var(--surface); color: var(--blue); border: 2px solid var(--blue); border-bottom: 0; margin-bottom: -2px; padding-bottom: 8px; position: relative; z-index: 1; }
+  .views button[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px; background: var(--surface); }
+  @media (max-width: 600px) { .views { gap: 0 2px; } .views button { font-size: 12px; padding: 4px 2px; hyphens: auto; } .views button[aria-pressed="true"] { font-size: 13.5px; } }
+  .view { display: flex; flex-direction: column; gap: 10px; border: 2px solid var(--blue); border-top: 0; border-radius: 0 0 12px 12px; padding: 14px; margin-top: -12px; }
+  .main [hidden] { display: none !important; }
+  .view .flow { width: 100%; overflow-x: auto; }
+  .view .flow svg.fluss { margin: 0 auto; }
+  .view .legend { justify-content: center; }
+  .flow svg.fluss { max-width: 100%; height: auto; display: block; }
+
+  .view ol li::marker { font-weight: 700; color: var(--blue); }
+  .view ol strong { color: var(--ink); }
+  .view ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; max-width: 75ch; }
+  .view table.pc { max-width: 900px; }
+  /* Bauteil-Leiste */
+    .parts-head { font-size: 14px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { font: 600 14px var(--f-text); padding: 6px 11px; min-height: 36px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+  .chips button[aria-pressed="true"] { background: #E8742C; border-color: #E8742C; color: #fff; }
+  .partinfo { background: var(--bg); border-left: 4px solid #E8742C; border-radius: 6px; padding: 10px 12px; font-size: 15px; }
+  .partinfo:empty { display: none; }
+  @keyframes pulse { 0%, 100% { stroke-opacity: 1; stroke-width: 4; } 50% { stroke-opacity: .45; stroke-width: 7; } }
+  #scene .hl { fill: rgba(232, 116, 44, .12); stroke: #E8742C; animation: pulse 1.2s ease-in-out infinite; }
+  /* Szenen-Animationen */
+  #scene .lb { font: 700 11px var(--f-text); fill: #10324D; }
+  #scene .ls { font: 700 9.5px var(--f-text); fill: #10324D; }
+  #scene .lw { fill: #fff; }
+  @keyframes kwdash { to { stroke-dashoffset: -32; } }
+  #scene .fl { stroke-dasharray: 10 6; animation: kwdash 1.2s linear infinite; }
+  #scene .wire { stroke-dasharray: 3 13; stroke-linecap: round; animation: kwdash .7s linear infinite; }
+  @keyframes gustmove { to { stroke-dashoffset: -100; } }
+  #scene .gust { stroke-dasharray: 40 60; animation: gustmove 1s linear infinite; }
+  @keyframes spin { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.12); } }
+  #scene .spin { transform-box: fill-box; transform-origin: center; animation: spin .5s linear infinite; }
+  @keyframes swim { 0% { transform: translate(0, 0); } 20% { transform: translate(-34px, -9px); } 40% { transform: translate(-68px, -19px); } 60% { transform: translate(-102px, -29px); } 80%, 100% { transform: translate(-136px, -39px); } }
+  #scene .swim { animation: swim 6s steps(1, end) infinite; }
+  @keyframes bub { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-70px); opacity: 0; } }
+  #scene .bub { animation: bub 2.4s linear infinite; }
+  @keyframes pist { 50% { transform: translateY(5px); } }
+  #scene .piston { animation: pist .3s linear infinite; }
+  @keyframes haze { 50% { opacity: .25; } }
+  #scene .haze { animation: haze 1s ease-in-out infinite; }
+  @keyframes flick { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.82); } }
+  #scene .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flick .45s ease-in-out infinite; }
+  @keyframes rise { 0% { transform: translate(0, 0) scale(.6); opacity: .85; } 100% { transform: translate(-14px, -70px) scale(1.7); opacity: 0; } }
+  #scene .puff { transform-box: fill-box; transform-origin: center; animation: rise 4.5s linear infinite; }
+  @keyframes slide { to { transform: translateY(10px); } }
+  #scene .stripes { animation: slide .35s linear infinite; }
+  @keyframes drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(26px); opacity: .2; } }
+  #scene .drop { animation: drop .9s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { #scene * { animation: none !important; } }
+  .ds { font-size: 14px; color: var(--muted); }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<header class="band band-mini"><div class="wrap"><a class="back" href="./">← Energie</a><h1>Kraftwerke-Labor</h1></div></header>
+<main class="wrap" style="display:flex;flex-direction:column;gap:18px">
+  <section class="page-intro">
+    <p>Wie funktioniert ein Kraftwerk? Wähle eine Anlage, verändere die Bedingungen mit dem Regler und beobachte, wie viel Energie genutzt wird und wohin der Rest geht.</p>
+    <nav class="tabs" id="tabs" aria-label="Kraftwerk wählen"></nav>
+  </section>
+  <section class="panel main" aria-labelledby="k-name">
+    <h2 id="k-name"></h2>
+    <svg class="scene" id="scene" viewBox="0 0 520 300" role="img" aria-labelledby="k-name"></svg>
+    <div class="under">
+      <div id="ctrls" class="ctrls"></div>
+      <div class="nums" id="nums"></div>
+    </div>
+    <div class="views" id="views" role="group" aria-label="Was möchtest du sehen?">
+      <button type="button" data-v="bauteile" aria-pressed="false">Bauteile</button>
+      <button type="button" data-v="fluss" aria-pressed="false">Energiefluss</button>
+      <button type="button" data-v="kette" aria-pressed="false">Umwandlungskette</button>
+      <button type="button" data-v="steck" aria-pressed="false">Steckbrief</button>
+      <button type="button" data-v="pc" aria-pressed="false">Vor- und Nachteile</button>
+    </div>
+    <div class="view" id="v-bauteile" hidden>
+      <p class="parts-head">Tippe ein Bauteil an, um es im Bild zu finden:</p>
+      <div class="chips" id="parts" role="group" aria-label="Bauteile"></div>
+      <p class="partinfo" id="partinfo" aria-live="polite"></p>
+    </div>
+    <div class="view" id="v-fluss" hidden>
+      <div class="flow" id="flow"></div>
+      <div class="legend" id="legend"></div>
+      <p class="note" id="flownote"></p>
+    </div>
+    <div class="view" id="v-kette" hidden>
+      <div class="kette" id="kette"></div>
+      <p class="kette-extra" id="kette-extra" hidden></p>
+    </div>
+    <div class="view" id="v-steck" hidden>
+      <ol id="schritte"></ol>
+      <p class="ds" id="ds"></p>
+    </div>
+    <div class="view" id="v-pc" hidden>
+      <table class="pc"><thead><tr><th scope="col">Vorteile</th><th scope="col">Nachteile</th></tr></thead><tbody id="pc"></tbody></table>
+    </div>
+  </section>
+  <p class="note">Alle Werte sind gerundete Richtwerte für den Unterricht. Wirkungsgrade schwanken je nach Anlage. CO₂-Werte: Mittelwerte über die ganze Lebensdauer der Anlage (IPCC 2014), wie im Datenblatt auf 13A.</p>
+</main>
+<script src="data/site.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/fluss.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.App, $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Energieformen: Farbe und Name (wie Legende der Reihe) */
+  /* Farbcode und Kürzel der Reihe (wie auf den Arbeitsblättern, build/figs.py) */
+  var F = {
+    CE: ['chemische Energie', '#9B7BC8'], EE: ['elektrische Energie', '#F2C230'], BE: ['Bewegungsenergie', '#3D8BD0'],
+    LE: ['Lageenergie', '#4BAA6F'], TE: ['thermische Energie', '#E0605B'], StE: ['Strahlungsenergie', '#F59A3A'],
+    SpE: ['Spannenergie', '#9A9A9A'], UW: ['thermische Energie der Umgebung', '#E0605B']
+  };
+  var AB = { CE: 'CE', EE: 'EE', BE: 'BE', LE: 'LE', TE: 'TE', StE: 'StE', SpE: 'SpE', UW: 'TE' };
+
+  function f1(x) { return A.num(+x.toFixed(1)); }
+  function f0(x) { return A.num(Math.round(x)); }
+
+  /* Beispielanlage: 3 MW, Anlauf 3 m/s, Nennleistung ab 12 m/s, Abschaltung ab 25 m/s */
+  function windP(v) { return v < 3 || v >= 25 ? 0 : v >= 12 ? 3000 : 3000 * Math.pow((v - 3) / 9, 2.2); }
+  /* ------------------------------------------------------------ Kraftwerke */
+  var K = [
+    { id: 'kohle', name: 'Kohlekraftwerk', c: '#5A5F66', ds: 'DS 10 · 10A (Schemazeichnung)',
+      info: [[33, 262, 'Kohle', 'Fossiler Energieträger. In ihr ist chemische Energie gespeichert, die vor Millionen Jahren aus Pflanzen entstanden ist.', 30, 22],
+        [64, 200, 'Förderband', 'Bringt die gemahlene Kohle in den Kessel.', 22, 66],
+        [118, 197, 'Kessel', 'Hier verbrennt die Kohle bei über 1000 °C. Die Kesselwände bestehen aus Rohren, in denen Wasser zu Dampf wird.', 50, 88],
+        [175, 150, 'Schornstein', 'Leitet die gereinigten Abgase ab. Sie enthalten viel Kohlenstoffdioxid (CO₂), ein Treibhausgas.', 16, 112],
+        [180, 95, 'Dampfleitung', 'Der Dampf ist etwa 550 °C heiß und steht unter sehr hohem Druck.', 70, 16],
+        [268, 215, 'Turbine', 'Der Dampf strömt durch viele Schaufelräder und dreht sie. Thermische Energie wird zu Bewegungsenergie.', 46, 36],
+        [350, 217, 'Generator', 'Im Generator dreht sich ein Magnet in Spulen. So wird Bewegungsenergie zu elektrischer Energie.', 36, 34],
+        [298, 270, 'Kondensator', 'Hier kühlt der Dampf am kalten Kühlwasser ab und wird wieder flüssig. Das Wasser wird wiederverwendet.', 60, 15],
+        [208, 272, 'Pumpe', 'Drückt das Wasser zurück in den Kessel. So entsteht ein geschlossener Wasser-Dampf-Kreislauf.', 15, 15],
+        [414, 265, 'Transformator', 'Erhöht die Spannung auf bis zu 380 000 Volt. So geht beim Transport über weite Strecken weniger Energie verloren.', 24, 22],
+        [535, 136, 'Stromnetz', 'Die gelben Punkte zeigen: Elektrische Energie fließt über Hochspannungsleitungen zu den Verbrauchern.', 108, 20],
+        [525, 222, 'Kühlturm', 'Das warme Kühlwasser wird versprüht und von aufsteigender Luft gekühlt. Die Wolke über dem Turm ist Wasserdampf, kein Rauch.', 70, 62],
+        [418, 308, 'Kühlkreislauf', 'Kaltes Wasser nimmt im Kondensator die Abwärme auf und bringt sie zum Kühlturm. Statt eines Kühlturms wird oft auch Flusswasser genutzt.', 118, 20],
+        [612, 268, 'Fernwärme', 'Bei Kraft-Wärme-Kopplung heizt die Abwärme über Rohre Wohnungen. So wird viel mehr der Energie genutzt.', 28, 24]],
+      kurz: 'Kohle-\nkraftwerk', kette: ['CE', 'chemische Energie (Kohle)', [['Kessel', 'TE', 'thermische Energie (Dampf)'], ['Turbine', 'BE'], ['Generator', 'EE']]],
+      ctrls: [{ id: 'kwk', type: 'switch', label: 'Abwärme nutzen (Kraft-Wärme-Kopplung)', opts: ['nein', 'ja'], val: 0 }],
+      calc: function (s) {
+        var el = s.kwk ? 34 : 40, fw = s.kwk ? 51 : 0, aw = 100 - el - fw;
+        var fl = { zu: [['CE', 100]], steps: [{ name: 'Kessel', out: [['TE', 88]], loss: [['TE', 12]] },
+          { name: 'Turbine', out: [['BE', el + 2]].concat(fw ? [['TE', fw, 'Fernwärme (genutzt)']] : []), loss: [['TE', 88 - el - 2 - fw]] },
+          { name: 'Generator', out: [['EE', el]], loss: [['TE', 2]] }] };
+        return { fluss: fl, zu: [['CE', 100]], nutz: [['EE', el]].concat(fw ? [['TE', fw, 'Fernwärme']] : []), weg: [['TE', aw, 'thermische Energie (nicht genutzt)']],
+          eta: el + fw, etaLabel: s.kwk ? 'Gesamtnutzungsgrad' : 'Wirkungsgrad', speed: 1,
+          nums: (s.kwk ? [['Wirkungsgrad (nur Strom)', el + ' %']] : []).concat([['CO₂ pro kWh Strom', 'ca. 820 g']]),
+          note: s.kwk ? 'Mit Kraft-Wärme-Kopplung heizt die Abwärme über das Fernwärmenetz Häuser. Der Strom-Wirkungsgrad sinkt etwas, insgesamt werden aber rund 85 % genutzt.' :
+            'Etwa 60 % der Energie aus der Kohle gehen als Abwärme verloren, vor allem über den Kühlturm, ein kleiner Teil mit dem Abgas.' };
+      },
+      steps: ['Ein Förderband bringt Kohle in den Kessel. Dort verbrennt sie: chemische Energie wird zu thermischer Energie.', 'In den Rohren der Kesselwand verdampft Wasser. Der heiße Dampf strömt mit hohem Druck zur Turbine.', 'Der Dampf dreht die Turbine (Bewegungsenergie). Turbine und Generator stehen im Maschinenhaus auf einem Betonsockel.', 'Der Generator wandelt Bewegungsenergie in elektrische Energie um. Ein Transformator erhöht die Spannung, der Strom fließt ins Netz.', 'Im Kondensator wird der Dampf mit Kühlwasser wieder zu Wasser. Eine Pumpe drückt es zurück in den Kessel (Wasser-Dampf-Kreislauf).', 'Das warme Kühlwasser fließt zum Kühlturm und gibt dort die Abwärme an die Luft ab (Dampfwolke). Abgekühlt fließt es zurück (Kühlkreislauf).', 'Die Abgase mit CO₂ werden gereinigt und verlassen das Kraftwerk über den Schornstein.'],
+      pro: ['liefert Strom unabhängig vom Wetter', 'gut regelbar'], con: ['sehr viel CO₂', 'großer Teil der Energie geht als Abwärme verloren', 'Kohle ist endlich (fossiler Energieträger)'] },
+
+    { id: 'wind', name: 'Windkraftanlage', c: '#2E9A5C', ds: 'DS 11/12 · Expertengruppe Wind',
+      info: [[300, 105, 'Rotor', 'Drei Rotorblätter, je etwa 60 m lang. Sie sind geformt wie Flugzeugflügel. Der Wind erzeugt an ihnen eine Kraft, die den Rotor dreht.', 100, 100],
+        [300, 105, 'Nabe', 'Hält die Rotorblätter. Motoren in der Nabe drehen die Blätter passend zum Wind, bei Sturm ganz aus dem Wind.', 14, 14],
+        [526, 86, 'Gondel', 'Das Maschinenhaus oben auf dem Turm. Sie dreht sich automatisch in den Wind.', 98, 40],
+        [490, 86, 'Welle', 'Überträgt die Drehung des Rotors (Bewegungsenergie) zum Getriebe.', 22, 12],
+        [523, 86, 'Getriebe', 'Erhöht die Drehzahl: Der Rotor dreht sich langsam, der Generator braucht schnelle Drehungen. Manche Anlagen haben stattdessen einen sehr großen Generator ohne Getriebe.', 22, 22],
+        [571, 86, 'Generator', 'Wandelt Bewegungsenergie in elektrische Energie um.', 30, 24],
+        [300, 200, 'Turm', 'Trägt Gondel und Rotor in etwa 120 m Höhe. Dort oben weht der Wind stärker und gleichmäßiger als am Boden.', 22, 92],
+        [300, 309, 'Fundament', 'Ein Betonsockel, mehrere hundert Tonnen schwer, hält die Anlage auch bei Sturm sicher im Boden.', 46, 22],
+        [350, 279, 'Transformator', 'Erhöht die Spannung, bevor der Strom ins Netz fließt.', 22, 18],
+        [500, 310, 'Erdkabel', 'Leitet die elektrische Energie unter der Erde zum Stromnetz.', 140, 14],
+        [526, 224, 'Leistungskurve', 'Zeigt die Leistung bei jeder Windgeschwindigkeit: Ab 3 m/s dreht sich der Rotor, ab 12 m/s liefert die Anlage volle Leistung, ab 25 m/s schaltet sie ab.', 108, 60]],
+      kurz: 'Wind-\nkraftanlage', kette: ['BE', 'Bewegungsenergie (Wind)', [['Rotor', 'BE', 'Bewegungsenergie (Welle)'], ['Generator', 'EE']]],
+      ctrls: [{ id: 'v', type: 'range', label: 'Windgeschwindigkeit', unit: 'm/s', min: 0, max: 28, step: 1, val: 9 }],
+      calc: function (s) {
+        var v = s.v, p = windP(v);
+        var cp = v < 3 || v >= 25 ? 0 : v <= 10 ? 45 : Math.max(10, Math.round(45 * Math.pow(10 / v, 2.4)));
+        var off = v >= 25 ? 'Sturm: Die Anlage schaltet sich zum Schutz ab.' : v < 3 ? 'Zu wenig Wind: Der Rotor steht still.' :
+          v >= 12 ? 'Nennleistung erreicht: Die Rotorblätter werden gedreht, damit die Anlage nicht überlastet wird.' : 'Doppelte Windgeschwindigkeit bringt etwa die achtfache Energie im Wind.';
+        var fl = { zu: [['BE', 100, 'Bewegungsenergie (Wind)']], steps: [{ name: 'Rotor', out: [['BE', cp ? cp + 4 : 0, 'Bewegungsenergie (Welle)']], loss: [['BE', cp ? 96 - cp : 100, 'Bewegungsenergie (bleibt im Wind)']] }].concat(cp ? [{ name: 'Generator', out: [['EE', cp]], loss: [['TE', 4]] }] : []) };
+        return { fluss: fl, zu: [['BE', 100, 'Bewegungsenergie des Windes']], nutz: [['EE', cp]], weg: [['BE', 100 - cp - (cp ? 4 : 0), 'bleibt im Wind'], ['TE', cp ? 4 : 0, 'thermische Energie (nicht genutzt)']],
+          eta: cp, etaLabel: 'Wirkungsgrad', speed: p > 0 ? 0.08 + 0.022 * Math.min(v, 12) : 0,
+          nums: [['Leistung', f0(p) + ' kW'], ['CO₂ pro kWh', 'ca. 11 g']], note: off };
+      },
+      steps: ['Der Wind strömt gegen die drei Rotorblätter. Sie sind geformt wie Flugzeugflügel, deshalb setzt der Wind den Rotor in Drehung.', 'Die Rotorblätter sitzen an der Nabe. Die Nabe dreht die Welle in der Gondel (Bewegungsenergie).', 'Bei vielen Anlagen erhöht ein Getriebe die Drehzahl. Der Generator wandelt Bewegungsenergie in elektrische Energie um.', 'Die Gondel dreht sich automatisch in den Wind. Bei Sturm werden die Rotorblätter aus dem Wind gedreht und die Anlage stoppt.', 'Der Turm trägt Gondel und Rotor in große Höhe, wo der Wind stärker und gleichmäßiger weht. Ein Betonfundament hält die Anlage im Boden.', 'Ein Transformator erhöht die Spannung. Über ein Erdkabel fließt der Strom ins Netz.'],
+      pro: ['kein CO₂ im Betrieb', 'Wind kostet nichts', 'an der Küste besonders viel Wind'], con: ['liefert nur bei Wind (Flaute, Sturm)', 'Geräusche und Schatten in der Nähe', 'braucht Speicher und Netze'] },
+
+    { id: 'wasser', name: 'Laufwasserkraftwerk', c: '#1F6FB2', ds: 'DS 11/12 · Expertengruppe Wasser (Weserkraftwerk)',
+      info: [[116, 262, 'Oberwasser', 'Das aufgestaute Wasser vor dem Wehr. Es liegt höher als das Unterwasser und hat deshalb Lageenergie.', 112, 46],
+        [219, 267, 'Rechen', 'Ein Gitter aus Stahlstäben. Es hält Äste, Laub und Müll von der Turbine fern.', 16, 36],
+        [326, 162, 'Wehr und Krafthaus', 'Das Wehr aus Beton staut den Fluss auf. Darin liegt der Wasserkanal, oben im Krafthaus steht der Generator.', 98, 64],
+        [330, 270, 'Turbine', 'Eine Kaplan-Turbine: Sie sieht aus wie ein Schiffspropeller. Ihre Flügel lassen sich verstellen, damit sie bei viel und wenig Wasser gut arbeitet.', 26, 16],
+        [330, 180, 'Welle', 'Die senkrechte Welle überträgt die Drehung der Turbine nach oben zum Generator.', 12, 80],
+        [330, 81, 'Generator', 'Wandelt Bewegungsenergie in elektrische Energie um.', 36, 26],
+        [380, 270, 'Saugrohr', 'Das Rohr hinter der Turbine wird breiter. So fließt das Wasser langsamer ab und die Turbine kann mehr Energie nutzen.', 44, 28],
+        [530, 270, 'Unterwasser', 'Das Wasser hinter dem Kraftwerk. Es fließt den Fluss hinab weiter.', 108, 34],
+        [470, 216, 'Fallhöhe', 'Der Höhenunterschied zwischen Oberwasser und Unterwasser. Je größer die Fallhöhe, desto mehr Lageenergie hat jeder Kubikmeter Wasser.', 30, 34],
+        [411, 82, 'Transformator', 'Erhöht die Spannung, bevor der Strom ins Netz fließt.', 20, 18],
+        [105, 112, 'Fischtreppe', 'Kleine Becken wie Treppenstufen neben dem Wehr. So können Fische trotz Wehr flussaufwärts wandern.', 100, 44]],
+      kurz: 'Wasser-\nkraftwerk', kette: ['LE', 'Lageenergie (gestautes Wasser)', [['Wehr', 'BE', 'Bewegungsenergie (Wasser)'], ['Turbine', 'BE', 'Bewegungsenergie (Welle)'], ['Generator', 'EE']]],
+      ctrls: [{ id: 'q', type: 'range', label: 'Wassermenge', unit: 'm³/s', min: 0, max: 200, step: 10, val: 100 },
+              { id: 'h', type: 'range', label: 'Fallhöhe', unit: 'm', min: 1, max: 10, step: 0.5, val: 4 }],
+      calc: function (s) {
+        var eta = s.q > 0 ? 88 : 0, p = 0.88 * 1000 * 9.81 * s.q * s.h / 1e6;
+        var fl = { zu: [['LE', 100, 'Lageenergie (Wasser oben)']], steps: [{ name: 'Turbine', out: [['BE', eta ? 92 : 0]], loss: [['TE', eta ? 8 : 0]] }].concat(eta ? [{ name: 'Generator', out: [['EE', 88]], loss: [['TE', 4]] }] : []) };
+        return { fluss: eta ? fl : null, zu: [['LE', 100, 'Lageenergie des Wassers']], nutz: [['EE', eta]], weg: [['TE', 100 - eta, 'thermische Energie (nicht genutzt)']], eta: eta, etaLabel: 'Wirkungsgrad', speed: s.q / 100,
+          nums: [['Leistung', f1(p) + ' MW'], ['CO₂ pro kWh', 'ca. 24 g']],
+          note: 'P = η · m · g · h pro Sekunde: 1 m³ Wasser hat die Masse 1000 kg. Mehr Wasser oder mehr Fallhöhe bedeutet mehr Leistung. In Bremen arbeitet ein Laufwasserkraftwerk am Weserwehr.' };
+      },
+      steps: ['Ein Wehr staut den Fluss auf. Das Wasser vor dem Wehr (Oberwasser) liegt höher als dahinter (Unterwasser) und hat Lageenergie.', 'Ein Rechen hält Äste, Laub und Müll zurück.', 'Das Wasser strömt durch einen Kanal nach unten zur Turbine. Dabei wird Lageenergie zu Bewegungsenergie des Wassers.', 'Das Wasser dreht die Turbine. Laufwasserkraftwerke haben meist eine Kaplan-Turbine, die aussieht wie ein Schiffspropeller.', 'Eine senkrechte Welle verbindet die Turbine mit dem Generator im Krafthaus. Der Generator wandelt Bewegungsenergie in elektrische Energie um.', 'Durch das Saugrohr fließt das Wasser ins Unterwasser und weiter den Fluss hinab.', 'Neben dem Wehr hilft eine Fischtreppe den Fischen, flussaufwärts zu wandern.'],
+      pro: ['sehr hoher Wirkungsgrad', 'liefert Tag und Nacht', 'kaum CO₂'], con: ['nur an Flüssen mit Gefälle möglich', 'Eingriff in den Fluss, Fischtreppen nötig', 'weniger Strom bei Trockenheit'] },
+
+    { id: 'pumpspeicher', name: 'Pumpspeicherkraftwerk', c: '#4BAA6F', ds: 'DS 14 · 14A Speicher',
+      kurz: 'Pump-\nspeicher',
+      kette: function (s) { return s.mode === 1 ? ['EE', 'elektrische Energie (Netz)', [['Motor', 'BE', 'Bewegungsenergie (Welle)'], ['Pumpe', 'LE', 'Lageenergie (Wasser oben)']]]
+        : ['LE', 'Lageenergie (Wasser oben)', [['Turbine', 'BE', 'Bewegungsenergie (Welle)'], ['Generator', 'EE', 'elektrische Energie (Netz)']]]; },
+      info: [[125, 108, 'Oberbecken', 'Ein künstlicher See oben auf dem Berg. Das Wasser darin hat viel Lageenergie. Er ist der eigentliche Energiespeicher.', 84, 26],
+        [540, 282, 'Unterbecken', 'Der See im Tal. Hierhin fließt das Wasser beim Erzeugen, von hier wird es beim Speichern hochgepumpt.', 92, 24],
+        [286, 196, 'Druckrohrleitung', 'Ein dickes Stahlrohr, oft durch den Berg gebohrt. Darin strömt das Wasser mit hohem Druck nach unten oder wird nach oben gepumpt.', 96, 84],
+        [392, 288, 'Krafthaus im Berg', 'Eine große Halle tief im Fels (Kaverne). Darin stehen Pumpturbine und Motor-Generator.', 48, 30],
+        [376, 292, 'Pumpturbine', 'Eine Maschine für beides: Läuft das Wasser hinab, ist sie eine Turbine. Dreht der Motor sie andersherum, pumpt sie Wasser nach oben.', 16, 16],
+        [414, 291, 'Motor-Generator', 'Beim Erzeugen arbeitet er als Generator (Bewegungsenergie → elektrische Energie), beim Speichern als Elektromotor (elektrische Energie → Bewegungsenergie).', 20, 19],
+        [575, 186, 'Fallhöhe', 'Der Höhenunterschied zwischen Ober- und Unterbecken, oft mehrere hundert Meter. Je größer die Fallhöhe, desto mehr Energie speichert jeder Kubikmeter Wasser.', 30, 86],
+        [414, 242, 'Transformator', 'Passt die Spannung an: beim Erzeugen hoch fürs Netz, beim Speichern herunter für den Motor.', 20, 16],
+        [540, 147, 'Stromnetz', 'Die gelben Punkte zeigen die Richtung: beim Erzeugen ins Netz, beim Speichern aus dem Netz zur Anlage.', 100, 18]],
+      ctrls: [{ id: 'mode', type: 'switch', label: 'Betrieb', opts: ['Strom erzeugen', 'Energie speichern', 'Pause'], val: 0 },
+              { id: 'f', type: 'range', label: 'Füllstand Oberbecken', unit: '%', min: 0, max: 100, step: 1, val: 70 }],
+      calc: function (s) {
+        var Efull = 2e6 * 1000 * 9.81 * 300 / 3.6e9, E = s.f / 100 * Efull;   /* 2 Mio. m³ Wasser, 300 m Fallhöhe → MWh */
+        var run = s.mode === 0 ? s.f > 0 : s.mode === 1 ? s.f < 100 : false;
+        var fl = !run ? null : s.mode === 0
+          ? { zu: [['LE', 100, 'Lageenergie (Wasser oben)']], steps: [{ name: 'Turbine', out: [['BE', 92]], loss: [['TE', 8]] }, { name: 'Generator', out: [['EE', 90]], loss: [['TE', 2]] }] }
+          : { zu: [['EE', 100, 'elektrische Energie (Netz)']], steps: [{ name: 'Motor', out: [['BE', 95]], loss: [['TE', 5]] }, { name: 'Pumpe', out: [['LE', 85, 'Lageenergie (Wasser oben)']], loss: [['TE', 10]] }] };
+        var note = s.mode === 2 ? 'Pause: Die Anlage steht. Das Wasser im Oberbecken bleibt als Lageenergie gespeichert.' :
+          !run ? (s.mode === 0 ? 'Das Oberbecken ist leer – es kann kein Strom mehr erzeugt werden.' : 'Das Oberbecken ist voll – es kann nichts mehr gespeichert werden.') :
+          s.mode === 0 ? 'Strom erzeugen: Wenn viel Strom gebraucht wird, fließt das Wasser hinab. Etwa 90 % der Lageenergie werden zu elektrischer Energie.' :
+          'Energie speichern: Bei viel Wind- und Sonnenstrom pumpt die Anlage Wasser nach oben. Speichern und wieder Erzeugen zusammen: etwa 77 % kommen zurück.';
+        return { fluss: fl, zu: [], nutz: [], weg: [], eta: run ? (s.mode === 0 ? 90 : 85) : null, etaLabel: s.mode === 0 ? 'Wirkungsgrad beim Erzeugen' : 'Wirkungsgrad beim Speichern',
+          speed: run ? (s.mode === 0 ? 0.5 : -0.5) : 0, run: run,
+          nums: [['gespeicherte Lageenergie', 'ca. ' + A.num(Math.round(E)) + ' MWh'], ['Speichern + Erzeugen zusammen', 'ca. 77 %']], note: note };
+      },
+      steps: ['Oben auf dem Berg liegt das Oberbecken, unten im Tal das Unterbecken. Beide sind über eine Druckrohrleitung verbunden.', 'Energie speichern: Gibt es mehr Strom als gebraucht wird (z. B. viel Wind), treibt ein Elektromotor die Pumpe an. Sie pumpt Wasser nach oben. Elektrische Energie wird zu Lageenergie.', 'Strom erzeugen: Wird viel Strom gebraucht, fließt das Wasser hinab und dreht die Turbine. Der Generator wandelt Bewegungsenergie in elektrische Energie um.', 'Pumpe und Turbine sind oft eine Maschine (Pumpturbine), Motor und Generator ebenfalls (Motor-Generator).', 'Von der gespeicherten Energie kommen etwa drei Viertel als Strom zurück. Der Rest wird zu thermischer Energie (nicht genutzt).', 'Gespeicherte Energie berechnen: E = m · g · h. Beispiel: 1 m³ Wasser (1000 kg) bei 300 m Fallhöhe: 1000 kg · 9,81 N/kg · 300 m ≈ 2,9 MJ ≈ 0,8 kWh.'],
+      pro: ['speichert große Energiemengen', 'in wenigen Minuten einsatzbereit', 'hält viele Jahrzehnte'], con: ['braucht Berge und viel Platz', 'großer Eingriff in die Natur', 'etwa ein Viertel der Energie geht verloren'] },
+    { id: 'pv', name: 'Photovoltaik', c: '#E0B400', ds: 'DS 11/12 · Expertengruppe Photovoltaik',
+      kurz: 'Solar-\nmodul', kette: ['StE', 'Strahlungsenergie (Sonne)', [['Solarzelle', 'EE', 'elektrische Energie (Gleichstrom)']]],
+      info: [[70, 58, 'Sonne', 'Sie liefert Strahlungsenergie. Mittags im Sommer kommen in Deutschland bis zu etwa 1000 W pro Quadratmeter am Boden an.', 48, 48],
+        [290, 152, 'Solarmodule', 'Rahmen mit Glasscheibe, darin viele Solarzellen. Sie liegen auf Schienen fest auf dem Dach, am besten nach Süden geneigt.', 122, 46],
+        [214, 182, 'Solarzelle', 'Eine dünne Scheibe aus Silizium. Fällt Licht darauf, entsteht eine elektrische Spannung: Strahlungsenergie wird direkt zu elektrischer Energie – ohne bewegte Teile.', 12, 9],
+        [434, 221, 'Wechselrichter', 'Die Module liefern Gleichstrom. Der Wechselrichter macht daraus Wechselstrom, wie er in der Steckdose und im Stromnetz gebraucht wird.', 20, 22],
+        [471, 212, 'Stromzähler', 'Zählt, wie viel elektrische Energie ins Netz eingespeist und wie viel aus dem Netz bezogen wird (in kWh).', 16, 18],
+        [237, 245, 'Verbraucher im Haus', 'Den Strom vom Dach nutzt das Haus zuerst selbst (Eigenverbrauch). Nachts kommt der Strom aus dem Netz.', 30, 26],
+        [590, 200, 'Stromnetz', 'Was das Haus nicht selbst braucht, fließt ins Stromnetz zu anderen Verbrauchern.', 30, 90]],
+      ctrls: [{ id: 'e', type: 'range', label: 'Sonneneinstrahlung', unit: 'W/m²', min: 0, max: 1000, step: 50, val: 700 }],
+      calc: function (s) {
+        var eta = s.e > 0 ? 20 : 0, p = 0.2 * s.e * 20;   /* 20 m² Module (ca. 10 Module) */
+        var fl = s.e > 0 ? { zu: [['StE', 100, 'Strahlungsenergie (Sonne)']], steps: [{ name: 'Solarmodul', out: [['EE', 20]], loss: [['TE', 80]] }] } : null;
+        return { fluss: fl, zu: s.e > 0 ? [['StE', 100]] : [], nutz: [], weg: [], eta: s.e > 0 ? eta : null, etaLabel: 'Wirkungsgrad', speed: s.e / 1000,
+          nums: [['Leistung (20 m² Module)', A.num(Math.round(p / 10) * 10) + ' W'], ['CO₂ pro kWh', 'ca. 41–48 g']],
+          note: s.e === 0 ? 'Nachts liefert die Anlage keinen Strom.' : 'Mittags im Sommer erreichen in Deutschland etwa 1000 W pro m² den Boden, im Winter und bei Wolken viel weniger.' };
+      },
+      steps: ['Sonnenlicht fällt auf die Solarmodule auf dem Dach (Strahlungsenergie).', 'In jeder Solarzelle aus Silizium wird Strahlungsenergie direkt in elektrische Energie umgewandelt – ohne bewegte Teile. Die Module liefern Gleichstrom.', 'Etwa 20 % der Strahlungsenergie werden genutzt, der Rest erwärmt die Module (thermische Energie) oder wird zurückgestrahlt.', 'Ein Wechselrichter wandelt den Gleichstrom in Wechselstrom um, wie er im Haus und im Stromnetz gebraucht wird.', 'Den Strom nutzt das Haus zuerst selbst. Der Rest fließt ins Netz; der Stromzähler misst, wie viel.'],
+      pro: ['kein CO₂ im Betrieb', 'auf jedem Dach möglich', 'keine bewegten Teile, kaum Wartung'], con: ['liefert nachts nichts, im Winter wenig', 'Wirkungsgrad nur etwa 20 %', 'braucht Speicher'] },
+
+    { id: 'biogas', name: 'Biogasanlage mit KWK', c: '#8E5BB5', ds: 'DS 11/12 · Expertengruppe Biogas',
+      info: [[48, 248, 'Silage', 'Gehäckselter Mais und Gras, im Silo gelagert. Darin steckt chemische Energie, die die Pflanzen mit Sonnenlicht aufgebaut haben.', 44, 26],
+        [50, 307, 'Gülle', 'Flüssiger Mist aus dem Stall. Er enthält viele Bakterien und wird mit in den Fermenter gepumpt.', 36, 20],
+        [112, 252, 'Einfüllung', 'Hier wird die Silage portionsweise in den Fermenter geschoben.', 22, 22],
+        [215, 232, 'Fermenter', 'Ein luftdichter, beheizter Behälter (ca. 40 °C). Bakterien zersetzen darin ohne Sauerstoff die Pflanzenreste. Dabei entsteht Biogas, vor allem Methan.', 72, 42],
+        [215, 245, 'Rührwerk', 'Mischt den Inhalt, damit die Bakterien überall Nahrung finden und das Gas aufsteigen kann.', 22, 10],
+        [215, 152, 'Gashaube', 'Eine dehnbare Haube über dem Fermenter. Sie sammelt und speichert das Biogas.', 76, 38],
+        [300, 168, 'Gasleitung', 'Führt das Biogas zum Blockheizkraftwerk.', 16, 48],
+        [369, 228, 'Gasmotor', 'Verbrennt das Biogas wie ein Automotor. Chemische Energie wird zu Bewegungsenergie – und zu viel thermischer Energie.', 30, 28],
+        [429, 233, 'Generator', 'Wandelt Bewegungsenergie in elektrische Energie um.', 28, 22],
+        [422, 170, 'Notkühler', 'Gibt die Wärme an die Luft ab, wenn sie niemand braucht. Mit Kraft-Wärme-Kopplung ist er aus.', 28, 18],
+        [490, 302, 'Wärmeleitung', 'Bei Kraft-Wärme-Kopplung bringt heißes Wasser die Wärme des Motors zu Häusern und zurück zum Fermenter.', 120, 18]],
+      kurz: 'Biogas-\nanlage', kette: ['CE', 'chemische Energie (Pflanzen, Gülle)', [['Fermenter', 'CE', 'chemische Energie (Biogas)'], ['Gasmotor', 'BE'], ['Generator', 'EE']]],
+      ctrls: [{ id: 'kwk', type: 'switch', label: 'Wärme nutzen (Kraft-Wärme-Kopplung)', opts: ['nein', 'ja'], val: 1 }],
+      calc: function (s) {
+        var el = 38, w = s.kwk ? 45 : 0;
+        var fl = { zu: [['CE', 100, 'chemische Energie (Biogas)']], steps: [{ name: 'Gasmotor', out: [['BE', 40]].concat(w ? [['TE', w, 'thermische Energie (Heizung, genutzt)']] : []), loss: [['TE', 60 - w]] },
+          { name: 'Generator', out: [['EE', el]], loss: [['TE', 2]] }] };
+        return { fluss: fl, zu: [['CE', 100, 'chemische Energie im Biogas']], nutz: [['EE', el]].concat(w ? [['TE', w, 'Wärme fürs Heizen']] : []), weg: [['TE', 100 - el - w, 'thermische Energie (nicht genutzt)']],
+          eta: el + w, etaLabel: s.kwk ? 'Gesamtnutzungsgrad' : 'Wirkungsgrad', speed: 0.8,
+          nums: (s.kwk ? [['Wirkungsgrad (nur Strom)', el + ' %']] : []).concat([['CO₂ pro kWh Strom', 'ca. 230 g']]),
+          note: s.kwk ? 'Mit Kraft-Wärme-Kopplung heizt die Wärme des Motors Häuser und den Fermenter. Insgesamt werden über 80 % der Energie im Biogas genutzt.' :
+            'Ohne Kraft-Wärme-Kopplung wird die meiste Wärme des Motors über den Notkühler an die Luft abgegeben. Nur ein kleiner Teil heizt den Fermenter.' };
+      },
+      steps: ['Silage (Mais, Gras) und Gülle kommen in den Fermenter. Sie enthalten chemische Energie.', 'Im warmen, luftdichten Fermenter zersetzen Bakterien die Pflanzenreste. Es entsteht Biogas, vor allem Methan. Das Rührwerk mischt alles durch.', 'Die Gashaube sammelt das Biogas. Eine Gasleitung bringt es zum Blockheizkraftwerk.', 'Der Gasmotor verbrennt das Biogas und treibt den Generator an: Er liefert elektrische Energie.', 'Mit Kraft-Wärme-Kopplung heizt die Wärme des Motors Häuser und den Fermenter. Ohne gibt der Notkühler sie an die Luft ab.', 'Was im Fermenter übrig bleibt (Gärrest), kommt als Dünger auf die Felder.'],
+      pro: ['liefert auch bei Windstille und nachts', 'gut regelbar', 'nutzt Reststoffe wie Gülle'], con: ['braucht viel Ackerfläche', 'mehr CO₂ als Wind und Sonne', 'Geruch in der Nähe'] },
+
+    { id: 'solarthermie', name: 'Solarthermie', c: '#D9822B', ds: 'DS 11/12 · Expertengruppe Solarthermie und Geothermie',
+      info: [[70, 58, 'Sonne', 'Sie liefert Strahlungsenergie. Auch an kühlen, aber sonnigen Tagen erwärmen sich die Kollektoren.', 48, 48],
+        [290, 152, 'Sonnenkollektoren', 'Flache Kästen mit Glasscheibe. Darin liegt eine dunkle Fläche (Absorber), die das Sonnenlicht in thermische Energie umwandelt. Kein Strom!', 118, 44],
+        [226, 172, 'Absorber mit Rohren', 'Unter der dunklen Fläche laufen dünne Kupferrohre. Die Flüssigkeit darin (Wasser mit Frostschutzmittel) nimmt die Wärme auf.', 20, 16],
+        [330, 230, 'Solarkreislauf', 'Rot: heiße Flüssigkeit vom Kollektor zum Speicher. Blau: abgekühlte Flüssigkeit zurück zum Kollektor. Der Kreislauf ist geschlossen.', 140, 60],
+        [262, 250, 'Pumpe', 'Läuft nur, wenn der Kollektor wärmer ist als der Speicher. Nachts steht sie still.', 13, 13],
+        [328, 250, 'Warmwasserspeicher', 'Ein gut gedämmter Wassertank. Unten gibt die Rohrschlange (Wärmetauscher) die Wärme an das Trinkwasser ab. Oben ist das Wasser am wärmsten.', 30, 40],
+        [214, 228, 'Dusche', 'Das warme Wasser oben aus dem Speicher fließt zur Dusche. Unten fließt kaltes Wasser nach.', 18, 20]],
+      kurz: 'Kollektor', kette: ['StE', 'Strahlungsenergie (Sonne)', [['Kollektor', 'TE', 'thermische Energie (warme Flüssigkeit)'], ['Speicher', 'TE', 'thermische Energie (Warmwasser)']]],
+      ctrls: [{ id: 'e', type: 'range', label: 'Sonneneinstrahlung', unit: 'W/m²', min: 0, max: 1000, step: 50, val: 700 }],
+      calc: function (s) {
+        var eta = s.e === 0 ? 0 : Math.max(0, Math.round(75 - 22000 / Math.max(s.e, 1) * 0.6));
+        eta = Math.min(eta, 70); var p = eta / 100 * s.e * 6;   /* 6 m² Kollektorfläche */
+        var fl = eta > 0 ? { zu: [['StE', 100, 'Strahlungsenergie (Sonne)']], steps: [{ name: 'Kollektor', out: [['TE', eta, 'thermische Energie (warme Flüssigkeit)']], loss: [['TE', 100 - eta]] },
+          { name: 'Speicher', out: [['TE', eta - 5, 'thermische Energie (Warmwasser)']], loss: [['TE', 5]] }] } : null;
+        return { fluss: fl, zu: eta > 0 ? [['StE', 100]] : [], nutz: [], weg: [], eta: eta > 0 ? eta : null, etaLabel: 'Wirkungsgrad Kollektor', speed: s.e / 1000,
+          nums: [['Wärmeleistung (6 m² Kollektor)', A.num(Math.round(p / 10) * 10) + ' W'], ['Nutzung', 'Warmwasser, Heizung']],
+          note: 'Solarthermie macht keinen Strom, sondern warmes Wasser. Bei schwacher Sonne geht ein größerer Teil als Wärme an die Umgebung verloren, deshalb sinkt der Wirkungsgrad.' };
+      },
+      steps: ['Sonnenlicht fällt auf den dunklen Kollektor und erwärmt ihn.', 'Eine Flüssigkeit im Kollektor nimmt die thermische Energie auf.', 'Eine Pumpe bringt die warme Flüssigkeit zum Warmwasserspeicher.', 'Im Speicher wird das Wasser für Dusche und Heizung erwärmt.'],
+      pro: ['kein CO₂ im Betrieb', 'hoher Wirkungsgrad bei Sonne', 'einfache Technik'], con: ['im Winter wenig Wärme', 'liefert keinen Strom', 'braucht einen Speicher'] },
+
+    { id: 'geothermie', name: 'Geothermie', c: '#A0522D', ds: 'DS 11/12 · Expertengruppe Solarthermie und Geothermie',
+      info: [[290, function (s) { return (112 + geoY(s.t)) / 2; }, 'Förderbohrung', 'Ein tiefes Bohrloch. Durch ein Rohr kommt das heiße Wasser aus der Tiefe nach oben.', 14, function (s) { return (geoY(s.t) - 112) / 2 + 6; }],
+        [290, function (s) { return geoY(s.t) - 22; }, 'Tauchpumpe', 'Eine elektrische Pumpe unten im Bohrloch. Sie fördert das heiße Wasser nach oben und braucht dafür elektrische Energie.', 16, 16],
+        [355, function (s) { return geoY(s.t); }, 'Heißwasserschicht', 'Eine Gesteinsschicht mit Hohlräumen voller heißem Wasser. Je tiefer sie liegt, desto heißer ist das Wasser.', 210, 22],
+        [370, function (s) { return (112 + geoY(s.t)) / 2; }, 'Rückführbohrung', 'Durch das zweite Bohrloch fließt das abgekühlte Wasser zurück in die Tiefe. Dort erwärmt es sich wieder.', 14, function (s) { return (geoY(s.t) - 112) / 2 + 6; }],
+        [330, 87, 'Wärmetauscher', 'Das heiße Wasser aus der Tiefe gibt seine thermische Energie an das Wasser im Fernwärmenetz ab. Die beiden Wasserkreisläufe mischen sich nicht.', 28, 22],
+        [520, 88, 'Fernwärmenetz', 'Gut gedämmte Rohre bringen heißes Wasser zu den Häusern (rot). Abgekühlt fließt es zurück zur Heizzentrale (blau).', 80, 18],
+        [62, 240, 'Tiefe und Temperatur', 'Pro 100 m Tiefe wird es im Mittel etwa 3 °C wärmer. In 3000 m Tiefe sind es also schon rund 100 °C.', 64, 98]],
+      kurz: 'Geothermie-\nanlage', kette: ['TE', 'thermische Energie (Erdwärme)', [['Wärmetauscher', 'TE', 'thermische Energie (Fernwärme)']]], ketteExtra: 'Dazu kommt elektrische Energie für die Pumpen.',
+      ctrls: [{ id: 't', type: 'range', label: 'Bohrtiefe', unit: 'm', min: 500, max: 5000, step: 250, val: 2500 }],
+      calc: function (s) {
+        var T = 10 + 3 * s.t / 100, pump = Math.max(3, Math.round(12 - s.t / 600)), weg = 8, fw = 100 - weg;
+        var fl = { zu: [['TE', 100 - pump, 'thermische Energie (Erdwärme)'], ['EE', pump, 'elektrische Energie (Pumpen)']],
+          steps: [{ name: 'Wärme-\ntauscher', out: [['TE', fw, 'thermische Energie (Fernwärme)']], loss: [['TE', weg]] }] };
+        return { fluss: fl, zu: fl.zu, nutz: [['TE', fw, 'Fernwärme']], weg: [['TE', weg, 'thermische Energie (nicht genutzt)']],
+          eta: null, speed: 0.6, nums: [['Wassertemperatur in der Tiefe', 'ca. ' + f0(T) + ' °C'], ['aus 1 kWh Pumpenstrom', 'ca. ' + f0(fw / pump) + ' kWh Wärme']],
+          note: 'Pro 100 m Tiefe wird es im Mittel etwa 3 °C wärmer. Ab etwa 100 °C kann man mit Geothermie auch Strom erzeugen; meist wird die Wärme direkt zum Heizen genutzt.' };
+      },
+      steps: ['Eine Tauchpumpe in der Förderbohrung fördert heißes Wasser aus großer Tiefe nach oben.', 'Im Wärmetauscher gibt es seine thermische Energie an das Wasser im Fernwärmenetz ab.', 'Das Fernwärmenetz bringt die Wärme zu den Häusern.', 'Das abgekühlte Wasser fließt durch die Rückführbohrung zurück in die Tiefe und erwärmt sich dort wieder.'],
+      pro: ['liefert Tag und Nacht, unabhängig vom Wetter', 'kaum CO₂', 'braucht wenig Fläche'], con: ['tiefe Bohrungen sind teuer', 'nicht überall geeignet', 'Pumpen brauchen elektrische Energie'] },
+
+    { id: 'waermepumpe', name: 'Wärmepumpe', c: '#3FA36B', ds: 'DS 11/12 · Expertengruppe Wärmepumpe',
+      info: [[84, 209, 'Ventilator', 'Er saugt Außenluft durch das Außengerät. Die Luft gibt dabei Wärme an das Kältemittel ab und kommt kälter wieder heraus.', 44, 44],
+        [84, 209, 'Verdampfer', 'Feine Rohre mit Lamellen. Das Kältemittel darin ist noch kälter als die Außenluft, nimmt deren Wärme auf und verdampft – auch bei Minusgraden.', 48, 52],
+        [180, 180, 'Verdichter', 'Ein Kompressor, angetrieben mit elektrischer Energie. Er presst das gasförmige Kältemittel zusammen. Dabei wird es heiß (etwa 70 °C).', 22, 22],
+        [330, 212, 'Verflüssiger', 'Hier gibt das heiße Kältemittel seine Wärme an das Heizungswasser ab. Es kühlt ab und wird wieder flüssig.', 38, 54],
+        [180, 250, 'Expansionsventil', 'Das flüssige Kältemittel wird entspannt. Dabei kühlt es stark ab, und der Kreislauf beginnt von vorn.', 20, 14],
+        [500, 215, 'Heizkörper', 'Das warme Heizungswasser (etwa 35 °C) gibt die Wärme an die Raumluft ab. Eine Fußbodenheizung funktioniert genauso.', 42, 44],
+        [590, 145, 'Stromzähler', 'Hier kommt die elektrische Energie für den Verdichter aus dem Netz. Sie ist nur ein Teil der Heizwärme.', 24, 20]],
+      kurz: 'Wärme-\npumpe', kette: ['TE', 'thermische Energie (Umgebung)', [['Wärmepumpe', 'TE', 'thermische Energie (Heizwasser)']]], ketteExtra: 'Dazu kommt elektrische Energie für den Verdichter.',
+      ctrls: [{ id: 'ta', type: 'range', label: 'Außentemperatur', unit: '°C', min: -15, max: 15, step: 1, val: 2 }],
+      calc: function (s) {
+        var cop = wpCop(s.ta), strom = Math.round(100 / cop), umw = 100 - strom;
+        var fl = { zu: [['TE', umw, 'thermische Energie (Umgebung)'], ['EE', strom, 'elektrische Energie (Verdichter)']],
+          steps: [{ name: 'Wärme-\npumpe', out: [['TE', 100, 'thermische Energie (Heizung)']] }] };
+        return { fluss: fl, zu: fl.zu, nutz: [['TE', 100, 'Heizwärme']], weg: [],
+          eta: null, speed: 0.7, nums: [['Leistungszahl', A.num(+cop.toFixed(1))], ['aus 1 kWh Strom', A.num(+cop.toFixed(1)) + ' kWh Wärme']],
+          note: 'Die Wärmepumpe „pumpt“ Wärme aus der kalten Luft ins warme Haus. Sie gibt mehr Wärme ab, als sie Strom aufnimmt, weil sie Umweltwärme mitnutzt. Je kälter es draußen ist, desto mehr Strom braucht sie.' };
+      },
+      steps: ['Ein Kältemittel nimmt draußen Umweltwärme auf und verdampft (schon bei Minusgraden).', 'Ein Verdichter (mit Strom betrieben) presst das Gas zusammen. Dabei wird es heiß.', 'Im Haus gibt das heiße Kältemittel seine Wärme an das Heizungswasser ab.', 'Das Kältemittel wird entspannt, kühlt ab, und der Kreislauf beginnt neu.'],
+      pro: ['3- bis 4-mal so viel Wärme wie Strom', 'kein CO₂ vor Ort', 'mit Ökostrom fast klimaneutral'], con: ['braucht Strom, besonders im kalten Winter', 'teuer in der Anschaffung', 'Außengerät macht Geräusche'] }
+  ];
+
+  /* ------------------------------------------------------------ Szenen (SVG) */
+  /* Photovoltaik: Haus schräg von vorn, Module liegen auf der Dachfläche (Parallelogramm ABCD) */
+  /* Solarthermie: gleiches Haus, Kollektoren auf dem Dach, Vorderwand aufgeschnitten (Speicher, Kreisläufe, Dusche) */
+  /* Geothermie: Schnitt durch den Untergrund; Tiefe 0–5000 m auf y 112–322 */
+  function geoY(t) { return 112 + t / 5000 * 210; }
+  function geoSvg() {
+    var o = '<defs><linearGradient id="gGeo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B48D62"/><stop offset=".45" stop-color="#9A6B3F"/><stop offset=".8" stop-color="#8A4A2E"/><stop offset="1" stop-color="#A83A24"/></linearGradient></defs>';
+    o += '<rect width="640" height="112" fill="#DCEBF7"/><rect y="110" width="640" height="230" fill="url(#gGeo)"/><rect y="106" width="640" height="6" fill="#6E8B3D"/>';
+    /* Gesteinsschichten */
+    o += '<g stroke="#5A3A22" stroke-width="1" opacity=".35" fill="none">' + [150, 190, 230, 270, 305].map(function (y, i) { return '<path d="M0 ' + y + ' C160 ' + (y - 8 + i * 3) + ' 380 ' + (y + 10) + ' 640 ' + (y - 4) + '"/>'; }).join('') + '</g>';
+    /* Tiefenskala mit Temperatur */
+    o += '<g class="ls">' + [1000, 2000, 3000, 4000, 5000].map(function (t) { var y = geoY(t); return '<line x1="0" y1="' + y + '" x2="10" y2="' + y + '" stroke="#fff" stroke-width="2"/><text x="14" y="' + (y + 4) + '" style="fill:#fff">' + A.num(t) + ' m · ' + Math.round(10 + 3 * t / 100) + ' °C</text>'; }).join('') + '</g>';
+    /* Heißwasserschicht – Lage per Regler */
+    o += '<g id="aq"><path d="M150 0 C250 -12 420 10 560 -4 V18 C420 30 250 12 150 22 Z" fill="#E0605B" opacity=".6" stroke="#FFD2C8" stroke-dasharray="4 3"/><text class="ls lw" x="555" y="34" text-anchor="end">heißes Wasser im Gestein</text></g>';
+    /* Bohrungen: rot hinauf (heiß), blau hinab (abgekühlt) */
+    o += '<path id="bprod" d="" stroke="#D2452C" stroke-width="8" fill="none"/><path id="bprodf" class="fl" d="" stroke="#F6B3A6" stroke-width="3" fill="none"/>';
+    o += '<path id="binj" d="" stroke="#3B82C4" stroke-width="8" fill="none"/><path id="binjf" class="fl" d="" stroke="#B8D6F2" stroke-width="3" fill="none"/>';
+    o += '<g id="gpump"><rect x="282" y="0" width="16" height="20" rx="4" fill="#fff" stroke="#10324D" stroke-width="1.5"/><text class="ls" x="290" y="14" text-anchor="middle" style="font-size:10px">P</text></g>';
+    o += '<text class="ls lw" id="lprod" x="280" text-anchor="end">Förderbohrung</text><text class="ls lw" id="linj" x="380">Rückführbohrung</text>';
+    /* Strom für die Pumpen */
+    o += '<path d="M206 108 V62 M198 66 H214" stroke="#7A5230" stroke-width="3" fill="none"/><path d="M206 66 L250 82" stroke="#333" stroke-width="2"/><path class="wire" d="M206 66 L250 82" stroke="#FFC81E" stroke-width="4" fill="none"/>';
+    o += '<text class="ls" x="200" y="88" text-anchor="end">Strom für</text><text class="ls" x="200" y="101" text-anchor="end">die Pumpen</text>';
+    /* Heizzentrale mit Wärmetauscher */
+    o += '<rect x="250" y="56" width="160" height="54" fill="#EEF2F5" stroke="#9AA5AF" stroke-width="2"/><path d="M244 56 H416" stroke="#7D8B99" stroke-width="5"/>';
+    o += '<text class="lb" x="330" y="46" text-anchor="middle">Heizzentrale</text>';
+    o += '<path d="M290 112 V86 H310" fill="none" stroke="#D2452C" stroke-width="5"/><path d="M350 96 H370 V112" fill="none" stroke="#3B82C4" stroke-width="5"/>';
+    o += '<rect x="310" y="72" width="40" height="30" rx="4" fill="#C9D2DB" stroke="#4A5560" stroke-width="1.5"/><path d="M314 79 h32 M314 86 h32 M314 93 h32" stroke="#E0605B" stroke-width="1.5"/>';
+    o += '<text class="ls" x="330" y="68" text-anchor="middle">Wärmetauscher</text>';
+    /* Fernwärme: hin heiß (rot), zurück abgekühlt (blau) */
+    o += '<path d="M350 78 H556" fill="none" stroke="#E0605B" stroke-width="5"/><path class="fl" d="M350 78 H556" fill="none" stroke="#F6B3A6" stroke-width="2"/>';
+    o += '<path d="M556 98 H410" fill="none" stroke="#3B82C4" stroke-width="4"/><path class="fl" d="M556 98 H410" fill="none" stroke="#B8D6F2" stroke-width="1.5"/>';
+    o += '<path d="M558 108 V84 L574 70 L590 84 V108 Z M594 108 V88 L608 76 L622 88 V108 Z" fill="#F1E6D6" stroke="#A0522D" stroke-width="2"/>';
+    o += '<text class="ls" x="483" y="72" text-anchor="middle">Fernwärme zu den Häusern</text><text class="ls" x="483" y="92" text-anchor="middle">abgekühlt zurück</text>';
+    o += '<rect x="10" y="10" width="186" height="40" rx="8" fill="#fff" stroke="#9AA5AF"/><text id="glab" class="lb" x="20" y="28"></text><text id="glab2" class="ls" x="20" y="43"></text>';
+    return o;
+  }
+  function geoState(s) {
+    var sc = $('scene'), Q = function (id) { return sc.querySelector('#' + id); }, Y = geoY(s.t), T = Math.round(10 + 3 * s.t / 100);
+    Q('aq').setAttribute('transform', 'translate(0 ' + (Y - 8).toFixed(1) + ')');
+    var up = 'M290 ' + (Y + 2).toFixed(1) + ' V112', dn = 'M370 112 V' + (Y + 2).toFixed(1);
+    Q('bprod').setAttribute('d', up); Q('bprodf').setAttribute('d', up); Q('binj').setAttribute('d', dn); Q('binjf').setAttribute('d', dn);
+    Q('gpump').setAttribute('transform', 'translate(0 ' + Math.max(116, Y - 32).toFixed(1) + ')');
+    var ly = Y < 200 ? 134 : (112 + Y) / 2 + 4;
+    Q('lprod').setAttribute('y', ly.toFixed(1)); Q('linj').setAttribute('y', ly.toFixed(1));
+    Q('glab').textContent = 'Tiefe ' + A.num(s.t) + ' m · ca. ' + T + ' °C';
+    Q('glab2').textContent = T >= 100 ? 'heiß genug auch für Strom' : 'reicht zum Heizen';
+    hlUpdate();
+  }
+  /* markiertes Bauteil mitführen, wenn es sich mit dem Regler bewegt */
+  function hlUpdate() {
+    var b = document.querySelector('#parts [aria-pressed="true"]'), e = $('scene').querySelector('.hl');
+    if (!b || !e || !cur.info) return;
+    var it = cur.info[+b.dataset.i], fv = function (v) { return typeof v === 'function' ? v(state) : v; };
+    e.setAttribute('cx', fv(it[0])); e.setAttribute('cy', fv(it[1])); e.setAttribute('rx', fv(it[4])); e.setAttribute('ry', fv(it[5]));
+  }
+  /* Wärmepumpe (Luft): Außengerät links, Haus aufgeschnitten rechts, Kältemittelkreislauf durch die Wand */
+  function wpCop(ta) { return Math.max(2, Math.min(5.5, 3.4 + 0.1 * ta)); }
+  function wpSvg() {
+    var o = '<rect id="wpsky" width="640" height="272" fill="#DCEBF7"/><rect y="270" width="640" height="70" fill="#8DB36B"/><rect y="270" width="640" height="3" fill="#7AA25A"/>';
+    o += '<g id="wpsun"><circle cx="246" cy="34" r="18" fill="#F2C230"/></g>';
+    o += '<g id="wpsnow" fill="#fff" stroke="#9FB8CC" stroke-width=".8">' + [[20, 70], [60, 96], [110, 66], [150, 104], [200, 80], [36, 128], [90, 132], [180, 128], [228, 112]].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.2"/>'; }).join('') + '</g>';
+    /* Haus, Vorderwand aufgeschnitten */
+    o += '<path d="M228 112 L430 40 L632 112 Z" fill="#A0522D" stroke="#6E3A1F" stroke-width="2"/>';
+    o += '<rect x="240" y="112" width="380" height="158" fill="#FBF6EE" stroke="#A0522D" stroke-width="2"/><rect x="240" y="112" width="12" height="158" fill="#C9A27A"/>';
+    o += '<text class="ls" x="606" y="128" text-anchor="end" style="fill:#8A6A4A">Blick ins Haus · innen 21 °C</text>';
+    /* Außengerät mit Verdampfer (Lamellen) und Ventilator */
+    o += '<rect x="30" y="150" width="200" height="118" rx="8" fill="#E3E8EE" stroke="#7D8B99" stroke-width="2"/><text class="lb" x="130" y="144" text-anchor="middle">Außengerät</text>';
+    var fins = ''; for (var x = 46; x <= 122; x += 6) fins += 'M' + x + ' 164 V256 ';
+    o += '<path d="' + fins + '" stroke="#7FB3E0" stroke-width="2"/>';
+    o += '<circle cx="84" cy="209" r="40" fill="#C9D2DB" fill-opacity=".55" stroke="#4A5560" stroke-width="2"/>';
+    o += '<g id="wprot">' + [0, 120, 240].map(function (a) { return '<path d="M84 209 C78 190 88 176 96 174 C100 190 94 202 84 209 Z" fill="#7D8B99" transform="rotate(' + a + ' 84 209)"/>'; }).join('') + '<circle cx="84" cy="209" r="6" fill="#334"/></g>';
+    /* Luftstrom: Außenluft gibt Wärme ab */
+    o += '<g stroke="#3B82C4" stroke-width="2.5" fill="none" stroke-linecap="round">' + [180, 209, 238].map(function (y, i) { return '<path class="gust" style="animation-delay:-' + (i * .4) + 's" d="M2 ' + y + ' H26"/>'; }).join('') + '</g>';
+    o += '<text class="ls lw" x="130" y="292" text-anchor="middle">Außenluft gibt Wärme ab</text>';
+    /* Kältemittelkreislauf */
+    var c1 = 'M124 170 H164', c2 = 'M196 180 H322', c3 = 'M330 252 H192', c4 = 'M168 250 H124';
+    var coil = 'M322 180 C350 180 350 194 330 194 C310 194 310 208 330 208 C350 208 350 222 330 222 C310 222 310 236 330 236 C350 236 350 252 330 252';
+    var evap = 'M124 250 C110 250 110 236 120 236 C130 236 130 222 120 222 C110 222 110 208 120 208 C130 208 130 194 120 194 C110 194 110 182 124 170';
+    o += '<path d="' + c1 + ' V180" fill="none" stroke="#7FB3E0" stroke-width="5"/><path d="' + c2 + '" fill="none" stroke="#D2452C" stroke-width="5"/>';
+    o += '<path d="' + coil + '" fill="none" stroke="#D2452C" stroke-width="4"/><path d="' + c3 + '" fill="none" stroke="#E8963A" stroke-width="5"/>';
+    o += '<path d="' + c4 + '" fill="none" stroke="#3B82C4" stroke-width="5"/><path d="' + evap + '" fill="none" stroke="#3B82C4" stroke-width="3" opacity=".8"/>';
+    o += '<g id="wpflow" fill="none" stroke="#fff" stroke-width="1.6" opacity=".9"><path class="fl" d="' + c2 + '"/><path class="fl" d="' + c3 + '"/><path class="fl" d="' + c4 + '"/></g>';
+    /* Verdichter (mit Strom) und Expansionsventil */
+    o += '<circle cx="180" cy="180" r="16" fill="#5A5F66" stroke="#2E3338" stroke-width="2"/><path d="M172 186 L180 172 L188 186" fill="none" stroke="#fff" stroke-width="2"/>';
+    o += '<text class="ls" x="180" y="212" text-anchor="middle">Verdichter</text>';
+    o += '<path d="M168 242 L192 258 V242 L168 258 Z" fill="#fff" stroke="#2E3338" stroke-width="2"/><text class="ls" x="180" y="236" text-anchor="middle">Ventil</text>';
+    o += '<text id="wpTc" class="ls" x="146" y="264" text-anchor="middle" style="fill:#1F5F99"></text><text class="ls" x="260" y="174" text-anchor="middle" style="fill:#B3261E">ca. 70 °C</text>';
+    /* Strom vom Zähler zum Verdichter */
+    o += '<rect x="574" y="134" width="32" height="24" rx="3" fill="#fff" stroke="#4A5560" stroke-width="1.5"/><text class="ls" x="590" y="151" text-anchor="middle" style="font-size:10px">kWh</text>';
+    o += '<path d="M574 146 H180 V164" fill="none" stroke="#333" stroke-width="2"/><path id="wpwire" class="wire" d="M574 146 H180 V164" fill="none" stroke="#FFC81E" stroke-width="4"/>';
+    o += '<text class="ls" x="560" y="140" text-anchor="end">Strom aus dem Netz</text>';
+    /* Verflüssiger im Pufferspeicher, Heizkreis zum Heizkörper */
+    o += '<rect x="300" y="164" width="60" height="98" rx="10" fill="#F6D2C8" fill-opacity=".6" stroke="#10324D" stroke-width="2"/><text class="ls" x="330" y="158" text-anchor="middle">Verflüssiger</text>';
+    o += '<path d="M360 182 H470" fill="none" stroke="#E0605B" stroke-width="5"/><path class="fl" d="M360 182 H470" fill="none" stroke="#F6B3A6" stroke-width="2"/>';
+    o += '<path d="M470 248 H360" fill="none" stroke="#5B9BD5" stroke-width="4"/>';
+    o += '<g fill="#fff" stroke="#7D8B99" stroke-width="1.5">' + [462, 474, 486, 498, 510, 522, 534].map(function (x) { return '<rect x="' + x + '" y="178" width="10" height="74" rx="4"/>'; }).join('') + '</g>';
+    o += '<path class="haze" d="M478 172 q4 -6 0 -12 q-4 -6 0 -12 M500 172 q4 -6 0 -12 q-4 -6 0 -12 M522 172 q4 -6 0 -12 q-4 -6 0 -12" stroke="#E0605B" stroke-width="2" fill="none"/>';
+    o += '<text class="ls" x="414" y="176" text-anchor="middle" style="fill:#B3261E">ca. 35 °C</text><text class="ls" x="498" y="266" text-anchor="middle">Heizkörper</text>';
+    /* Anzeigen */
+    o += '<rect x="10" y="10" width="200" height="40" rx="8" fill="#fff" stroke="#9AA5AF"/><text id="wplab" class="lb" x="20" y="28"></text><text id="wplab2" class="ls" x="20" y="43"></text>';
+    o += '<rect x="258" y="280" width="372" height="54" rx="8" fill="#fff" stroke="#9AA5AF"/><text id="wpbartxt" class="lb" x="268" y="298"></text>';
+    o += '<rect id="wpbarE" x="268" y="306" height="20" fill="#F2C230" stroke="#1f1f1f"/><rect id="wpbarU" y="306" height="20" fill="#E0605B" stroke="#1f1f1f"/>';
+    o += '<text id="wpbarEt" class="ls" y="320" text-anchor="middle"></text><text id="wpbarUt" class="ls lw" y="320" text-anchor="middle"></text>';
+    return o;
+  }
+  function wpState(s) {
+    var sc = $('scene'), Q = function (id) { return sc.querySelector('#' + id); }, cop = wpCop(s.ta), wE = 352 / cop, wU = 352 - wE;
+    Q('wpsky').setAttribute('fill', s.ta <= 0 ? '#C9D6E2' : '#DCEBF7');
+    Q('wpsnow').setAttribute('opacity', s.ta <= 0 ? 1 : 0); Q('wpsun').setAttribute('opacity', s.ta >= 8 ? 1 : 0);
+    Q('wplab').textContent = 'draußen ' + String(s.ta).replace('-', '−') + ' °C';
+    Q('wplab2').textContent = 'Leistungszahl ' + A.num(+cop.toFixed(1));
+    Q('wpTc').textContent = 'ca. ' + String(s.ta - 8).replace('-', '−') + ' °C';
+    Q('wpbartxt').textContent = 'Aus 1 kWh Strom werden ' + A.num(+cop.toFixed(1)) + ' kWh Heizwärme';
+    Q('wpbarE').setAttribute('width', wE.toFixed(1)); Q('wpbarU').setAttribute('x', (268 + wE).toFixed(1)); Q('wpbarU').setAttribute('width', wU.toFixed(1));
+    Q('wpbarEt').setAttribute('x', (268 + wE / 2).toFixed(1)); Q('wpbarEt').textContent = wE > 60 ? 'Strom' : '';
+    Q('wpbarUt').setAttribute('x', (268 + wE + wU / 2).toFixed(1)); Q('wpbarUt').textContent = 'Umweltwärme aus der Luft';
+  }
+  function stSvg() {
+    var A = [180, 200], B = [400, 200], d = [110, -50], h = 72;
+    var D = [A[0] + d[0] / 2, A[1] + d[1] / 2 - h], C = [B[0] + d[0] / 2, B[1] + d[1] / 2 - h], E = [B[0] + d[0], B[1] + d[1]];
+    function P(u, v) { return [A[0] + u * (B[0] - A[0]) + v * (D[0] - A[0]), A[1] + u * (B[1] - A[1]) + v * (D[1] - A[1])]; }
+    function poly(pts) { return pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    function f(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+    var o = '<rect id="stsky" width="640" height="232" fill="#DCEBF7"/><rect y="230" width="640" height="110" fill="#8DB36B"/><rect y="230" width="640" height="3" fill="#7AA25A"/>' +
+      '<g id="stsun"><circle cx="70" cy="58" r="28" fill="#F2C230"/><g stroke="#F2C230" stroke-width="4" stroke-linecap="round">' +
+      [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { var r = Math.PI * a / 180; return '<line x1="' + (70 + 36 * Math.cos(r)).toFixed(1) + '" y1="' + (58 + 36 * Math.sin(r)).toFixed(1) + '" x2="' + (70 + 46 * Math.cos(r)).toFixed(1) + '" y2="' + (58 + 46 * Math.sin(r)).toFixed(1) + '"/>'; }).join('') + '</g></g>';
+    /* Seitenwand und Giebel */
+    o += '<polygon points="' + poly([B, E, [E[0], E[1] + 90], [B[0], 290]]) + '" fill="#E3D3BC" stroke="#A0522D" stroke-width="2"/>';
+    o += '<polygon points="' + poly([B, C, E]) + '" fill="#E3D3BC" stroke="#A0522D" stroke-width="2"/>';
+    /* Vorderwand aufgeschnitten: Innenraum */
+    o += '<polygon points="' + poly([A, B, [B[0], 290], [A[0], 290]]) + '" fill="#FBF6EE" stroke="#A0522D" stroke-width="2"/>';
+    o += '<path d="M' + A[0] + ' 200 h220 M180 200 v90 M400 200 v90" stroke="#C9A27A" stroke-width="7" fill="none"/>';
+    /* Dach mit Kollektoren */
+    o += '<polygon points="' + poly([A, B, C, D]) + '" fill="#A0522D" stroke="#6E3A1F" stroke-width="2"/>';
+    for (var t = 1; t < 6; t++) { var a = P(0, t / 6), b = P(1, t / 6); o += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#8A4524" stroke-width="1"/>'; }
+    var tubes = '';
+    for (var c = 0; c < 3; c++) {
+      var ua = .14 + c * .25 + .01, ub = ua + .23, va = .18, vb = .86, q = [P(ua, va), P(ub, va), P(ub, vb), P(ua, vb)];
+      o += '<polygon points="' + poly(q.map(function (p) { return [p[0] + 2, p[1] + 3]; })) + '" fill="#3B2010" opacity=".45"/>';
+      o += '<polygon class="stcol" points="' + poly(q) + '" fill="#262A2E" stroke="#C9D2DB" stroke-width="2"/>';
+      for (var i = 1; i < 9; i++) { var p1 = P(ua + (ub - ua) * i / 9, va + .04), p2 = P(ua + (ub - ua) * i / 9, vb - .04); tubes += '<line x1="' + p1[0].toFixed(1) + '" y1="' + p1[1].toFixed(1) + '" x2="' + p2[0].toFixed(1) + '" y2="' + p2[1].toFixed(1) + '"/>'; }
+    }
+    o += '<g stroke="#B87333" stroke-width="1.6" opacity=".9">' + tubes + '</g>';
+    o += '<polygon id="stglow" points="' + poly([P(.15, .18), P(.89, .18), P(.89, .86), P(.15, .86)]) + '" fill="#FF8A3D" opacity="0"/>';
+    o += '<g id="strays" stroke="#F2C230" stroke-width="2.2" stroke-dasharray="7 6" opacity=".85">' + [[.25, .6], [.5, .5], [.75, .7]].map(function (uv) { var p = P(uv[0], uv[1]); return '<line class="fl" x1="96" y1="72" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; }).join('') + '</g>';
+    /* Solarkreislauf: heiß vom oberen Kollektorrand zum Speicher, kalt zurück über die Pumpe */
+    var hot = 'M' + f(P(.89, .8)) + ' L' + f(P(.97, .8)) + ' L392 206 V256 H352', cold = 'M310 276 H262 V200 L' + f(P(.3, .17));
+    o += '<path d="' + hot + '" fill="none" stroke="#D2452C" stroke-width="6"/><path id="sthot" class="fl" d="' + hot + '" fill="none" stroke="#F6B3A6" stroke-width="2.5"/>';
+    o += '<path d="' + cold + '" fill="none" stroke="#3B82C4" stroke-width="6"/><path id="stcold" class="fl" d="' + cold + '" fill="none" stroke="#B8D6F2" stroke-width="2.5"/>';
+    /* Speicher mit Wärmetauscher (Rohrschlange) */
+    o += '<defs><linearGradient id="gTank" x1="0" y1="0" x2="0" y2="1"><stop id="gTop" offset="0" stop-color="#E0605B"/><stop offset="1" stop-color="#5B9BD5"/></linearGradient></defs>';
+    o += '<rect x="304" y="214" width="48" height="72" rx="14" fill="url(#gTank)" stroke="#10324D" stroke-width="2"/>';
+    o += '<path d="M352 256 C320 256 320 262 340 264 C356 266 356 270 330 270 C310 270 312 276 310 276" fill="none" stroke="#B87333" stroke-width="3"/>';
+    o += '<text id="sttemp" class="lb lw" x="328" y="240" text-anchor="middle"></text>';
+    o += '<circle cx="262" cy="250" r="9" fill="#fff" stroke="#3B82C4" stroke-width="3"/><text class="ls" x="262" y="253.5" text-anchor="middle">P</text>';
+    /* Kaltwasser rein, Warmwasser zur Dusche */
+    o += '<path d="M182 284 H318 V286" fill="none" stroke="#3B82C4" stroke-width="4"/><path d="M328 214 V210 H214 V222" fill="none" stroke="#D2452C" stroke-width="4"/>';
+    o += '<path d="M206 222 h16 l-4 6 h-8 z" fill="#7D8B99"/><g id="stdrops" stroke="#5B9BD5" stroke-width="2"><line class="drop" x1="210" y1="232" x2="210" y2="238"/><line class="drop" style="animation-delay:-.3s" x1="214" y1="232" x2="214" y2="238"/><line class="drop" style="animation-delay:-.6s" x1="218" y1="232" x2="218" y2="238"/></g>';
+    o += '<text class="ls" x="214" y="270" text-anchor="middle">Dusche</text><text class="ls" x="200" y="296" style="fill:#fff">Kaltwasser</text>';
+    o += '<text class="lb" x="290" y="96" text-anchor="middle">Sonnenkollektoren auf dem Dach</text>';
+    o += '<rect x="436" y="250" width="196" height="46" rx="8" fill="#fff" stroke="#9AA5AF"/><text class="lb" x="446" y="268" style="fill:#B3261E">Kein Strom!</text><text class="ls" x="446" y="285">Die Sonne erwärmt Wasser.</text>';
+    o += '<rect x="10" y="300" width="250" height="32" rx="8" fill="#fff" stroke="#9AA5AF"/><text id="stlab" class="lb" x="20" y="320"></text>';
+    return o;
+  }
+  function pvSvg() {
+    var A = [180, 200], B = [400, 200], d = [110, -50], h = 72;
+    var D = [A[0] + d[0] / 2, A[1] + d[1] / 2 - h], C = [B[0] + d[0] / 2, B[1] + d[1] / 2 - h], E = [B[0] + d[0], B[1] + d[1]];
+    function P(u, v) { return [A[0] + u * (B[0] - A[0]) + v * (D[0] - A[0]), A[1] + u * (B[1] - A[1]) + v * (D[1] - A[1])]; }
+    function poly(pts) { return pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    var o = '<rect id="pvsky" width="640" height="232" fill="#DCEBF7"/><rect y="230" width="640" height="110" fill="#8DB36B"/><rect y="230" width="640" height="3" fill="#7AA25A"/>' +
+      '<g id="pvsun"><circle cx="70" cy="58" r="28" fill="#F2C230"/><g stroke="#F2C230" stroke-width="4" stroke-linecap="round">' +
+      [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { var r = Math.PI * a / 180; return '<line x1="' + (70 + 36 * Math.cos(r)).toFixed(1) + '" y1="' + (58 + 36 * Math.sin(r)).toFixed(1) + '" x2="' + (70 + 46 * Math.cos(r)).toFixed(1) + '" y2="' + (58 + 46 * Math.sin(r)).toFixed(1) + '"/>'; }).join('') + '</g></g>';
+    /* Hauswände */
+    o += '<polygon points="' + poly([A, B, [B[0], 290], [A[0], 290]]) + '" fill="#F1E6D6" stroke="#A0522D" stroke-width="2"/>';
+    o += '<polygon points="' + poly([B, E, [E[0], E[1] + 90], [B[0], 290]]) + '" fill="#E3D3BC" stroke="#A0522D" stroke-width="2"/>';
+    o += '<polygon points="' + poly([B, C, E]) + '" fill="#E3D3BC" stroke="#A0522D" stroke-width="2"/>';
+    o += '<rect x="215" y="225" width="44" height="40" fill="#BFD7EA" stroke="#A0522D" stroke-width="2"/><rect id="pvlamp" x="219" y="229" width="36" height="32" fill="#FFE58A" opacity="0"/>';
+    o += '<rect x="300" y="226" width="34" height="64" fill="#B07A4A" stroke="#7A5230" stroke-width="2"/>';
+    /* Dachfläche */
+    o += '<polygon points="' + poly([A, B, C, D]) + '" fill="#A0522D" stroke="#6E3A1F" stroke-width="2"/>';
+    for (var t = 1; t < 6; t++) { var a = P(0, t / 6), b = P(1, t / 6); o += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#8A4524" stroke-width="1"/>'; }
+    /* Module: 5 Spalten × 2 Reihen, mit Schatten (liegen auf dem Dach), Zellraster */
+    var cols = 5, rows = 2, u0 = .05, u1 = .95, v0 = .1, v1 = .9, gu = .012, gv = .03, cells = '';
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+      var ua = u0 + (u1 - u0) * c / cols + gu, ub = u0 + (u1 - u0) * (c + 1) / cols - gu, va = v0 + (v1 - v0) * r / rows + gv, vb = v0 + (v1 - v0) * (r + 1) / rows - gv;
+      var q = [P(ua, va), P(ub, va), P(ub, vb), P(ua, vb)];
+      o += '<polygon points="' + poly(q.map(function (p) { return [p[0] + 2, p[1] + 3]; })) + '" fill="#3B2010" opacity=".45"/>';
+      o += '<polygon class="pvmod" points="' + poly(q) + '" fill="#1D3B6A" stroke="#C9D2DB" stroke-width="1.6"/>';
+      for (var i = 1; i < 4; i++) { var p1 = P(ua + (ub - ua) * i / 4, va), p2 = P(ua + (ub - ua) * i / 4, vb); cells += '<line x1="' + p1[0].toFixed(1) + '" y1="' + p1[1].toFixed(1) + '" x2="' + p2[0].toFixed(1) + '" y2="' + p2[1].toFixed(1) + '"/>'; }
+      for (var j = 1; j < 3; j++) { var p3 = P(ua, va + (vb - va) * j / 3), p4 = P(ub, va + (vb - va) * j / 3); cells += '<line x1="' + p3[0].toFixed(1) + '" y1="' + p3[1].toFixed(1) + '" x2="' + p4[0].toFixed(1) + '" y2="' + p4[1].toFixed(1) + '"/>'; }
+    }
+    o += '<g stroke="#5A7BA8" stroke-width=".8" opacity=".9">' + cells + '</g>';
+    o += '<polygon id="pvglow" points="' + poly([P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v1)]) + '" fill="#FFF6C8" opacity="0"/>';
+    /* Strahlen zur Dachfläche */
+    o += '<g id="pvrays" stroke="#F2C230" stroke-width="2.2" stroke-dasharray="7 6" opacity=".85">' + [[.2, .7], [.45, .55], [.7, .4], [.9, .75]].map(function (uv) { var p = P(uv[0], uv[1]); return '<line class="fl" x1="96" y1="72" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; }).join('') + '</g>';
+    /* Gleichstrom vom Dach zum Wechselrichter, Wechselstrom zu Zähler und Netz */
+    o += '<path d="M402 198 L432 184 V214" fill="none" stroke="#333" stroke-width="2"/><path id="pvdc" class="wire" d="M402 198 L432 184 V214" fill="none" stroke="#FFC81E" stroke-width="4"/>';
+    o += '<polygon points="420,214 448,201 448,229 420,242" fill="#1F6FB2" stroke="#10324D" stroke-width="1.5"/><text class="ls lw" x="434" y="225" text-anchor="middle" font-size="8">WR</text>';
+    o += '<polygon points="460,206 482,196 482,218 460,228" fill="#fff" stroke="#10324D" stroke-width="1.5"/><text class="ls" x="471" y="215" text-anchor="middle">kWh</text>';
+    o += '<path d="M448 214 L460 210 M482 207 L496 201 V292 H590 V150" fill="none" stroke="#333" stroke-width="2"/><path id="pvac" class="wire" d="M448 214 L460 210 M482 207 L496 201 V292 H590 V150" fill="none" stroke="#FFC81E" stroke-width="4"/>';
+    o += '<path d="M586 290 L590 120 L594 290 M578 128 H602" fill="none" stroke="#7A5230" stroke-width="3"/><path d="M590 128 L640 118" stroke="#333" stroke-width="2"/><path class="wire pvnet" d="M590 128 L640 118" stroke="#FFC81E" stroke-width="4"/>';
+    o += '<text class="lb" x="632" y="108" text-anchor="end">Stromnetz</text>';
+    o += '<rect x="436" y="150" width="78" height="17" rx="4" fill="#fff" opacity=".9"/><text class="ls" x="475" y="162" text-anchor="middle">Gleichstrom</text>';
+    o += '<rect x="500" y="262" width="82" height="17" rx="4" fill="#fff" opacity=".9"/><text class="ls" x="541" y="274" text-anchor="middle">Wechselstrom</text>';
+    o += '<text class="lb" x="290" y="96" text-anchor="middle">Solarmodule auf dem Dach</text>';
+    o += '<rect x="10" y="300" width="230" height="32" rx="8" fill="#fff" stroke="#9AA5AF"/><text id="pvlab" class="lb" x="20" y="320"></text>';
+    return o;
+  }
+
+  var WIND = '<rect width="640" height="290" fill="#DCEBF7"/> <rect y="290" width="640" height="50" fill="#B48D62"/> <rect y="288" width="640" height="5" fill="#6E8B3D"/> <g id="gusts" stroke="#7FA7C9" stroke-width="3" stroke-linecap="round" fill="none"> <path class="gust" d="M0 70 C80 62 160 78 410 70"/><path class="gust" d="M0 105 C90 98 170 112 410 105"/><path class="gust" d="M0 140 C70 133 160 147 410 140"/><path class="gust" d="M0 175 C90 168 170 182 410 175"/><path class="gust" d="M0 210 C80 203 160 217 410 210"/><path class="gust" d="M0 245 C90 238 170 252 410 245"/><path class="gust" d="M0 35 C80 28 170 42 410 35"/> </g> <g id="tree"><rect x="116" y="248" width="8" height="42" fill="#7A5230"/><ellipse cx="120" cy="236" rx="20" ry="24" fill="#4E8B3A"/><ellipse cx="131" cy="246" rx="12" ry="13" fill="#5E9E48"/></g> <path d="M260 292 H340 L330 326 H270 Z" fill="#A9A9A2"/><text class="ls lw" x="300" y="314" text-anchor="middle">Fundament</text> <path d="M293 290 L296 108 H304 L307 290 Z" fill="#F4F6F8" stroke="#9AA5AF" stroke-width="1.5"/> <text class="lb" x="314" y="232">Turm</text><text class="ls" x="314" y="245">ca. 120 m hoch</text> <rect x="291" y="96" width="18" height="17" rx="4" fill="#E3E8EE" stroke="#9AA5AF" stroke-width="1.5"/> <g id="rotor"><g fill="#FFFFFF" stroke="#9AA5AF" stroke-width="1.5"> <path d="M300 105 C294 80 296 40 300 12 C305 40 308 80 304 105 Z"/> <path transform="rotate(120 300 105)" d="M300 105 C294 80 296 40 300 12 C305 40 308 80 304 105 Z"/> <path transform="rotate(240 300 105)" d="M300 105 C294 80 296 40 300 12 C305 40 308 80 304 105 Z"/></g> <circle cx="300" cy="105" r="8" fill="#DDE3EA" stroke="#9AA5AF" stroke-width="1.5"/></g> <rect x="196" y="15" width="0" height="0"/> <circle cx="300" cy="105" r="20" fill="none" stroke="#10324D" stroke-width="1.5" stroke-dasharray="4 3"/> <path d="M319 99 L420 70" stroke="#10324D" stroke-width="1.5" stroke-dasharray="4 3"/> <rect x="160" y="136" width="98" height="30" rx="5" fill="#fff" opacity=".9"/><text class="lb" x="209" y="149" text-anchor="middle">Rotor</text><text class="ls" x="209" y="161" text-anchor="middle">3 Rotorblätter, je 60 m</text> <rect x="420" y="12" width="212" height="142" rx="10" fill="#fff" stroke="#9AA5AF"/> <text class="lb" x="430" y="30">Blick in die Gondel</text> <rect x="470" y="58" width="134" height="56" rx="10" fill="#E3E8EE" stroke="#9AA5AF" stroke-width="1.5"/> <path d="M472 58 C446 62 436 76 436 86 C436 96 446 110 472 114 Z" fill="#F4F6F8" stroke="#9AA5AF" stroke-width="1.5"/> <rect x="447" y="40" width="9" height="22" rx="3" fill="#fff" stroke="#9AA5AF"/><rect x="447" y="110" width="9" height="22" rx="3" fill="#fff" stroke="#9AA5AF"/> <rect x="472" y="81" width="36" height="10" fill="#4A5560"/> <rect x="508" y="70" width="30" height="32" rx="3" fill="#8C99A6"/> <rect x="538" y="83" width="10" height="6" fill="#4A5560"/> <rect x="548" y="68" width="46" height="36" rx="5" fill="#1F6FB2"/> <path d="M571 104 V150" stroke="#333" stroke-width="2"/><path class="wire" d="M571 104 V150" stroke="#FFC81E" stroke-width="4"/> <g class="ls"><text x="451" y="146" text-anchor="middle">Nabe</text><text x="490" y="76" text-anchor="middle">Welle</text><text x="523" y="124" text-anchor="middle">Getriebe</text><text x="571" y="62" text-anchor="middle">Generator</text></g> <path d="M523 102 V114" stroke="#10324D"/> <rect x="10" y="8" width="168" height="44" rx="8" fill="#fff" stroke="#9AA5AF"/> <text id="wv" class="lb" x="20" y="27" style="font-size:14px"></text><text id="wb" class="ls" x="20" y="43"></text> <text id="wstop" class="lb" x="200" y="282" text-anchor="middle" style="fill:#B3261E"></text> <rect x="336" y="268" width="28" height="22" rx="3" fill="#6B6F76"/><text class="ls lw" x="350" y="283" text-anchor="middle">Trafo</text> <path d="M307 284 H336" stroke="#333" stroke-width="2"/> <path d="M350 290 V310 H640" fill="none" stroke="#333" stroke-width="2"/><path id="wcable" class="wire" d="M307 284 H336 M350 290 V310 H640" fill="none" stroke="#FFC81E" stroke-width="4"/> <text class="ls lw" x="630" y="328" text-anchor="end">Erdkabel: Strom ins Netz</text> <rect x="420" y="166" width="212" height="116" rx="10" fill="#fff" stroke="#9AA5AF"/> <text class="lb" x="430" y="183">Leistungskurve</text> <path d="M452 268 H622 M452 268 V192" stroke="#10324D" stroke-width="1.5" fill="none"/> <text class="ls" x="628" y="279" text-anchor="end">m/s</text><text class="ls" x="456" y="198">kW</text> <g class="ls" text-anchor="middle"><text x="452" y="279">0</text><text x="512" y="279">10</text><text x="572" y="279">20</text></g> <text class="ls" x="448" y="208" text-anchor="end">3000</text> <path id="pcurve" fill="none" stroke="#2E9A5C" stroke-width="2.5"/> <line id="pline" y1="268" y2="200" stroke="#B3261E" stroke-dasharray="3 3"/> <circle id="pdot" r="5" fill="#B3261E"/>';
+  var WASSER = '<rect width="640" height="340" fill="#DCEBF7"/> <path id="ow" d="M0 192 H232 V300 H0 Z" fill="#4F8FC8"/> <rect x="420" y="240" width="220" height="60" fill="#4F8FC8"/> <rect y="300" width="640" height="40" fill="#B48D62"/> <g id="owflow" stroke="#B8D6F2" stroke-width="2.5" fill="none"><path class="fl" d="M10 230 H226"/><path class="fl" d="M10 260 H226"/><path class="fl" d="M10 285 H226"/></g> <rect x="232" y="104" width="188" height="196" fill="#A9A9A2"/> <path d="M232 236 C290 236 310 244 316 256 H344 C356 248 384 246 420 246 V300 H232 Z" fill="#4F8FC8"/> <g id="chflow" stroke="#B8D6F2" stroke-width="2.5" fill="none"><path class="fl" d="M236 250 C290 250 308 256 320 266 C350 280 390 268 418 262"/><path class="fl" d="M236 284 C300 288 320 288 340 282 C370 286 400 288 418 288"/></g> <g stroke="#4A5560" stroke-width="2"><line x1="222" y1="236" x2="230" y2="298"/><line x1="216" y1="236" x2="224" y2="298"/><line x1="210" y1="236" x2="218" y2="298"/></g> <line x1="330" y1="98" x2="330" y2="262" stroke="#4A5560" stroke-width="6"/> <rect x="323" y="258" width="14" height="20" rx="4" fill="#4A5560"/> <ellipse id="bl1" class="spin" cx="330" cy="266" rx="18" ry="4" fill="#C9D2DB" stroke="#4A5560"/> <ellipse id="bl2" class="spin" style="animation-delay:-.25s" cx="330" cy="274" rx="18" ry="4" fill="#C9D2DB" stroke="#4A5560"/> <text class="ls lw" x="290" y="296" text-anchor="middle">Turbine</text> <rect x="262" y="48" width="136" height="56" fill="#EEF2F5" stroke="#9AA5AF" stroke-width="2"/><path d="M258 48 H402" stroke="#7D8B99" stroke-width="5"/> <text class="ls" x="392" y="62" text-anchor="end" style="fill:#5B6B7A">Krafthaus</text> <rect x="302" y="62" width="56" height="38" rx="6" fill="#1F6FB2"/><text class="ls lw" x="330" y="85" text-anchor="middle">Generator</text> <path d="M358 80 H398" stroke="#1E1E1E" stroke-width="3"/> <rect x="398" y="70" width="26" height="24" rx="3" fill="#6B6F76"/><text class="ls lw" x="411" y="86" text-anchor="middle">Trafo</text> <path d="M424 76 L470 40 L640 30" fill="none" stroke="#333" stroke-width="2"/><path class="wire" id="wwire" d="M424 76 L470 40 L640 30" fill="none" stroke="#FFC81E" stroke-width="5"/> <text class="lb" x="632" y="22" text-anchor="end">Strom ins Netz</text> <text class="lb lw" x="110" y="215" text-anchor="middle" id="owlab">Oberwasser</text> <text class="lb lw" x="530" y="262" text-anchor="middle">Unterwasser</text> <line id="hline" x1="232" y1="192" x2="480" y2="192" stroke="#10324D" stroke-dasharray="4 3"/> <line x1="420" y1="240" x2="480" y2="240" stroke="#10324D" stroke-dasharray="4 3"/> <path id="harrow" d="M470 196 V236 M464 202 L470 194 L476 202 M464 230 L470 238 L476 230" fill="none" stroke="#B3261E" stroke-width="2"/> <text id="hlab" class="lb" x="482" y="218" style="fill:#B3261E">Fallhöhe 4 m</text> <rect x="10" y="10" width="190" height="52" rx="8" fill="#fff" stroke="#9AA5AF"/> <text id="qlab" class="lb" x="20" y="30" style="font-size:13px"></text><text id="qlab2" class="ls" x="20" y="47"></text> <rect x="10" y="72" width="190" height="80" rx="8" fill="#fff" stroke="#9AA5AF"/> <text class="lb" x="20" y="89">Fischtreppe (neben dem Wehr)</text> <path d="M20 108 H54 M54 100 V118 H88 M88 110 V128 H122 M122 120 V138 H156 M156 130 V146 H190" fill="none" stroke="#7D8B99" stroke-width="2"/> <path d="M20 100 H54 V108 H20 Z M54 110 H88 V118 H54 Z M88 120 H122 V128 H88 Z M122 130 H156 V138 H122 Z M156 138 H190 V146 H156 Z" fill="#4F8FC8"/> <text class="ls" x="20" y="146">← Oberwasser</text> <path id="fish" class="swim" d="M178 140 q-7 -5 -14 0 q7 5 14 0 z M178 140 l5 -4 v8 z" fill="#E8742C"/>';
+  var PUMPSPEICHER = '<rect width="640" height="340" fill="#DCEBF7"/> <path d="M0 340 V95 L30 88 H215 L250 110 C300 170 350 230 440 262 H640 V340 Z" fill="#8A7A5C"/> <path d="M0 95 L30 88 H215 L250 110 C300 170 350 230 440 262 H640" fill="none" stroke="#6E8B3D" stroke-width="5"/> <path d="M44 90 H206 L201 128 H49 Z" fill="#C9D2DB" stroke="#7D8B99" stroke-width="2"/> <rect id="obw" x="51" y="100" width="148" height="26" fill="#4F8FC8"/> <text class="lb" x="125" y="80" text-anchor="middle">Oberbecken</text> <path d="M452 262 H628 V300 H452 Z" fill="#C9D2DB" stroke="#7D8B99" stroke-width="2"/> <rect id="ubw" x="455" y="272" width="170" height="26" fill="#4F8FC8"/> <text class="lb lw" x="540" y="318" text-anchor="middle">Unterbecken</text> <path d="M200 118 C250 150 330 232 372 274" fill="none" stroke="#5A5F66" stroke-width="10"/> <path id="psflow" class="fl" d="M200 118 C250 150 330 232 372 274" fill="none" stroke="#B8D6F2" stroke-width="4"/> <rect x="266" y="168" width="104" height="17" rx="4" fill="#fff" opacity=".9"/><text class="ls" x="318" y="180" text-anchor="middle">Druckrohrleitung</text> <path d="M432 296 H458" fill="none" stroke="#5A5F66" stroke-width="10"/> <path id="psflow2" class="fl" d="M432 296 H458" fill="none" stroke="#B8D6F2" stroke-width="4"/> <rect x="350" y="264" width="84" height="48" rx="4" fill="#EEF2F5" stroke="#4A5560" stroke-width="2"/> <text class="ls" x="392" y="324" text-anchor="middle" style="fill:#fff">Krafthaus im Berg</text> <g id="psrot"><circle cx="376" cy="292" r="12" fill="#C9D2DB" stroke="#4A5560" stroke-width="2"/><path d="M376 280 V304 M364 292 H388 M368 284 L384 300 M384 284 L368 300" stroke="#4A5560" stroke-width="2"/></g> <line x1="388" y1="292" x2="398" y2="292" stroke="#4A5560" stroke-width="5"/> <rect x="398" y="276" width="32" height="30" rx="4" fill="#1F6FB2"/><text class="ls lw" x="414" y="295" text-anchor="middle">M/G</text> <path d="M414 276 V252" stroke="#333" stroke-width="2"/> <rect x="401" y="232" width="26" height="20" rx="3" fill="#6B6F76"/><text class="ls lw" x="414" y="246" text-anchor="middle">Trafo</text> <path d="M435 266 L442 150 L449 266 M437 220 H447 M439 185 H445 M432 156 H452" fill="none" stroke="#555" stroke-width="2"/> <path d="M414 232 L442 152 L640 142" fill="none" stroke="#333" stroke-width="2"/> <path id="pswire" class="wire" d="M414 232 L442 152 L640 142" fill="none" stroke="#FFC81E" stroke-width="5"/> <text class="lb" x="632" y="134" text-anchor="end">Stromnetz</text> <line x1="199" y1="100" x2="575" y2="100" stroke="#10324D" stroke-dasharray="4 3" id="hl1"/> <line x1="560" y1="272" x2="590" y2="272" stroke="#10324D" stroke-dasharray="4 3"/> <path id="psarrow" d="M575 104 V268 M569 110 L575 102 L581 110 M569 262 L575 270 L581 262" fill="none" stroke="#B3261E" stroke-width="2"/> <text class="lb" x="583" y="190" style="fill:#B3261E">Fallhöhe</text><text class="lb" x="583" y="204" style="fill:#B3261E">ca. 300 m</text> <rect x="250" y="10" width="300" height="46" rx="8" fill="#fff" stroke="#9AA5AF"/> <text id="psmode" class="lb" x="262" y="29" style="font-size:13px"></text><text id="psmode2" class="ls" x="262" y="46"></text>';
+  var BIOGAS = '<rect width="640" height="272" fill="#DCEBF7"/> <rect y="270" width="640" height="70" fill="#B48D62"/><rect y="268" width="640" height="5" fill="#6E8B3D"/> <path d="M8 270 L22 228 Q46 214 72 226 L92 270 Z" fill="#C9B84A"/><path d="M22 236 Q46 222 70 234" stroke="#A89A30" stroke-width="2" fill="none"/> <text class="ls" x="50" y="262" text-anchor="middle">Mais, Gras</text> <rect x="18" y="292" width="64" height="30" rx="4" fill="#6B4A2E" stroke="#4A3220" stroke-width="2"/><text class="ls lw" x="50" y="311" text-anchor="middle">Gülle</text> <path d="M82 306 H150 V262" fill="none" stroke="#6B4A2E" stroke-width="6"/> <path d="M96 270 V238 H128 L122 270 Z" fill="#7D8B99" stroke="#4A5560" stroke-width="2"/><path d="M112 238 L144 222" stroke="#4A5560" stroke-width="5"/> <text class="ls" x="104" y="212" text-anchor="middle">Einfüllung</text> <rect x="140" y="182" width="150" height="90" fill="#A9A9A2" stroke="#6B6F76" stroke-width="2"/> <rect x="148" y="190" width="134" height="80" fill="#7A5A35"/> <path d="M140 182 Q215 92 290 182 Z" fill="#7FA04A" stroke="#5E7A35" stroke-width="2"/> <path id="gasraum" d="M148 190 Q215 112 282 190 Z" fill="#F3E3A0" opacity=".7"/> <g id="bubbles" fill="#F3E3A0"><circle class="bub" cx="170" cy="262" r="3"/><circle class="bub" style="animation-delay:-.6s" cx="196" cy="262" r="3.5"/><circle class="bub" style="animation-delay:-1.2s" cx="224" cy="262" r="3"/><circle class="bub" style="animation-delay:-1.8s" cx="248" cy="262" r="3.5"/><circle class="bub" style="animation-delay:-.9s" cx="268" cy="262" r="3"/></g> <line x1="215" y1="150" x2="215" y2="246" stroke="#4A5560" stroke-width="4"/> <g id="stirrer"><rect class="spin" x="199" y="242" width="32" height="7" rx="3" fill="#C9D2DB" stroke="#4A5560"/></g> <path id="fheat" d="M150 262 H280" stroke="#E0605B" stroke-width="3" stroke-dasharray="6 4"/> <text class="ls lw" x="215" y="228" text-anchor="middle">Fermenter · ca. 40 °C</text> <text class="lb" x="152" y="140" text-anchor="end">Gashaube</text> <path d="M215 132 V124 H300 V212 H340" fill="none" stroke="#7B5AA6" stroke-width="7"/> <path class="fl" d="M215 132 V124 H300 V212 H340" fill="none" stroke="#D8C8EE" stroke-width="3"/> <rect x="250" y="116" width="48" height="16" rx="4" fill="#fff" opacity=".9"/><text class="ls" x="274" y="128" text-anchor="middle">Biogas</text> <rect x="330" y="186" width="130" height="84" fill="#EEF2F5" stroke="#9AA5AF" stroke-width="2"/> <text class="ls" x="452" y="198" text-anchor="end" style="fill:#5B6B7A">Blockheizkraftwerk</text> <rect x="344" y="212" width="50" height="40" rx="4" fill="#5A5F66"/><g fill="#9AA5AF"><rect class="piston" x="350" y="204" width="8" height="12"/><rect class="piston" style="animation-delay:-.15s" x="362" y="204" width="8" height="12"/><rect class="piston" style="animation-delay:-.3s" x="374" y="204" width="8" height="12"/></g> <text class="ls lw" x="369" y="236" text-anchor="middle">Gasmotor</text> <line x1="394" y1="232" x2="406" y2="232" stroke="#4A5560" stroke-width="5"/> <rect x="406" y="214" width="46" height="38" rx="5" fill="#1F6FB2"/><text class="ls lw" x="429" y="237" text-anchor="middle">Generator</text> <rect x="352" y="172" width="8" height="16" fill="#8A9099"/><g id="bgsmoke"><circle class="puff" cx="356" cy="168" r="5" fill="#B0B5BA"/><circle class="puff" style="animation-delay:-2s" cx="356" cy="168" r="5" fill="#B0B5BA"/></g> <g id="cooler"><rect x="400" y="174" width="44" height="12" fill="#C9D2DB" stroke="#7D8B99"/><path class="haze" d="M408 170 q4 -6 0 -12 q-4 -6 0 -12 M422 170 q4 -6 0 -12 q-4 -6 0 -12 M436 170 q4 -6 0 -12 q-4 -6 0 -12" stroke="#E0605B" stroke-width="2" fill="none"/><text class="ls" x="422" y="134" text-anchor="middle">Notkühler</text></g> <path d="M452 232 H478" stroke="#1E1E1E" stroke-width="3"/> <rect x="478" y="244" width="26" height="26" rx="3" fill="#6B6F76"/><text class="ls lw" x="491" y="261" text-anchor="middle">Trafo</text> <path d="M478 232 V244" stroke="#1E1E1E" stroke-width="3"/> <path d="M512 270 L518 130 L524 270 M506 136 H530" fill="none" stroke="#7A5230" stroke-width="3"/> <path d="M491 244 L518 136 L640 124" fill="none" stroke="#333" stroke-width="2"/><path class="wire" d="M491 244 L518 136 L640 124" fill="none" stroke="#FFC81E" stroke-width="5"/> <text class="lb" x="632" y="114" text-anchor="end">Strom ins Netz</text> <path d="M370 252 V318 H215 V272" fill="none" stroke="#E0605B" stroke-width="5"/><path class="fl" d="M370 252 V318 H215 V272" fill="none" stroke="#F6B3A6" stroke-width="2"/> <text class="ls lw" x="290" y="332" text-anchor="middle">Wärme für den Fermenter</text> <g id="kwk"><path d="M380 252 V300 H600 V270" fill="none" stroke="#E0605B" stroke-width="7"/><path class="fl" d="M380 252 V300 H600 V270" fill="none" stroke="#F6B3A6" stroke-width="3"/> <path d="M576 270 V250 L590 236 L604 250 V270 Z M606 270 V254 L618 242 L630 254 V270 Z" fill="#F1E6D6" stroke="#A0522D" stroke-width="2"/> <text class="ls" x="603" y="228" text-anchor="middle">Häuser heizen</text> <text class="ls lw" x="490" y="314" text-anchor="middle">Wärme (Kraft-Wärme-Kopplung)</text></g>';
+  var KOHLE = '<defs> <linearGradient id="gRohr" gradientUnits="userSpaceOnUse" x1="0" y1="236" x2="0" y2="140"><stop offset="0" stop-color="#3B82C4"/><stop offset="1" stop-color="#D2452C"/></linearGradient> <clipPath id="cTurb"><polygon points="230,200 305,186 305,244 230,230"/></clipPath> </defs> <rect width="640" height="280" fill="#DCEBF7"/> <rect y="280" width="640" height="60" fill="#B48D62"/> <rect y="278" width="640" height="5" fill="#6E8B3D"/> <g id="plume"><ellipse class="puff" cx="525" cy="158" rx="22" ry="12" fill="#fff"/><ellipse class="puff" style="animation-delay:-1.5s" cx="525" cy="158" rx="22" ry="12" fill="#fff"/><ellipse class="puff" style="animation-delay:-3s" cx="525" cy="158" rx="22" ry="12" fill="#fff"/></g> <g><circle class="puff" cx="175" cy="42" r="8" fill="#9AA0A6"/><circle class="puff" style="animation-delay:-1.5s" cx="175" cy="42" r="8" fill="#9AA0A6"/><circle class="puff" style="animation-delay:-3s" cx="175" cy="42" r="8" fill="#9AA0A6"/></g> <text class="ls" x="190" y="30">Abgas mit CO₂</text> <path d="M4 280 Q30 236 62 280 Z" fill="#2B2B2B"/><text class="ls lw" x="33" y="274" text-anchor="middle">Kohle</text> <line x1="44" y1="262" x2="84" y2="140" stroke="#6B6F76" stroke-width="6"/> <line class="fl" x1="44" y1="262" x2="84" y2="140" stroke="#1E1E1E" stroke-width="3"/> <rect x="168" y="44" width="14" height="236" fill="#8A9099"/><rect x="160" y="130" width="10" height="10" fill="#8A9099"/> <rect x="75" y="115" width="85" height="165" rx="3" fill="#5A5F66"/> <rect x="84" y="126" width="67" height="148" fill="#2E3238"/> <g stroke="url(#gRohr)" stroke-width="4"><line x1="90" y1="140" x2="90" y2="236"/><line x1="98" y1="140" x2="98" y2="236"/><line x1="138" y1="140" x2="138" y2="236"/><line x1="146" y1="140" x2="146" y2="236"/></g> <rect x="87" y="134" width="62" height="4" fill="#D2452C"/> <g class="flame"><path d="M88 272 C92 246 100 252 104 236 C110 252 116 240 119 228 C124 248 132 242 136 236 C140 252 148 250 148 272 Z" fill="#F08A24"/><path d="M97 272 C100 257 108 258 112 247 C118 260 126 252 130 248 C134 260 139 262 139 272 Z" fill="#FFD23F"/></g> <rect x="96" y="172" width="44" height="18" rx="4" fill="#10324D"/><text class="lb lw" x="118" y="185" text-anchor="middle">Kessel</text> <text class="ls lw" x="118" y="206" text-anchor="middle">Wasser</text><text class="ls lw" x="118" y="217" text-anchor="middle">wird Dampf</text> <path d="M118 115 V92 H240 V200" fill="none" stroke="#D2452C" stroke-width="8"/> <path class="fl" d="M118 115 V92 H240 V200" fill="none" stroke="#F6B3A6" stroke-width="3"/> <text class="ls" x="200" y="86" text-anchor="middle">heißer Dampf</text> <rect x="200" y="160" width="190" height="120" fill="#EEF2F5" stroke="#9AA5AF" stroke-width="2"/> <path d="M196 160 H394" stroke="#7D8B99" stroke-width="5"/> <text class="ls" x="384" y="174" text-anchor="end" style="fill:#5B6B7A">Maschinenhaus</text> <rect x="236" y="158" width="8" height="6" fill="#D2452C"/> <rect x="236" y="228" width="12" height="18" fill="#7D8B99"/><polygon points="230,200 305,186 305,244 230,230" fill="#8C99A6"/> <g clip-path="url(#cTurb)"><g class="stripes" stroke="#5C6875" stroke-width="3"><line x1="225" y1="176" x2="310" y2="176"/><line x1="225" y1="186" x2="310" y2="186"/><line x1="225" y1="196" x2="310" y2="196"/><line x1="225" y1="206" x2="310" y2="206"/><line x1="225" y1="216" x2="310" y2="216"/><line x1="225" y1="226" x2="310" y2="226"/><line x1="225" y1="236" x2="310" y2="236"/><line x1="225" y1="246" x2="310" y2="246"/></g></g> <polygon points="230,200 305,186 305,244 230,230" fill="none" stroke="#4A5560" stroke-width="2"/> <text class="lb" x="282" y="181" text-anchor="middle">Turbine</text> <line x1="305" y1="215" x2="322" y2="215" stroke="#4A5560" stroke-width="7"/> <rect x="322" y="190" width="56" height="54" rx="6" fill="#1F6FB2"/><text class="ls lw" x="350" y="221" text-anchor="middle">Generator</text> <rect x="220" y="246" width="162" height="10" fill="#A9A9A2"/><rect x="220" y="256" width="14" height="24" fill="#A9A9A2"/><rect x="368" y="256" width="14" height="24" fill="#A9A9A2"/> <path d="M290 242 V262" stroke="#E9A0A0" stroke-width="7"/> <rect x="246" y="261" width="104" height="18" rx="3" fill="#4F8FC8"/><text class="ls lw" x="298" y="274" text-anchor="middle">Kondensator</text> <path d="M246 272 H160" fill="none" stroke="#3B82C4" stroke-width="7"/> <path class="fl" d="M246 272 H160" fill="none" stroke="#B8D6F2" stroke-width="3"/> <circle cx="208" cy="272" r="8" fill="#fff" stroke="#3B82C4" stroke-width="3"/><text class="ls" x="208" y="275.5" text-anchor="middle">P</text><text class="ls" x="208" y="258" text-anchor="middle">Pumpe</text> <path d="M378 214 H392 V262 H398" fill="none" stroke="#1E1E1E" stroke-width="3"/> <rect x="398" y="250" width="32" height="30" rx="3" fill="#6B6F76"/><text class="ls lw" x="414" y="269" text-anchor="middle">Trafo</text> <path d="M434 280 L440 140 L446 280 M436 240 H444 M437 205 H443 M438 172 H442 M426 146 H454" fill="none" stroke="#555" stroke-width="2"/> <path d="M462 280 C482 238 484 200 488 166 L562 166 C566 200 568 238 588 280 Z" fill="#D3DAE1" stroke="#9AA5AF" stroke-width="2"/> <text class="lb" x="525" y="196" text-anchor="middle">Kühlturm</text> <rect x="472" y="268" width="106" height="12" fill="#4F8FC8"/> <path d="M500 236 H540" stroke="#E0703A" stroke-width="4"/> <g stroke="#4F8FC8" stroke-width="2"><line class="drop" x1="503" y1="240" x2="503" y2="246"/><line class="drop" style="animation-delay:-.3s" x1="512" y1="240" x2="512" y2="246"/><line class="drop" style="animation-delay:-.6s" x1="521" y1="240" x2="521" y2="246"/><line class="drop" style="animation-delay:-.15s" x1="530" y1="240" x2="530" y2="246"/><line class="drop" style="animation-delay:-.45s" x1="538" y1="240" x2="538" y2="246"/></g> <text class="ls" x="525" y="230" text-anchor="middle">Wasser wird versprüht</text> <path d="M330 279 V300 H515 V236" fill="none" stroke="#E0703A" stroke-width="7"/> <path class="fl" d="M330 279 V300 H515 V236" fill="none" stroke="#F7C3A6" stroke-width="3"/> <path d="M525 279 V318 H310 V279" fill="none" stroke="#3B82C4" stroke-width="7"/> <path class="fl" d="M525 279 V318 H310 V279" fill="none" stroke="#B8D6F2" stroke-width="3"/> <text class="ls lw" x="420" y="296" text-anchor="middle">Kühlwasser warm</text><text class="ls lw" x="420" y="314" text-anchor="middle">Kühlwasser kalt</text> <g id="kwk"><path d="M268 279 V332 H612 V280" fill="none" stroke="#D9822B" stroke-width="7"/><path class="fl" d="M268 279 V332 H612 V280" fill="none" stroke="#F8D3A6" stroke-width="3"/> <path d="M596 280 V262 L607 251 L618 262 V280 Z" fill="#F1E6D6" stroke="#A0522D" stroke-width="2"/><path d="M618 280 V266 L627 257 L636 266 V280 Z" fill="#F1E6D6" stroke="#A0522D" stroke-width="2"/> <text class="ls" x="616" y="244" text-anchor="middle">Fernwärme</text></g> <path d="M414 250 L440 146 L640 128" fill="none" stroke="#333" stroke-width="2"/> <path class="wire" d="M414 250 L440 146 L640 128" fill="none" stroke="#FFC81E" stroke-width="5"/> <path d="M606 98 l-7 13 h6 l-4 12 l12 -16 h-6 l5 -9 z" fill="#FFC81E" stroke="#8A6A00" stroke-width="1"/> <text class="lb" x="596" y="112" text-anchor="end">Strom ins Netz</text>';
+  function el(tag, at, parent) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (parent) parent.appendChild(e); return e; }
+  var rot = [], parts = {};
+  function scene(k) {
+    var s = $('scene'); s.innerHTML = ''; s.style.background = ''; rot = []; parts = {};
+    if (!/^(kohle|wind|wasser|pumpspeicher|pv|solarthermie|biogas|geothermie|waermepumpe)$/.test(k.id)) el('rect', { x: 0, y: 250, width: 520, height: 50, fill: '#8DB36B' }, s);
+    function rotor(cx, cy, r, n, col) { var g = el('g', {}, s); for (var i = 0; i < n; i++) el('rect', { x: cx - 4, y: cy - r, width: 8, height: r, rx: 4, fill: col, transform: 'rotate(' + (360 / n * i) + ' ' + cx + ' ' + cy + ')' }, g); el('circle', { cx: cx, cy: cy, r: 7, fill: '#334' }, g); rot.push({ g: g, cx: cx, cy: cy, a: 0 }); return g; }
+    function label(x, y, t, anchor) { var e = el('text', { x: x, y: y, 'text-anchor': anchor || 'middle', 'font-size': 13, 'font-weight': 700, fill: '#10324D', 'font-family': 'Carlito, Calibri, sans-serif' }, s); e.textContent = t; return e; }
+    function gen(x, y) { el('rect', { x: x, y: y, width: 60, height: 40, rx: 6, fill: '#1F6FB2' }, s); label(x + 30, y + 25, 'Generator').setAttribute('fill', '#fff'); }
+    function line(x1, y1, x2, y2, c, w) { return el('line', { x1: x1, y1: y1, x2: x2, y2: y2, stroke: c || '#334', 'stroke-width': w || 3 }, s); }
+    function sun(x, y) { parts.sun = el('circle', { cx: x, cy: y, r: 26, fill: '#F2C230' }, s); }
+    s.setAttribute('viewBox', /^(kohle|wind|wasser|pumpspeicher|pv|solarthermie|biogas|geothermie|waermepumpe)$/.test(k.id) ? '0 0 640 340' : '0 0 520 300');
+    if (k.id === 'kohle') {
+      s.innerHTML = KOHLE; parts.kwk = s.querySelector('#kwk'); parts.plume = s.querySelector('#plume');
+    } else if (k.id === 'wind') {
+      s.innerHTML = WIND; rot.push({ g: s.querySelector('#rotor'), cx: 300, cy: 105, a: 0 });
+      var pts = []; for (var vv = 0; vv <= 28; vv += 0.25) pts.push((452 + vv * 6) + ' ' + (268 - windP(vv) / 3000 * 60).toFixed(1));
+      s.querySelector('#pcurve').setAttribute('d', 'M' + pts.join(' L'));
+    } else if (k.id === 'wasser') {
+      s.innerHTML = WASSER;
+    } else if (k.id === 'pumpspeicher') {
+      s.innerHTML = PUMPSPEICHER; rot.push({ g: s.querySelector('#psrot'), cx: 376, cy: 292, a: 0 });
+    } else if (k.id === 'pv') {
+      s.innerHTML = pvSvg();
+    } else if (k.id === 'solarthermie') {
+      s.innerHTML = stSvg();
+    } else if (k.id === 'biogas') {
+      s.innerHTML = BIOGAS;
+    } else if (k.id === 'geothermie') {
+      s.innerHTML = geoSvg();
+    } else if (k.id === 'waermepumpe') {
+      s.innerHTML = wpSvg(); rot.push({ g: s.querySelector('#wprot'), cx: 84, cy: 209, a: 0 });
+    }
+  }
+  function sceneState(k, s, r) {
+    if (k.id === 'kohle') { parts.kwk.setAttribute('opacity', s.kwk ? 1 : 0.18); parts.plume.setAttribute('opacity', s.kwk ? 0.45 : 1); }
+    if (k.id === 'biogas') { var sb = $('scene'); sb.querySelector('#kwk').setAttribute('opacity', s.kwk ? 1 : 0.15); sb.querySelector('#cooler').style.display = s.kwk ? 'none' : ''; }
+    if (k.id === 'pumpspeicher') {
+      var sp = $('scene'), Qp = function (id) { return sp.querySelector('#' + id); }, f = s.f / 100;
+      Qp('obw').setAttribute('y', 126 - 26 * f); Qp('obw').setAttribute('height', Math.max(26 * f, 0.01));
+      Qp('ubw').setAttribute('y', 272 + 24 * f); Qp('ubw').setAttribute('height', Math.max(26 - 24 * f, 2));
+      ['psflow', 'psflow2'].forEach(function (id) { var e = Qp(id); e.style.display = r.run ? '' : 'none'; e.style.animationDirection = s.mode === 1 ? 'reverse' : 'normal'; });
+      var w = Qp('pswire'); w.style.display = r.run ? '' : 'none'; w.style.animationDirection = s.mode === 1 ? 'reverse' : 'normal';
+      Qp('psmode').textContent = ['Strom erzeugen: Wasser fließt hinab', 'Energie speichern: Wasser wird hochgepumpt', 'Pause: Anlage steht'][s.mode];
+      Qp('psmode2').textContent = r.run || s.mode === 2 ? ['Turbine und Generator laufen, Strom fließt ins Netz', 'Motor und Pumpe laufen, Strom kommt aus dem Netz', 'Die Lageenergie bleibt gespeichert'][s.mode] : (s.mode === 0 ? 'Oberbecken leer' : 'Oberbecken voll');
+    }
+    if (k.id === 'wasser') {
+      var sw = $('scene'), q = s.q, Ys = 240 - s.h * 12, Q = function (id) { return sw.querySelector('#' + id); };
+      Q('ow').setAttribute('d', 'M0 ' + Ys + ' H232 V300 H0 Z'); Q('hline').setAttribute('y1', Ys); Q('hline').setAttribute('y2', Ys);
+      Q('owlab').setAttribute('y', Math.max(Ys + 24, 180));
+      var a = Ys + 3, b = 237, m = s.h >= 2 ? 'M464 ' + (a + 7) + ' L470 ' + (a - 1) + ' L476 ' + (a + 7) + ' M464 ' + (b - 7) + ' L470 ' + (b + 1) + ' L476 ' + (b - 7) : '';
+      Q('harrow').setAttribute('d', 'M470 ' + a + ' V' + b + ' ' + m); Q('hlab').setAttribute('y', (Ys + 240) / 2 + 5); Q('hlab').textContent = 'Fallhöhe ' + A.num(s.h) + ' m';
+      Q('qlab').textContent = 'Wassermenge: ' + q + ' m³/s'; Q('qlab2').textContent = q ? '= ' + A.num(q * 1000) + ' Liter pro Sekunde' : 'kein Wasser: Turbine steht';
+      var dur = q ? (120 / q).toFixed(2) + 's' : '0s';
+      sw.querySelectorAll('#owflow .fl, #chflow .fl').forEach(function (f) { f.style.display = q ? '' : 'none'; f.style.animationDuration = dur; });
+      sw.querySelectorAll('.spin').forEach(function (f) { f.style.animationDuration = q ? (40 / q).toFixed(2) + 's' : '0s'; f.style.animationPlayState = q ? 'running' : 'paused'; });
+      Q('wwire').style.display = q ? '' : 'none';
+    }
+    if (k.id === 'pv') {
+      var sv2 = $('scene'), e2 = s.e / 1000, Q2 = function (id) { return sv2.querySelector('#' + id); };
+      Q2('pvsky').setAttribute('fill', e2 === 0 ? '#1B2A3A' : e2 < 0.3 ? '#AEBCC8' : '#DCEBF7');
+      Q2('pvsun').setAttribute('opacity', e2 === 0 ? 0 : 0.25 + 0.75 * e2); Q2('pvrays').setAttribute('opacity', e2);
+      Q2('pvglow').setAttribute('opacity', 0.35 * e2); Q2('pvlamp').setAttribute('opacity', e2 === 0 ? 0.9 : 0);
+      sv2.querySelectorAll('.wire').forEach(function (w) { w.style.display = e2 > 0 ? '' : 'none'; });
+      sv2.querySelectorAll('.lb:not(#pvlab)').forEach(function (t) { t.style.fill = e2 === 0 ? '#E2EEF8' : ''; });
+      Q2('pvlab').textContent = s.e + ' W/m² · ' + (e2 === 0 ? 'Nacht' : e2 < 0.3 ? 'bewölkt oder Winter' : e2 < 0.75 ? 'Sonne' : 'Sonne mittags im Sommer');
+    }
+    if (k.id === 'solarthermie') {
+      var s3 = $('scene'), e3 = s.e / 1000, Q3 = function (id) { return s3.querySelector('#' + id); };
+      Q3('stsky').setAttribute('fill', e3 === 0 ? '#1B2A3A' : e3 < 0.3 ? '#AEBCC8' : '#DCEBF7');
+      Q3('stsun').setAttribute('opacity', e3 === 0 ? 0 : 0.25 + 0.75 * e3); Q3('strays').setAttribute('opacity', e3); Q3('stglow').setAttribute('opacity', 0.35 * e3);
+      var run3 = r.eta > 0;
+      ['sthot', 'stcold'].forEach(function (id) { var x = Q3(id); x.style.display = run3 ? '' : 'none'; x.style.animationDuration = (1.6 - e3).toFixed(2) + 's'; });
+      var Tk = Math.round(15 + 65 * e3), Ts = Math.round(20 + 40 * e3);
+      Q3('sttemp').textContent = Ts + ' °C';
+      s3.querySelectorAll('.lb:not(#stlab):not(#sttemp)').forEach(function (t) { if (t.style.fill !== 'rgb(179, 38, 30)' && !t.getAttribute('style')) t.style.fill = e3 === 0 ? '#E2EEF8' : ''; });
+      Q3('stlab').textContent = s.e + ' W/m² · Kollektor ca. ' + Tk + ' °C' + (run3 ? '' : ' · Pumpe aus');
+    }
+    if (k.id === 'geothermie') geoState(s);
+    if (k.id === 'waermepumpe') wpState(s);
+    if (k.id === 'wind') {
+      var sv = $('scene'), v = s.v, n = v === 0 ? 0 : Math.min(7, 1 + Math.ceil(v / 4));
+      sv.querySelectorAll('.gust').forEach(function (g, i) { g.style.display = i < n ? '' : 'none'; g.style.animationDuration = (6 / Math.max(v, 1)).toFixed(2) + 's'; g.style.strokeWidth = (2 + v / 8).toFixed(1); });
+      sv.querySelector('#tree').setAttribute('transform', 'rotate(' + Math.min(22, v * 0.8).toFixed(1) + ' 120 290)');
+      var B = [[0.3, 0, 'Windstille'], [1.6, 1, 'leiser Zug'], [3.4, 2, 'leichte Brise'], [5.5, 3, 'schwache Brise'], [8, 4, 'mäßige Brise'], [10.8, 5, 'frischer Wind'], [13.9, 6, 'starker Wind'], [17.2, 7, 'steifer Wind'], [20.8, 8, 'stürmischer Wind'], [24.5, 9, 'Sturm'], [28.5, 10, 'schwerer Sturm'], [99, 11, 'orkanartiger Sturm']].filter(function (b) { return v < b[0]; })[0];
+      sv.querySelector('#wv').textContent = v + ' m/s = ' + f0(v * 3.6) + ' km/h';
+      sv.querySelector('#wb').textContent = B[2] + ' (Windstärke ' + B[1] + ')';
+      sv.querySelector('#wstop').textContent = v >= 25 ? 'Sturm: Rotor steht, Blätter aus dem Wind gedreht' : v < 3 ? 'Zu wenig Wind: Rotor steht' : '';
+      var px = 452 + v * 6, py = 268 - windP(v) / 3000 * 60;
+      sv.querySelector('#pdot').setAttribute('cx', px); sv.querySelector('#pdot').setAttribute('cy', py);
+      sv.querySelector('#pline').setAttribute('x1', px); sv.querySelector('#pline').setAttribute('x2', px);
+      sv.querySelectorAll('.wire').forEach(function (w) { w.style.display = windP(v) > 0 ? '' : 'none'; });
+    }
+  }
+
+  /* ------------------------------------------------------------ Energiefluss */
+  /* Pfeilbreite ∝ Anteil. Zufluss von links mit Spitze in den Wandler, Nutzenergie nach rechts,
+     entwertete Energie startet am rechten Rand des Kastens und biegt nach unten ab. */
+  var TD = {};   /* Schrift in den Pfeilen immer dunkel, wie auf den Blättern */
+  function flow(r) {
+    /* Standard der Reihe: assets/fluss.js (wie auf den Arbeitsblättern). Ohne eigene Kette: ein Wandler mit allen Ein- und Ausgängen */
+    var map = function (x) { return [x[0] === 'UW' ? 'TE' : x[0], x[1], x[0] === 'UW' ? 'thermische Energie (Umgebung)' : x[2]]; };
+    if (!r.fluss && !r.zu.length) { $('flow').innerHTML = '<p class="note" style="text-align:center;padding:30px 0">Gerade fließt keine Energie.</p>'; $('legend').innerHTML = ''; $('flownote').textContent = r.note; return; }
+    var spec = r.fluss || { zu: r.zu.map(map), steps: [{ name: cur.kurz, out: r.nutz.map(map), loss: r.weg.map(map) }] };
+    if (!r.fluss && !r.nutz.length && !r.weg.length) spec.steps[0].out = [];
+    $('flow').innerHTML = Fluss.svg(spec);
+    var used = {}; spec.zu.concat.apply(spec.zu, spec.steps.map(function (st) { return (st.out || []).concat(st.loss || []); })).forEach(function (x) { if (x[1] > 0) used[x[0]] = 1; });
+    $('legend').innerHTML = Object.keys(used).map(function (k) { return '<span><i style="background:' + F[k][1] + ';border:1px solid #1f1f1f"></i>' + AB[k] + ' – ' + F[k][0] + '</span>'; }).join('');
+    $('flownote').textContent = r.note;
+  }
+
+  /* ------------------------------------------------------------ Steuerung */
+  var cur = null, state = {}, res = null;
+  function show() {
+    var id = location.hash.slice(1); cur = K.filter(function (k) { return k.id === id; })[0] || K[0];
+    state = A.load('kw-' + cur.id, null) || {}; cur.ctrls.forEach(function (c) { if (state[c.id] == null) state[c.id] = c.val; });
+    $('tabs').innerHTML = K.map(function (k) { return '<a href="#' + k.id + '" style="--c:' + k.c + '"' + (k === cur ? ' aria-current="page"' : '') + '><i></i>' + A.esc(k.name) + '</a>'; }).join('');
+    $('k-name').textContent = cur.name;
+    $('ctrls').innerHTML = cur.ctrls.map(function (c) {
+      if (c.type === 'switch') return '<div class="ctrl"><label>' + A.esc(c.label) + '</label><span></span><div class="sw seg" role="group" aria-label="' + A.esc(c.label) + '">' +
+        c.opts.map(function (o, i) { return '<button type="button" data-c="' + c.id + '" data-v="' + i + '" aria-pressed="' + (state[c.id] === i) + '">' + A.esc(o) + '</button>'; }).join('') + '</div></div>';
+      return '<div class="ctrl"><label for="c-' + c.id + '">' + A.esc(c.label) + '</label><output id="o-' + c.id + '" for="c-' + c.id + '"></output>' +
+        '<input type="range" id="c-' + c.id + '" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '" value="' + state[c.id] + '"></div>';
+    }).join('');
+    $('ctrls').querySelectorAll('input[type=range]').forEach(function (inp) { inp.oninput = function () { state[inp.id.slice(2)] = +inp.value; update(); }; });
+    $('ctrls').querySelectorAll('.sw button').forEach(function (b) { b.onclick = function () { state[b.dataset.c] = +b.dataset.v; b.parentNode.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); update(); }; });
+    /* Steckbrief: Energieformen und Bauteile fett, damit man den Text schnell überblickt */
+    var terms = ['chemische Energie', 'chemischer Energie', 'thermische Energie', 'thermischer Energie', 'elektrischer Energie', 'Bewegungsenergie', 'elektrische Energie', 'Lageenergie', 'Strahlungsenergie', 'Umweltwärme', 'Kraft-Wärme-Kopplung', 'Wasser-Dampf-Kreislauf', 'Kühlkreislauf', 'Fernwärme', 'Wirkungsgrad']
+      .concat((cur.info || []).map(function (it) { return it[2]; }).filter(function (t) { return !/ und /.test(t); }), ['Kessel', 'Turbine', 'Generator', 'Wehr', 'Rotorblätter', 'Solarzellen', 'Wechselrichter', 'Fermenter', 'Gasmotor', 'Kollektor', 'Speicher', 'Wärmetauscher', 'Verdichter', 'Kältemittel', 'Pumpe', 'Elektromotor', 'Motor'])
+      .sort(function (a, b) { return b.length - a.length; });
+    var re = new RegExp('(^|[^A-Za-zÄÖÜäöüß-])(' + terms.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'); }).join('|') + ')(?=$|[^A-Za-zÄÖÜäöüß])', 'g');
+    $('schritte').innerHTML = cur.steps.map(function (t) { return '<li>' + A.fmt(t).replace(re, '$1<strong>$2</strong>') + '</li>'; }).join('');
+    var rows = Math.max(cur.pro.length, cur.con.length), tb = '';
+    for (var i = 0; i < rows; i++) tb += '<tr><td>' + A.esc(cur.pro[i] || '') + '</td><td>' + A.esc(cur.con[i] || '') + '</td></tr>';
+    $('pc').innerHTML = tb;
+    renderKette();
+    $('ds').textContent = 'Im Unterricht: ' + cur.ds;
+    scene(cur); hotspots(); setView(null); update();
+  }
+  function renderKette() {
+    var kt = typeof cur.kette === 'function' ? cur.kette(state) : cur.kette, ph = function (f, t) {
+      var m = /\(([^)]+)\)/.exec(t || ''), c = F[f][1], a = AB[f], P = ' fill="' + c + '" stroke="#1f1f1f" stroke-width="1.5" stroke-linejoin="round"';
+      return '<div class="ka"><svg class="ah" width="92" height="36" viewBox="0 0 92 36" aria-hidden="true"><polygon points="1,1 76,1 91,18 76,35 1,35"' + P + '/><text x="38.5" y="24" text-anchor="middle">' + a + '</text></svg>' +
+        '<svg class="av" width="96" height="58" viewBox="0 0 96 58" aria-hidden="true"><polygon points="1,1 95,1 95,38 48,57 1,38"' + P + '/><text x="48" y="27" text-anchor="middle">' + a + '</text></svg>' +
+        '<div class="kc"><span class="sr-only">' + a + ': </span>' + A.esc(F[f][0]) + (m ? '<br>' + A.esc(m[1]) : '') + '</div></div>';
+    };
+    $('kette').innerHTML = ph(kt[0], kt[1]) + kt[2].map(function (w) { return '<div class="kw">' + A.esc(w[0]) + '</div>' + ph(w[1], w[2]); }).join('');
+    var kws = $('kette').querySelectorAll('.kw');
+    var ml = Math.max.apply(null, kt[2].map(function (w) { return w[0].length; }));   /* alle Wandler so breit wie der längste */
+    kws.forEach(function (k) { k.style.width = Math.round(ml * 8.4 + 20) + 'px'; });
+    $('kette-extra').hidden = !cur.ketteExtra; $('kette-extra').textContent = cur.ketteExtra || '';
+  }
+  /* ---------------------------------------------- Bauteil-Leiste */
+  function hotspots() {
+    var info = cur.info || [];
+    $('partinfo').textContent = ''; document.querySelector('.views [data-v="bauteile"]').hidden = !info.length; $('views').style.setProperty('--n', info.length ? 5 : 4);
+    $('parts').innerHTML = info.map(function (it, i) { return '<button type="button" aria-pressed="false" data-i="' + i + '">' + A.esc(it[2]) + '</button>'; }).join('');
+    $('parts').querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () {
+        var on = b.getAttribute('aria-pressed') !== 'true', it = info[+b.dataset.i], old = $('scene').querySelector('.hl');
+        $('parts').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        if (old) old.remove();
+        if (!on) { $('partinfo').textContent = ''; return; }
+        b.setAttribute('aria-pressed', 'true');
+        var fv = function (v) { return typeof v === 'function' ? v(state) : v; };
+        el('ellipse', { 'class': 'hl', cx: fv(it[0]), cy: fv(it[1]), rx: fv(it[4]), ry: fv(it[5]) }, $('scene'));
+        $('partinfo').innerHTML = '<b>' + A.esc(it[2]) + ':</b> ' + A.esc(it[3]);
+      };
+    });
+  }
+  /* ---------------------------------------------- Auswahl unter dem Bild: immer nur ein Bereich */
+  function setView(v) {
+    document.querySelectorAll('.views button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === v)); });
+    document.querySelectorAll('.view').forEach(function (d) { d.hidden = d.id !== 'v-' + v; });
+    if (v !== 'bauteile') { var o = $('scene').querySelector('.hl'); if (o) o.remove(); $('parts').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); $('partinfo').textContent = ''; }
+  }
+  document.querySelectorAll('.views button').forEach(function (b) { b.onclick = function () { setView(b.getAttribute('aria-pressed') === 'true' ? null : b.dataset.v); }; });
+  function update() {
+    cur.ctrls.forEach(function (c) { if (c.type !== 'switch') $('o-' + c.id).textContent = A.num(c.step >= 1 ? Math.round(state[c.id]) : state[c.id]) + ' ' + c.unit; });
+    res = cur.calc(state); A.save('kw-' + cur.id, state);
+    $('nums').innerHTML = (res.eta != null ? '<div class="num eta"><b>' + f0(res.eta) + ' %</b><span>' + res.etaLabel + '</span></div>' : '') +
+      res.nums.map(function (n) { return '<div class="num"><b>' + A.esc(n[1]) + '</b><span>' + A.esc(n[0]) + '</span></div>'; }).join('');
+    flow(res); sceneState(cur, state, res);
+    if (typeof cur.kette === 'function') renderKette();
+  }
+  var last = 0;
+  function tick(t) {
+    var dt = Math.min(50, t - last); last = t;
+    if (!reduce && res) rot.forEach(function (r) { r.a = (r.a + dt * 0.36 * res.speed) % 360; r.g.setAttribute('transform', 'rotate(' + r.a + ' ' + r.cx + ' ' + r.cy + ')'); });
+    if (!reduce && res && parts.bubbles) parts.bubbles.forEach(function (b, i) { var cy = 240 - ((t / 20 + i * 25) % 70); b.setAttribute('cy', cy); });
+    if (cur && cur.id === 'pumpspeicher' && res && res.run) {
+      state.f = Math.max(0, Math.min(100, state.f + (state.mode === 0 ? -1 : 1) * dt / 400));
+      if (t - (tick.u || 0) > 250) { tick.u = t; var inp = $('c-f'); if (inp) inp.value = Math.round(state.f); state.f = Math.round(state.f * 10) / 10; update(); }
+    }
+    if (!reduce && res && parts.dots) parts.dots.forEach(function (b, i) { b.setAttribute('cy', 270 - ((t / 15 + i * 30) % 150)); });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('hashchange', show);
+  show(); requestAnimationFrame(tick);
+})();
+</script>
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+</body>
+</html>

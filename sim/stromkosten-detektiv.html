@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stromkosten-Detektiv</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/fonts/sim-fonts.css">
+<style>
+/* Layout: Fallakte – links die „Beweisstücke“ (Geräte des Haushalts), rechts der Stromzähler mit Rangliste und den Detektiv-Fällen */
+:root{
+  --paper:#F3F4EE; --panel:#FFFFFF; --line:#CDD2C4; --line-strong:#9EA594;
+  --ink:#1D2320; --muted:#5C655E; --soft:#E9ECE3;
+  --el:#E8B417; --el-ink:#2B2000; --el-soft:#FBF0CC;
+  --therm:#D25450; --ok:#2A7F55; --ok-soft:#DCEFE3; --bad:#B23A30; --bad-soft:#F6DFDB;
+  --meter:#141816; --meter-fg:#F4F4EC; --meter-red:#D8382E;
+  --f-display:"Big Shoulders Stencil Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121513; --panel:#1A1F1C; --line:#2E3631; --line-strong:#4A554D;
+  --ink:#E6E9E1; --muted:#9BA59C; --soft:#222824;
+  --el:#F2C230; --el-ink:#231A00; --el-soft:#3A3114;
+  --therm:#EC716C; --ok:#5CC28C; --ok-soft:#173326; --bad:#F07B6F; --bad-soft:#3B1D1A;
+  --meter:#0A0C0B; --meter-fg:#ECEDE4; --meter-red:#F0564B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121513; --panel:#1A1F1C; --line:#2E3631; --line-strong:#4A554D;
+  --ink:#E6E9E1; --muted:#9BA59C; --soft:#222824;
+  --el:#F2C230; --el-ink:#231A00; --el-soft:#3A3114;
+  --therm:#EC716C; --ok:#5CC28C; --ok-soft:#173326; --bad:#F07B6F; --bad-soft:#3B1D1A;
+  --meter:#0A0C0B; --meter-fg:#ECEDE4; --meter-red:#F0564B; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(36px,5.4vw,58px);line-height:.92;margin:0;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+h1 em{font-style:normal;background:var(--el);color:var(--el-ink);padding:0 .14em}
+.sub{margin:8px 0 0;color:var(--muted);max-width:62ch}
+.file{font-family:var(--f-mono);font-size:12px;line-height:1.55;border:1.5px dashed var(--line-strong);padding:8px 12px;background:var(--panel);color:var(--muted)}
+.file b{color:var(--ink);font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px}
+.label{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* Geräte */
+.devices{display:grid;gap:10px}
+.dev{background:var(--panel);border:1px solid var(--line);padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:start}
+.dev h3{margin:0;font-size:16px;font-weight:600}
+.dev .spec{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.dev .val{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dev .val b{display:block;font-size:17px;font-weight:600}
+.dev .val span{font-size:12px;color:var(--muted)}
+.dev .ctl{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.dev .delta{font-family:var(--f-mono);font-size:12px}
+.delta.down{color:var(--ok)} .delta.up{color:var(--bad)}
+.slider{display:flex;align-items:center;gap:10px;min-width:min(100%,300px);flex:1 1 260px}
+.slider label{font-size:13.5px;white-space:nowrap}
+.slider output{font-family:var(--f-mono);font-size:13px;min-width:5.5ch;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;accent-color:var(--el);height:28px;min-width:0}
+.tog{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;padding:4px 0}
+.tog input{width:20px;height:20px;accent-color:var(--el)}
+.dev.box{border-style:dashed;border-color:var(--line-strong)}
+/* Zähler */
+.side{display:grid;gap:14px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:900px){.side{position:static}}
+.meter{background:var(--meter);color:var(--meter-fg);padding:14px 16px 16px;display:grid;gap:12px}
+.meter .label{color:#A9B0A6}
+.odo{display:flex;gap:3px;font-family:var(--f-mono);font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;align-items:center;flex-wrap:wrap}
+.odo .d{background:var(--meter-fg);color:var(--meter);width:1.05em;text-align:center;line-height:1.35;border-radius:2px}
+.odo .d.red{background:var(--meter-red);color:#fff}
+.odo .u{font-size:15px;margin-left:8px;color:#A9B0A6;font-weight:400}
+.readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ro b{display:block;font-family:var(--f-mono);font-size:19px;font-variant-numeric:tabular-nums;color:var(--meter-fg)}
+.ro span{font-size:11.5px;color:#A9B0A6}
+.goal{display:grid;gap:6px}
+.bar{height:12px;background:#2B302D;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--el);width:0;transition:width .35s}
+.bar .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--meter-fg);left:40%}
+.goaltext{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12.5px;color:#A9B0A6}
+.goaltext b{color:var(--meter-fg);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);padding:14px}
+.rank{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.rank li{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr) 6.2em;gap:8px;align-items:center;font-size:13px}
+.rank .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .tr{height:12px;background:var(--soft);position:relative}
+.rank .tr i{position:absolute;inset:0 auto 0 0;background:var(--el);transition:width .35s}
+.rank .nr{font-family:var(--f-mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+/* Fälle */
+.cases{display:grid;gap:10px}
+.case{border:1px solid var(--line);background:var(--panel);padding:12px 14px;display:grid;gap:8px}
+.case header{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.case h3{margin:0;font-size:15.5px}
+.case p{margin:0;font-size:14px}
+.status{font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;padding:1px 8px;border:2px solid var(--line-strong);color:var(--muted);white-space:nowrap;transform:rotate(-2deg)}
+.status.ok{border-color:var(--ok);color:var(--ok)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select,input[type=text]{font:inherit;font-size:15px;padding:7px 9px;border:1.5px solid var(--line-strong);background:var(--paper);color:var(--ink);min-width:0;max-width:100%}
+input[type=text]{width:7em;font-family:var(--f-mono)}
+button{font:inherit;font-weight:600;font-size:14px;padding:8px 14px;border:2px solid var(--ink);background:var(--el);color:var(--el-ink);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--el);outline-offset:2px}
+.fb{font-size:13.5px;padding:8px 10px;border-left:4px solid var(--line-strong);background:var(--soft)}
+.fb.ok{border-color:var(--ok);background:var(--ok-soft)} .fb.bad{border-color:var(--bad);background:var(--bad-soft)}
+.choices{display:grid;gap:6px}
+.choices label{display:flex;gap:8px;align-items:flex-start;font-size:14px;cursor:pointer}
+.choices input{margin-top:3px;width:18px;height:18px;accent-color:var(--el)}
+.star{color:var(--el);-webkit-text-stroke:.5px var(--ink)}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+@media (prefers-reduced-motion: reduce){.bar i,.rank .tr i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Stromkosten-<em>Detektiv</em></h1>
+      <p class="sub">Familie Becker (4 Personen, Wohnung, Warmwasser über Gas) zahlt fast 900 € Strom im Jahr. Untersucht jedes Gerät, findet die Stromfresser und löst die vier Fälle. Verändert die Regler – der Zähler rechnet sofort mit.</p>
+    </div>
+    <div class="file">FALLAKTE <b>PHY-ENE-07C</b><br>Strompreis: <b>0,37 € / kWh</b><br>CO₂: <b>344 g / kWh</b> (Strommix 2025)</div>
+  </header>
+
+  <div class="grid">
+    <section aria-labelledby="h-dev">
+      <h2 id="h-dev">Beweisstücke: die Geräte</h2>
+      <div class="devices" id="devices"></div>
+    </section>
+
+    <aside class="side">
+      <div class="meter" aria-live="polite">
+        <div class="label">Stromzähler · Energie pro Jahr</div>
+        <div class="odo" id="odo"></div>
+        <div class="readouts">
+          <div class="ro"><b id="ro-eur">–</b><span>Kosten pro Jahr</span></div>
+          <div class="ro"><b id="ro-co2">–</b><span>CO₂ pro Jahr</span></div>
+          <div class="ro"><b id="ro-save">–</b><span>gespart</span></div>
+        </div>
+        <div class="goal">
+          <div class="bar" aria-hidden="true"><i id="goalbar"></i><span class="mark"></span></div>
+          <div class="goaltext"><span>Ausgangslage: <b id="base-kwh"></b></span><span>Ziel: <b>−20 %</b></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:19px">Rangliste der Stromfresser</h2>
+        <ol class="rank" id="rank"></ol>
+      </div>
+
+      <div class="cases">
+        <h2 style="margin:4px 0 0">Die Fälle</h2>
+
+        <div class="case" id="c1">
+          <header><h3>Fall 1 · Der größte Stromfresser</h3><span class="status" id="s1">offen</span></header>
+          <p>Welches Gerät wandelt in der <b>Ausgangslage</b> die meiste Energie pro Jahr um? Tipp: Erst schätzen, dann in die Rangliste schauen. Mit „Zurücksetzen“ kommt ihr zur Ausgangslage zurück.</p>
+          <div class="row"><select id="q1" aria-label="Gerät auswählen"></select><button id="b1">Prüfen</button></div>
+          <div class="fb" id="f1" hidden></div>
+        </div>
+
+        <div class="case" id="c2">
+          <header><h3>Fall 2 · 20 % sparen ohne Verzicht</h3><span class="status" id="s2">offen</span></header>
+          <p>Senkt den Verbrauch um mindestens <b>20 %</b>. Bedingung: Fernsehen (4 h) und Zocken (2 h) pro Tag dürfen nicht weniger werden, und der Kühlschrank bleibt der alte. Der Fall wird automatisch geprüft.</p>
+          <div class="fb" id="f2">Noch nicht gelöst.</div>
+        </div>
+
+        <div class="case" id="c3">
+          <header><h3>Fall 3 · Die PowerSave-Box</h3><span class="status" id="s3">offen</span></header>
+          <p>Steckt die „PowerSave-Box“ ein (unten in der Geräteliste) und beobachtet den Zähler. Warum spart die Box nichts?</p>
+          <div class="choices" role="radiogroup" aria-label="Antwort Fall 3">
+            <label><input type="radio" name="q3" value="a"> Die Box speichert Strom und gibt ihn später zurück.</label>
+            <label><input type="radio" name="q3" value="b"> Die Box ändert nicht, wie viel Energie die Geräte umwandeln. Sie braucht sogar selbst ein wenig Energie.</label>
+            <label><input type="radio" name="q3" value="c"> Die Box wirkt erst nach einigen Wochen.</label>
+          </div>
+          <div class="row"><button id="b3">Prüfen</button></div>
+          <div class="fb" id="f3" hidden></div>
+        </div>
+
+        <div class="case" id="c4">
+          <header><h3><span class="star">★</span> Fall 4 · Lohnt sich ein neuer Kühlschrank?</h3><span class="status" id="s4">offen</span></header>
+          <p>Der alte Kühlschrank braucht 330 kWh pro Jahr, ein neuer (Klasse C nach dem aktuellen EU-Energielabel) nur 150 kWh. Der neue kostet 700 €. Nach wie vielen Jahren hat er sich durch die geringeren Stromkosten bezahlt gemacht?</p>
+          <div class="row"><input type="text" id="q4" inputmode="decimal" placeholder="z. B. 7,5" aria-label="Jahre"><span>Jahre</span><button id="b4">Prüfen</button></div>
+          <div class="fb" id="f4" hidden></div>
+        </div>
+      </div>
+
+      <div class="row"><button class="ghost" id="reset">Zurücksetzen auf Ausgangslage</button></div>
+    </aside>
+  </div>
+
+  <footer>Alle Geräte- und Verbrauchswerte sind gerundete Richtwerte für einen Beispielhaushalt. Strompreis: Durchschnitt für Haushalte 2026 (BDEW); CO₂: Emissionsfaktor des deutschen Strommix 2025 (Umweltbundesamt, Schätzung). Arbeitsblatt dazu: PHY-ENE-07C.</footer>
+</div>
+
+<script>
+const PRICE = 0.37, CO2 = 0.344, YEAR = 365, WEEK = 52;
+// Gerätedefinitionen
+const D = [
+  {id:'kuehl', name:'Kühl-Gefrier-Kombi', spec:'altes Gerät · 330 kWh pro Jahr',
+   ctl:[{t:'tog',k:'neu',l:'Neues Gerät (Klasse C, 150 kWh/Jahr, 700 €)',v:false}],
+   kwh:s=> s.neu ? 150 : 330},
+  {id:'licht', name:'Beleuchtung', spec:'10 Lampen · je 3 h pro Tag · alte Halogenlampe 40 W oder LED 5 W',
+   ctl:[{t:'rng',k:'led',l:'davon LED',min:0,max:10,step:1,v:4,f:v=>v+' von 10'}],
+   kwh:s=> YEAR*3*(s.led*5+(10-s.led)*40)/1000},
+  {id:'kochen', name:'Kochen (Herd und Backofen)', spec:'ca. 1,2 kWh pro Tag',
+   ctl:[{t:'tog',k:'deckel',l:'Deckel auf den Topf, Wasser im Wasserkocher vorkochen (ca. −10 %)',v:false}],
+   kwh:s=> YEAR*1.2*(s.deckel?0.9:1)},
+  {id:'trockner', name:'Wäschetrockner', spec:'2,5 kWh pro Ladung',
+   ctl:[{t:'rng',k:'n',l:'Ladungen pro Woche',min:0,max:5,step:1,v:2,f:v=>v+'-mal'}],
+   kwh:s=> WEEK*s.n*2.5},
+  {id:'wasch', name:'Waschmaschine', spec:'4 Waschgänge pro Woche · 60 °C: 1,0 kWh · 40 °C: 0,6 kWh',
+   ctl:[{t:'tog',k:'k40',l:'mit 40 °C statt 60 °C waschen',v:false}],
+   kwh:s=> WEEK*4*(s.k40?0.6:1.0)},
+  {id:'spuel', name:'Geschirrspüler', spec:'5 Spülgänge pro Woche · Normal: 1,1 kWh · Eco: 0,8 kWh',
+   ctl:[{t:'tog',k:'eco',l:'Eco-Programm nutzen',v:false}],
+   kwh:s=> WEEK*5*(s.eco?0.8:1.1)},
+  {id:'tv', name:'Fernseher', spec:'100 W in Betrieb · 0,5 W im Standby',
+   ctl:[{t:'rng',k:'h',l:'Stunden pro Tag',min:0,max:8,step:0.5,v:4,f:v=>fmt(v,1)+' h'},
+        {t:'tog',k:'aus',l:'Steckdosenleiste ausschalten statt Standby',v:false}],
+   kwh:s=> YEAR*(100*s.h + (s.aus?0:0.5)*(24-s.h))/1000},
+  {id:'konsole', name:'Spielkonsole', spec:'200 W beim Spielen · 1,2 W im Ruhemodus · 0,3 W ganz aus',
+   ctl:[{t:'rng',k:'h',l:'Stunden pro Tag',min:0,max:6,step:0.5,v:2,f:v=>fmt(v,1)+' h'},
+        {t:'tog',k:'aus',l:'ganz ausschalten statt Ruhemodus',v:false}],
+   kwh:s=> YEAR*(200*s.h + (s.aus?0.3:1.2)*(24-s.h))/1000},
+  {id:'pc', name:'Computer mit Monitor', spec:'150 W · Laptop: 50 W',
+   ctl:[{t:'rng',k:'h',l:'Stunden pro Tag',min:0,max:8,step:0.5,v:3,f:v=>fmt(v,1)+' h'},
+        {t:'tog',k:'laptop',l:'Laptop statt Computer',v:false}],
+   kwh:s=> YEAR*(s.laptop?50:150)*s.h/1000},
+  {id:'router', name:'WLAN-Router', spec:'10 W rund um die Uhr',
+   ctl:[{t:'tog',k:'nacht',l:'nachts 8 h ausschalten (Zeitschaltung)',v:false}],
+   kwh:s=> YEAR*10*(s.nacht?16:24)/1000},
+  {id:'laden', name:'Handys und Tablets laden', spec:'4 Geräte · je 15 Wh pro Tag · 4 Ladegeräte mit je 0,1 W',
+   ctl:[{t:'tog',k:'ziehen',l:'Ladegeräte nach dem Laden ziehen',v:false}],
+   kwh:s=> YEAR*(4*15 + (s.ziehen?0:4*0.1*24))/1000},
+  {id:'box', name:'„PowerSave-Box“ (39,99 €)', spec:'Werbung: „Senkt Ihre Stromrechnung um bis zu 40 %!“ · Kontrollleuchte 0,5 W', box:true,
+   ctl:[{t:'tog',k:'an',l:'Box in die Steckdose stecken',v:false}],
+   kwh:s=> s.an ? YEAR*24*0.5/1000 : 0},
+];
+const state = {}; const base = {};
+function fmt(x,dig=0){return x.toLocaleString('de-DE',{minimumFractionDigits:dig,maximumFractionDigits:dig})}
+function init(){D.forEach(d=>{state[d.id]={};d.ctl.forEach(c=>state[d.id][c.k]=c.v)});}
+init(); D.forEach(d=>base[d.id]=d.kwh(state[d.id]));
+const BASE_TOTAL = Object.values(base).reduce((a,b)=>a+b,0);
+
+// Geräte rendern
+const devEl = document.getElementById('devices');
+D.forEach(d=>{
+  const el = document.createElement('article'); el.className='dev'+(d.box?' box':''); el.id='dev-'+d.id;
+  let ctl='';
+  d.ctl.forEach(c=>{
+    const id=`${d.id}-${c.k}`;
+    if(c.t==='rng') ctl+=`<div class="slider"><label for="${id}">${c.l}</label><input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.v}"><output id="${id}-o"></output></div>`;
+    else ctl+=`<label class="tog"><input type="checkbox" id="${id}"> ${c.l}</label>`;
+  });
+  el.innerHTML=`<div><h3>${d.name}</h3><div class="spec">${d.spec}</div></div>
+    <div class="val"><b id="v-${d.id}"></b><span id="e-${d.id}"></span></div>
+    <div class="ctl">${ctl}<span class="delta" id="d-${d.id}"></span></div>`;
+  devEl.appendChild(el);
+  d.ctl.forEach(c=>{
+    const inp=document.getElementById(`${d.id}-${c.k}`);
+    inp.addEventListener('input',()=>{state[d.id][c.k]= c.t==='rng'? parseFloat(inp.value) : inp.checked; update();});
+  });
+});
+// Auswahlliste Fall 1
+const q1=document.getElementById('q1');
+q1.innerHTML='<option value="">– Gerät wählen –</option>'+D.filter(d=>!d.box).map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+
+function syncInputs(){
+  D.forEach(d=>d.ctl.forEach(c=>{
+    const inp=document.getElementById(`${d.id}-${c.k}`);
+    if(c.t==='rng'){inp.value=state[d.id][c.k]; document.getElementById(`${inp.id}-o`).textContent=c.f(state[d.id][c.k]);}
+    else inp.checked=state[d.id][c.k];
+  }));
+}
+function update(){
+  let total=0; const vals={};
+  D.forEach(d=>{
+    const k=d.kwh(state[d.id]); vals[d.id]=k; total+=k;
+    document.getElementById('v-'+d.id).textContent=fmt(k)+' kWh';
+    document.getElementById('e-'+d.id).textContent=fmt(k*PRICE)+' € pro Jahr';
+    const diff=k-base[d.id], de=document.getElementById('d-'+d.id);
+    de.className='delta '+(diff<-0.05?'down':diff>0.05?'up':'');
+    de.textContent= Math.abs(diff)<0.05 ? '' : (diff<0?'−':'+')+fmt(Math.abs(diff))+' kWh gegenüber der Ausgangslage';
+    d.ctl.forEach(c=>{if(c.t==='rng') document.getElementById(`${d.id}-${c.k}-o`).textContent=c.f(state[d.id][c.k]);});
+  });
+  // Zähler
+  const digits=String(Math.round(total*10)).padStart(6,'0');
+  document.getElementById('odo').innerHTML=[...digits].map((ch,i)=>`<span class="d${i===digits.length-1?' red':''}">${ch}</span>`).join('')+'<span class="u">kWh · Zehntel rot</span>';
+  document.getElementById('odo').setAttribute('aria-label',fmt(total,1)+' Kilowattstunden pro Jahr');
+  document.getElementById('ro-eur').textContent=fmt(total*PRICE)+' €';
+  document.getElementById('ro-co2').textContent=fmt(total*CO2)+' kg';
+  const save=(BASE_TOTAL-total)/BASE_TOTAL*100;
+  document.getElementById('ro-save').textContent=(save>=0?'':'−')+fmt(Math.abs(save),1)+' %';
+  document.getElementById('goalbar').style.width=Math.max(0,Math.min(100,save/50*100))+'%';
+  document.getElementById('base-kwh').textContent=fmt(BASE_TOTAL)+' kWh';
+  // Rangliste
+  const sorted=D.filter(d=>vals[d.id]>0).sort((a,b)=>vals[b.id]-vals[a.id]); const max=vals[sorted[0].id];
+  document.getElementById('rank').innerHTML=sorted.map(d=>`<li><span class="nm">${d.name}</span><span class="tr"><i style="width:${vals[d.id]/max*100}%"></i></span><span class="nr">${fmt(vals[d.id])} kWh</span></li>`).join('');
+  // Fall 2
+  const ok2 = save>=20 && state.tv.h>=4 && state.konsole.h>=2 && !state.kuehl.neu;
+  const f2=document.getElementById('f2'), s2=document.getElementById('s2');
+  if(ok2){f2.className='fb ok'; f2.textContent=`Gelöst: ${fmt(save,1)} % weniger, das sind ${fmt(BASE_TOTAL-total)} kWh und ${fmt((BASE_TOTAL-total)*PRICE)} € pro Jahr. Notiert eure Maßnahmen auf dem Arbeitsblatt.`; s2.textContent='gelöst'; s2.className='status ok';}
+  else{
+    let why = save<20 ? `Bisher ${fmt(Math.max(save,0),1)} % gespart – es fehlen noch ${fmt(Math.max(0,BASE_TOTAL*0.2-(BASE_TOTAL-total)))} kWh.` : '';
+    const cond=[]; if(state.tv.h<4) cond.push('Fernsehen wieder auf 4 h'); if(state.konsole.h<2) cond.push('Zocken wieder auf 2 h'); if(state.kuehl.neu) cond.push('alter Kühlschrank bleibt');
+    if(cond.length) why+=(why?' ':'')+'Bedingung verletzt: '+cond.join(', ')+'.';
+    f2.className='fb'; f2.textContent=why; s2.textContent='offen'; s2.className='status';
+  }
+}
+function setFb(n,ok,txt){const f=document.getElementById('f'+n),s=document.getElementById('s'+n); f.hidden=false; f.className='fb '+(ok?'ok':'bad'); f.textContent=txt; if(ok){s.textContent='gelöst';s.className='status ok';}}
+document.getElementById('b1').addEventListener('click',()=>{
+  const v=q1.value; if(!v){setFb(1,false,'Wählt zuerst ein Gerät aus.');return;}
+  const top=Object.entries(base).sort((a,b)=>b[1]-a[1])[0][0];
+  if(v===top) setFb(1,true,`Richtig: Kochen mit Herd und Backofen braucht ${fmt(base.kochen)} kWh pro Jahr. Die Herdplatten haben eine große Leistung (1–2 kW) und laufen jeden Tag. Auf Platz 2 folgt der Kühlschrank, dicht dahinter Geschirrspüler und Beleuchtung: kleine Leistung, aber viele Stunden oder viele Geräte.`);
+  else setFb(1,false,`Nicht ganz: ${D.find(d=>d.id===v).name} braucht in der Ausgangslage ${fmt(base[v])} kWh pro Jahr. Es gibt einen größeren Stromfresser – denkt an Leistung × Anzahl × Stunden.`);
+});
+document.getElementById('b3').addEventListener('click',()=>{
+  const v=(document.querySelector('input[name=q3]:checked')||{}).value;
+  if(!v){setFb(3,false,'Wählt eine Antwort aus.');return;}
+  if(v==='b') setFb(3,true,'Richtig. Wie viel Energie eine Lampe oder ein Kühlschrank umwandelt, hängt nur vom Gerät und seiner Nutzung ab. Die Box ist mit keinem Gerät verbunden – Energie lässt sich nicht „wegzaubern“ (Energieerhaltung). Ihre Kontrollleuchte braucht sogar 4,4 kWh pro Jahr.');
+  else if(v==='a') setFb(3,false,'Nein. Die Box hat keinen Speicher, und selbst ein Speicher würde nichts sparen: Was er abgibt, musste vorher hineingeladen werden.');
+  else setFb(3,false,'Nein. Schaut auf den Zähler: Mit der Box steigt der Verbrauch sogar leicht. Auch nach Wochen ändert sich daran nichts.');
+});
+document.getElementById('b4').addEventListener('click',()=>{
+  const raw=document.getElementById('q4').value.trim().replace(',','.'); const x=parseFloat(raw);
+  const target=700/((330-150)*PRICE);
+  if(!isFinite(x)){setFb(4,false,'Gebt eine Zahl ein, z. B. 7,5.');return;}
+  if(Math.abs(x-target)<=0.5) setFb(4,true,`Richtig: Ersparnis 180 kWh · 0,37 € = 66,60 € pro Jahr; 700 € : 66,60 € ≈ ${fmt(target,1)} Jahre. Ein Kühlschrank hält etwa 15 Jahre – es lohnt sich also, aber erst spät. Zusätzlich spart er ${fmt(180*CO2)} kg CO₂ pro Jahr.`);
+  else setFb(4,false,'Noch nicht. Rechnet zuerst die eingesparte Energie pro Jahr aus, dann die eingesparten Euro pro Jahr, und teilt den Kaufpreis durch diese Ersparnis.');
+});
+document.getElementById('reset').addEventListener('click',()=>{init(); syncInputs(); update();});
+syncInputs(); update();
+</script>
+
+</html>
+
+<!-- Lernseite: Zurück-Leiste und Schloss (Simulation selbst unverändert) -->
+<script>window.SIM_ID = 'stromkosten-detektiv';</script>
+<script src="../data/codes.js"></script>
+<script src="../assets/lock.js"></script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Training Kurztest · Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs a { font: 700 16px var(--f-text); text-decoration: none; padding: 10px 16px; border-radius: 10px; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid var(--line); color: var(--text); background: var(--surface); }
+  .tabs a[aria-current="page"] { border-color: var(--blue); background: var(--blue); color: #fff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs a[aria-current="page"] { color: #0B1824; } }
+  :root[data-theme="dark"] .tabs a[aria-current="page"] { color: #0B1824; }
+  .facts { display: flex; gap: 8px 20px; flex-wrap: wrap; font-size: 16px; color: var(--muted); }
+  .facts b { color: var(--ink); }
+  .task { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .task-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 14px 20px; border-bottom: 2px solid var(--blue); }
+  .task.star .task-head { border-color: var(--green); }
+  .task-head h2 { font-size: 21px; }
+  .task.star .task-head h2 { color: var(--green-d); }
+  .task-head span { font-size: 15px; color: var(--muted); font-weight: 700; }
+  .task-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .task-body p { max-width: 70ch; }
+  .sub { display: grid; grid-template-columns: 36px 1fr; gap: 4px; }
+  .sub b { color: var(--ink); }
+  .sub.star b { color: var(--green-d); }
+  figure { margin: 0; background: #fff; border: 1.5px solid var(--green); border-radius: 10px; padding: 8px; max-width: 640px; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { font-size: 14px; color: #33475B; padding: 6px 4px 0; }
+  .checks { display: flex; flex-direction: column; gap: 6px; }
+  .checks label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 17px; }
+  .checks input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--blue); flex: none; }
+  .checks label.right { border-color: var(--green-d); background: var(--mint); }
+  .checks label.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .answer { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .answer input { flex: 1 1 160px; min-width: 0; max-width: 240px; font: 700 20px var(--f-text); padding: 10px 12px; min-height: 50px; border: 2px solid var(--blue); border-radius: 10px; background: var(--surface); color: var(--ink); }
+  .answer .unit { font-size: 19px; font-weight: 700; color: var(--ink); }
+  .fb { font-weight: 700; min-height: 1.4em; }
+  .fb.ok { color: var(--green-d); } .fb.bad { color: var(--bad); } .fb.warn { color: var(--warn); }
+  textarea { font: 17px/1.45 var(--f-text); width: 100%; max-width: 70ch; min-height: 96px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); resize: vertical; }
+  textarea:focus { border-color: var(--blue); outline: none; }
+  details { border: 1.5px solid var(--green); border-radius: 10px; background: var(--mint); }
+  summary { cursor: pointer; padding: 10px 14px; font-weight: 700; color: var(--green-d); min-height: 44px; display: flex; align-items: center; }
+  details > div { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; color: var(--text); }
+  details ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .lang { background: var(--sky); border-radius: 10px; padding: 10px 14px; font-size: 16px; }
+  .lang b { color: var(--ink); }
+  .new { font-size: 13px; font-weight: 700; color: var(--blue); }
+</style>
+</head>
+<body>
+<header class="band band-mini"><div class="wrap"><a class="back" href="../">← Energie</a><h1>Test-Training</h1></div></header>
+<main class="wrap">
+  <section class="page-intro">
+    <nav class="tabs" aria-label="Prüfung wählen">
+      <a href="kurztest.html" aria-current="page">Kurztest (DS 9)</a>
+      <a href="index.html">Klassenarbeit (DS 15)</a>
+    </nav>
+    <h2 style="font-size:26px">Fit für den Kurztest Energie</h2>
+    <p>So ähnlich sehen die Aufgaben im Kurztest aus. Bearbeite zuerst selbst – im Heft oder hier – und klappe dann die Lösung auf.</p>
+    <div class="facts"><span><b>25 Minuten</b> Bearbeitungszeit</span><span><b>Taschenrechner</b> erlaubt</span><span>Aufgaben mit <b style="color:var(--green-d)">★</b> sind für das erweiterte Niveau</span></div>
+    <p><a href="../checkliste.html#kurztest">Checkliste: Bin ich fit für den Kurztest? →</a></p>
+  </section>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 1: Energiebegriff</h2><span>4 P</span></div>
+    <div class="task-body">
+      <p>Welche Sätze verwenden den Begriff Energie <b>nicht</b> im physikalischen Sinn? Kreuze an.</p>
+      <div class="checks" id="a1">
+        <label><input type="checkbox" data-ok="1"> „Meine Energie ist völlig verbraucht.“</label>
+        <label><input type="checkbox" data-ok="0"> „Beim Bremsen wird Bewegungsenergie in thermische Energie umgewandelt.“</label>
+        <label><input type="checkbox" data-ok="1"> „Ein Wasserkraftwerk erzeugt Energie.“</label>
+        <label><input type="checkbox" data-ok="0"> „Die Sonne überträgt Energie durch Strahlung zur Erde.“</label>
+      </div>
+      <div class="answer"><button class="btn" type="button" id="a1-check">Prüfen</button><span class="fb" id="a1-fb" aria-live="polite"></span></div>
+      <p>Formuliere einen der angekreuzten Sätze physikalisch korrekt.</p>
+      <label class="sr" for="a1-text">Deine Formulierung</label><textarea id="a1-text" placeholder="Schreibe deinen Satz hier oder ins Heft."></textarea>
+      <p class="lang"><b>Satzanfänge:</b> „Die … Energie wird in … umgewandelt.“ · „Das Kraftwerk wandelt … in … um.“</p>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p>Angekreuzt: „Meine Energie ist völlig verbraucht.“ und „Ein Wasserkraftwerk erzeugt Energie.“ (je 1 P)</p>
+        <p>Zum Beispiel: „Ich habe die chemische Energie aus meiner Nahrung in Bewegungsenergie und thermische Energie umgewandelt.“ oder „Ein Wasserkraftwerk wandelt die Lageenergie des Wassers in elektrische Energie um.“ (2 P)</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 2: Energieflussdiagramm</h2><span>6 P · ★ 2 P</span></div>
+    <div class="task-body">
+      <p>Eine Solarzelle treibt einen Elektromotor an. Der Motor hebt über ein Seil ein Gewicht an.</p>
+      <figure><img src="../assets/img/solar_motor.png" alt="Solarzelle, die über Kabel einen Elektromotor antreibt; der Motor zieht über eine Seilrolle ein Gewicht nach oben." width="1129" height="670"><figcaption><b>Abbildung:</b> Solarzelle, Motor und Gewicht</figcaption></figure>
+      <div class="sub"><b>a)</b><span>Zeichne das Energieflussdiagramm ins Heft. Beschrifte die Kästen mit den Energiewandlern und die Pfeile mit den Energieformen. (4 P)</span></div>
+      <div class="sub"><b>b)</b><span>Ergänze die Energie, die nicht genutzt wird, als Pfeile nach unten. (2 P)</span></div>
+      <figure><img src="../assets/img/fl_geruest3b.png" alt="Gerüst eines Energieflussdiagramms mit drei leeren Kästen und leeren Pfeilen." width="1400" height="442"><figcaption><b>Gerüst:</b> drei Kästen für die Energiewandler</figcaption></figure>
+      <div class="sub star"><b>★ c)</b><span>Die Solarzelle wandelt nur etwa 20 % der Strahlungsenergie in elektrische Energie um. Was bedeutet das für die Breite der Pfeile in deinem Diagramm? (2 P)</span></div>
+      <details><summary>Lösung anzeigen</summary><div>
+        <ul>
+          <li><b>a)</b> Wandler: Solarzelle → Elektromotor → Seilrolle. Energieformen: Strahlungsenergie → elektrische Energie → Bewegungsenergie → Lageenergie.</li>
+          <li><b>b)</b> Pfeile mit thermischer Energie nach unten an Solarzelle und Motor; ein Pfeil an der Seilrolle (Reibung) ist ebenfalls richtig.</li>
+          <li><b>★ c)</b> Der Pfeil der elektrischen Energie ist nur etwa ein Fünftel so breit wie der Pfeil der Strahlungsenergie. Der Pfeil der thermischen Energie an der Solarzelle ist entsprechend breit, etwa vier Fünftel.</li>
+        </ul>
+        <figure><img src="../assets/img/fl_kurztest_lsg.png" alt="Musterlösung: Energieflussdiagramm Solarzelle, Motor, Seilrolle mit geschätzten Prozentwerten und Pfeilen für thermische Energie." width="1400" height="478"><figcaption><b>Musterlösung</b> (Prozentwerte geschätzt)</figcaption></figure>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 3: Energieerhaltung</h2><span>4 P</span></div>
+    <div class="task-body">
+      <p>Ein Flummi wird aus 1,20 m Höhe fallen gelassen. Er springt nur 0,90 m hoch. Erkläre diese Beobachtung mit dem <b>Energieerhaltungssatz</b> und dem Begriff <b>Energieentwertung</b>.</p>
+      <label class="sr" for="a3-text">Deine Erklärung</label><textarea id="a3-text" placeholder="Schreibe deine Erklärung hier oder ins Heft."></textarea>
+      <p class="lang"><b>Satzanfänge:</b> „Oben hat der Flummi …“ · „Beim Fallen wird … in … umgewandelt.“ · „Beim Aufprall …“ · „Diese Energie fehlt …, weil …“</p>
+      <details><summary>Lösung anzeigen</summary><div><ul>
+        <li>Oben hat der Flummi Lageenergie; beim Fallen wird sie in Bewegungsenergie umgewandelt. (1 P)</li>
+        <li>Die Gesamtenergie bleibt erhalten (Energieerhaltungssatz). (1 P)</li>
+        <li>Beim Aufprall wird ein Teil in thermische Energie umgewandelt (Flummi und Boden erwärmen sich). (1 P)</li>
+        <li>Diese Energie ist entwertet und fehlt für den Rücksprung. Deshalb erreicht er nur 0,90 m. (1 P)</li>
+      </ul></div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 4: Lageenergie berechnen</h2><span>4 P</span></div>
+    <div class="task-body">
+      <p>Der Motor aus Aufgabe 2 hebt das Gewicht (m = 1 kg) um 1,5 m an. Berechne die Lageenergie, die das Gewicht dabei gewinnt. Notiere gegeben – gesucht – Formel – Rechnung – Antwortsatz.</p>
+      <form class="answer" data-wert="14.715" data-einheit="J"><label for="a4-in">Dein Ergebnis:</label><input id="a4-in" inputmode="decimal" autocomplete="off"><span class="unit">J</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>gegeben:</b> m = 1 kg; h = 1,5 m; g = 9,81 m/s² · <b>gesucht:</b> E<sub>pot</sub></p>
+        <p>E<sub>pot</sub> = m · g · h = 1 kg · 9,81 m/s² · 1,5 m = 14,715 J ≈ <b>14,7 J</b></p>
+        <p><b>Antwort:</b> Das Gewicht gewinnt etwa 14,7 J Lageenergie.</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 5: Stromkosten</h2><span>3 P</span></div>
+    <div class="task-body">
+      <p class="new">Zusätzlich zum Übungs-Kurztest – im Kurztest kommen auch Stromkosten dran.</p>
+      <p>Ein Fernseher (100 W) läuft jeden Tag 3 Stunden. Berechne die Stromkosten für ein Jahr. Strompreis: 0,37 € pro kWh.</p>
+      <form class="answer" data-wert="40.515" data-einheit="€"><label for="a5-in">Dein Ergebnis:</label><input id="a5-in" inputmode="decimal" autocomplete="off"><span class="unit">€</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>gegeben:</b> P = 100 W = 0,1 kW; t = 3 h pro Tag · 365 Tage; Preis = 0,37 €/kWh · <b>gesucht:</b> Kosten</p>
+        <p>E pro Tag = 0,1 kW · 3 h = 0,3 kWh · E pro Jahr = 0,3 kWh · 365 = 109,5 kWh</p>
+        <p>Kosten = 109,5 kWh · 0,37 €/kWh = 40,515 € ≈ <b>40,52 €</b></p>
+        <p><b>Antwort:</b> Der Fernseher kostet im Jahr etwa 40,52 € Strom.</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task star">
+    <div class="task-head"><h2>★ Aufgabe 6: Der Absturz</h2><span>4 P</span></div>
+    <div class="task-body">
+      <p>Oben reißt das Seil, und das Gewicht aus Aufgabe 4 fällt 1,5 m tief auf den Boden.</p>
+      <div class="sub star"><b>a)</b><span>Berechne, wie schnell das Gewicht beim Aufprall ist, wenn man den Luftwiderstand vernachlässigt. (3 P)</span></div>
+      <form class="answer" data-wert="5.425" data-einheit="m/s"><label for="a6-in">Dein Ergebnis:</label><input id="a6-in" inputmode="decimal" autocomplete="off"><span class="unit">m/s</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <div class="sub star"><b>b)</b><span>Begründe, warum das Gewicht in Wirklichkeit etwas langsamer ist. (1 P)</span></div>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>a)</b> Unten gilt E<sub>kin</sub> = E<sub>pot</sub> = 14,715 J.</p>
+        <p>v = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · E<sub>kin</sub> : m</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · 14,715 J : 1 kg</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">29,43 m²/s²</span></span> ≈ <b>5,4 m/s</b></p>
+        <p><b>b)</b> Durch den Luftwiderstand wird ein Teil der Energie in thermische Energie umgewandelt. Unten ist E<sub>kin</sub> deshalb kleiner als E<sub>pot</sub> oben.</p>
+      </div></details>
+    </div>
+  </article>
+
+  <section class="page-intro" style="gap:8px">
+    <h2 style="font-size:20px">Weiter üben</h2>
+    <p><a href="../formel-trainer.html#berechnen">Formel-Trainer: Energie berechnen →</a> · <a href="../formel-trainer.html#strom">Formel-Trainer: Stromkosten →</a> · <a href="../fachwort-trainer.html">Fachwort-Trainer →</a></p>
+  </section>
+</main>
+<script src="../data/site.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+(function () {
+  var A = window.App;
+  document.getElementById('a1-check').onclick = function () {
+    var all = document.querySelectorAll('#a1 input'), ok = 0;
+    all.forEach(function (i) {
+      var lab = i.parentNode, should = i.dataset.ok === '1';
+      lab.classList.remove('right', 'wrong');
+      if (i.checked === should) { if (should) lab.classList.add('right'); ok++; } else lab.classList.add('wrong');
+    });
+    var fb = document.getElementById('a1-fb');
+    fb.className = 'fb ' + (ok === 4 ? 'ok' : 'bad');
+    fb.textContent = ok === 4 ? 'Richtig! Beide Sätze sind Alltagssprache.' : 'Noch nicht ganz. Rot markiert ist, was du ändern solltest.';
+  };
+  document.querySelectorAll('form.answer').forEach(function (f) {
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var x = A.parse(f.querySelector('input').value), w = +f.dataset.wert, fb = f.querySelector('.fb');
+      if (!isFinite(x)) { fb.className = 'fb warn'; fb.textContent = 'Gib eine Zahl ein.'; return; }
+      var close = function (a) { return Math.abs(a - w) <= w * 0.015; };
+      if (close(x)) { fb.className = 'fb ok'; fb.textContent = 'Richtig! Vergleiche deinen Rechenweg mit der Lösung.'; }
+      else if (close(x * 1000) || close(x / 1000) || close(x * 100) || close(x / 100)) { fb.className = 'fb warn'; fb.textContent = 'Fast! Prüfe Einheit und Kommastelle.'; }
+      else { fb.className = 'fb bad'; fb.textContent = 'Noch nicht. Prüfe deine Rechnung oder klappe die Lösung auf.'; }
+    });
+  });
+})();
+</script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+</body>
+</html>

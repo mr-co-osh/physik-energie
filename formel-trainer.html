@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formel-Trainer · Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .setup { display: flex; flex-direction: column; gap: 12px; }
+  .setup-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .setup-row > .lbl { font-size: 14px; font-weight: 700; color: var(--muted); min-width: 64px; }
+  .trainer { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .trainer { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 18px; background: var(--sky); font-size: 14px; color: var(--ink); flex-wrap: wrap; }
+  .card-main { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .task { font-size: 21px; color: var(--ink); line-height: 1.4; }
+  .given { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 17px; }
+  .given dt { font-weight: 700; color: var(--muted); }
+  .given dd { margin: 0; min-width: 0; }
+  .answer { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .answer input { flex: 1 1 180px; min-width: 0; max-width: 280px; font: 700 22px var(--f-text); padding: 10px 12px; min-height: 52px; border: 2px solid var(--blue); border-radius: 10px; background: var(--surface); color: var(--ink); }
+  .answer input:focus { outline: 3px solid var(--sky); }
+  .answer .unit { font-size: 20px; font-weight: 700; color: var(--ink); }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .opt { font: 700 20px var(--f-text); min-height: 56px; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .opt:hover:not(:disabled) { border-color: var(--blue); }
+  .opt.right { border-color: var(--green-d); background: var(--mint); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .feedback { font-weight: 700; font-size: 18px; min-height: 1.5em; }
+  .feedback.ok { color: var(--green-d); } .feedback.bad { color: var(--bad); } .feedback.warn { color: var(--warn); }
+  .solution { border-top: 2px dashed var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .solution ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 18px; }
+  .solution .f { font-size: 19px; font-weight: 700; color: var(--ink); }
+  .solution .ans { background: var(--mint); border-radius: 10px; padding: 10px 12px; }
+  .solution .ans b { color: var(--green-d); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .side { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .side h2 { font-size: 18px; }
+  .streak { display: flex; gap: 8px; }
+  .streak i { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-style: normal; font-weight: 700; color: transparent; }
+  .streak i.on { background: var(--green-d); border-color: var(--green-d); color: var(--surface); }
+  .stat { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .stat b { color: var(--ink); }
+  .note { font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="band band-mini"><div class="wrap"><a class="back" href="./">← Energie</a><h1>Formel-Trainer</h1></div></header>
+<main class="wrap">
+  <section class="setup" aria-label="Einstellungen">
+    <div class="setup-row"><span class="lbl">Niveau</span>
+      <div class="seg" id="niveau" role="group" aria-label="Niveau">
+        <button type="button" data-v="ein">Einstieg</button>
+        <button type="button" data-v="basis">Basis</button>
+        <button type="button" data-v="stern">Basis + ★</button>
+      </div>
+    </div>
+    <div class="setup-row"><span class="lbl">Bereich</span><div class="chips" id="bereich" role="group" aria-label="Bereich"></div></div>
+  </section>
+  <div class="trainer">
+    <article class="card" id="karte" aria-live="polite"></article>
+    <aside class="side" aria-labelledby="h-stand">
+      <h2 id="h-stand">Dein Stand</h2>
+      <div class="streak" id="streak" aria-label="Richtige Antworten in Folge"></div>
+      <p class="stat" id="stat"></p>
+      <p class="note">Übe, bis du dreimal hintereinander richtig liegst. Runde sinnvoll: Kleine Abweichungen durch Runden werden akzeptiert.</p>
+      <p class="note"><a href="formeln.html">Formelsammlung mit Beispielrechnungen →</a></p>
+    </aside>
+  </div>
+</main>
+<script src="data/site.js"></script>
+<script src="assets/app.js"></script>
+<script src="data/aufgaben.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.App, S = window.SITE, T = window.AUFGABEN, $ = function (id) { return document.getElementById(id); };
+  var NAMES = { umrechnen: 'Umrechnen' }; S.bereiche.forEach(function (b) { NAMES[b.id] = b.titel; });
+  var AREAS = S.bereiche.map(function (b) { return b.id; }).concat(['umrechnen']).filter(function (id) { return T.some(function (t) { return t.r === id; }); });
+  var st = A.load('formel-einstellung', { niveau: 'basis', bereich: 'alle' });
+  var h = (location.hash || '').slice(1); if (AREAS.indexOf(h) >= 0) st.bereich = h;
+  if (st.bereich !== 'alle' && AREAS.indexOf(st.bereich) < 0) st.bereich = 'alle';
+  var stat = A.load('formel-stand', { richtig: 0, gesamt: 0, folge: 0 });
+  var cur = null, gen = null, done = false, tries = 0, lastId = null;
+
+  function pool() {
+    return T.filter(function (t) {
+      if (st.bereich !== 'alle' && t.r !== st.bereich) return false;
+      return st.niveau === 'stern' ? true : t.n === 'basis';
+    });
+  }
+  function close(x, y) { return Math.abs(x - y) <= Math.abs(y) * 0.015 + 1e-9; }
+  function fmtVal(x, d) { return cur && cur.einheit === '€' ? A.num(x, 2) : A.num(d == null ? +x.toPrecision(3) : +x.toFixed(d)); }
+
+  function next() {
+    var p = pool(); if (!p.length) { $('karte').innerHTML = '<div class="card-main"><p>Für diese Auswahl gibt es noch keine Aufgaben.</p></div>'; return; }
+    var cand = p.length > 1 ? p.filter(function (t) { return t.id !== lastId; }) : p;
+    gen = cand[Math.floor(Math.random() * cand.length)]; lastId = gen.id;
+    cur = gen.gen(); done = false; tries = 0;
+    var top = '<div class="card-top"><span><b>' + A.esc(NAMES[gen.r]) + '</b> · ' + A.fmt(gen.titel) + '</span>' +
+      (gen.n === 'stern' ? '<span class="tag star">★</span>' : '<span class="tag">Basis</span>') + '</div>';
+    var body = '<p class="task">' + A.fmt(cur.text) + '</p><dl class="given"><dt>gegeben</dt><dd>' + A.fmt(cur.gegeben) + '</dd><dt>gesucht</dt><dd>' + A.fmt(cur.gesucht) + '</dd></dl>';
+    if (st.niveau === 'ein') {
+      var seen = {}, opts = [cur.wert].concat(cur.falsch).filter(function (o) { var k = fmtVal(o, cur.dec); if (seen[k] || !(o > 0)) return false; seen[k] = 1; return true; }).slice(0, 3);
+      opts = A.shuffle(opts);
+      body += '<div class="opts" role="group" aria-label="Antworten">' + opts.map(function (o, i) {
+        return '<button class="opt" type="button" data-i="' + i + '">' + fmtVal(o, cur.dec) + ' ' + A.esc(cur.einheit) + '</button>'; }).join('') + '</div>';
+      body += '<p class="note">Tipp: <b>' + A.fmt(cur.formel) + '</b></p>';
+    } else {
+      body += '<form class="answer" id="f" novalidate><label class="sr" for="in">Ergebnis</label><input id="in" inputmode="decimal" autocomplete="off" placeholder="Ergebnis">' +
+        '<span class="unit">' + A.esc(cur.einheit) + '</span><button class="btn" type="submit">Prüfen</button></form>';
+    }
+    body += '<p class="feedback" id="fb"></p><div id="sol"></div><div class="actions"><button class="linkbtn" id="show" type="button">Lösungsweg zeigen</button>' +
+      '<button class="btn ghost" id="skip" type="button">Neue Aufgabe</button></div>';
+    $('karte').innerHTML = top + '<div class="card-main">' + body + '</div>';
+    $('show').onclick = function () { reveal(); if (!done) { done = true; count(false); } };
+    $('skip').onclick = next;
+    if (st.niveau === 'ein') {
+      $('karte').querySelectorAll('.opt').forEach(function (b) {
+        b.onclick = function () {
+          if (done) return; done = true;
+          var ok = b.textContent === fmtVal(cur.wert, cur.dec) + ' ' + cur.einheit;
+          $('karte').querySelectorAll('.opt').forEach(function (x) { x.disabled = true; if (x.textContent === fmtVal(cur.wert, cur.dec) + ' ' + cur.einheit) x.classList.add('right'); });
+          if (!ok) b.classList.add('wrong');
+          verdict(ok);
+        };
+      });
+    } else {
+      $('f').addEventListener('submit', function (e) {
+        e.preventDefault(); if (done) return;
+        var x = A.parse($('in').value);
+        if (!isFinite(x)) { msg('warn', 'Gib eine Zahl ein, zum Beispiel 12,5.'); return; }
+        if (close(x, cur.wert)) { done = true; verdict(true); return; }
+        tries++;
+        if (close(x * 1000, cur.wert) || close(x / 1000, cur.wert)) msg('warn', 'Fast! Prüfe die Einheit: Gefragt ist ' + cur.einheit + '.');
+        else if (close(x * 100, cur.wert) || close(x / 100, cur.wert)) msg('warn', 'Fast! Prüfe die Kommastelle oder die Prozent-Umrechnung.');
+        else if (tries < 2) msg('bad', 'Noch nicht richtig. Prüfe deine Rechnung und versuche es noch einmal.');
+        else { done = true; verdict(false); }
+      });
+      setTimeout(function () { try { $('in').focus({ preventScroll: true }); } catch (e) { } }, 30);
+    }
+    renderStat();
+  }
+  function msg(cls, t) { $('fb').className = 'feedback ' + cls; $('fb').textContent = t; }
+  function reveal() {
+    $('sol').innerHTML = '<div class="solution"><span class="eyebrow">Lösungsweg</span><p class="f">' + A.fmt(cur.formel) + '</p><ol>' +
+      cur.rechnung.map(function (r) { return '<li>' + A.fmt(r).replace(/&lt;(\/?)b&gt;/g, '<$1b>') + '</li>'; }).join('') + '</ol><p class="ans"><b>Antwort:</b> ' + A.fmt(cur.antwort) + '</p></div>';
+    $('show').hidden = true;
+  }
+  function count(ok) {
+    stat.gesamt++; if (ok) { stat.richtig++; stat.folge++; } else stat.folge = 0;
+    A.save('formel-stand', stat); renderStat();
+  }
+  function verdict(ok) {
+    count(ok);
+    if (ok) msg('ok', stat.folge >= 3 && stat.folge % 3 === 0 ? 'Richtig – drei in Folge! Stark.' : 'Richtig!');
+    else msg('bad', 'Leider nicht. Richtig ist: ' + fmtVal(cur.wert, cur.dec) + ' ' + cur.einheit + '. Schau dir den Lösungsweg an.');
+    reveal();
+    $('skip').textContent = 'Nächste Aufgabe'; $('skip').className = 'btn'; $('skip').focus();
+  }
+  function renderStat() {
+    var f = stat.folge % 3 === 0 && stat.folge > 0 ? 3 : stat.folge % 3;
+    $('streak').innerHTML = [0, 1, 2].map(function (i) { return '<i class="' + (i < f ? 'on' : '') + '">✓</i>'; }).join('');
+    $('stat').innerHTML = '<b>' + stat.richtig + '</b> von ' + stat.gesamt + ' Aufgaben richtig · <b>' + stat.folge + '</b> in Folge';
+  }
+
+  $('bereich').innerHTML = ['alle'].concat(AREAS).map(function (id) {
+    return '<button class="chip" type="button" data-v="' + id + '">' + (id === 'alle' ? 'Alle' : A.esc(NAMES[id])) + '</button>'; }).join('');
+  ['bereich', 'niveau'].forEach(function (k) {
+    var el = $(k);
+    function sync() { el.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === st[k])); }); }
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; st[k] = b.dataset.v; A.save('formel-einstellung', st); sync(); next(); });
+    sync();
+  });
+  window.addEventListener('hashchange', function () { var x = location.hash.slice(1); if (AREAS.indexOf(x) >= 0) { st.bereich = x; $('bereich').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === x)); }); next(); } });
+  next();
+})();
+</script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+</body>
+</html>

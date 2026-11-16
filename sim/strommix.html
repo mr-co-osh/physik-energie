@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strommix-Planer Bremen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/fonts/sim-fonts.css">
+<style>
+/* Layout: Leitwarte – links die Regler der Erzeuger, rechts die Anzeigen (Mix-Balken, CO₂, Kosten, Dunkelflaute-Woche) */
+:root{
+  --bg:#EEF2F5; --panel:#FFFFFF; --ink:#13283A; --muted:#58697A; --line:#C9D4DE; --soft:#E3EAF0;
+  --accent:#1F6FB2; --accent-ink:#FFFFFF; --ok:#1F7346; --ok-soft:#DCEFE3; --warn:#9A5B00; --warn-soft:#FCEBCB; --bad:#B23A30; --bad-soft:#F6DFDB;
+  --won:#3D8BD0; --woff:#1C4F86; --pv:#F2B230; --bio:#5F9E4F; --gas:#8A8F96; --store:#7A5CB8;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1720; --panel:#16212C; --ink:#E4ECF3; --muted:#9AAAB9; --line:#2C3B4A; --soft:#1D2A37;
+  --accent:#5EA3E0; --accent-ink:#0B1520; --ok:#63C48F; --ok-soft:#173326; --warn:#F0B35A; --warn-soft:#3A2A10; --bad:#F07B6F; --bad-soft:#3B1D1A;
+  --won:#5EA3E0; --woff:#3E77B8; --pv:#F2C04E; --bio:#7DBE6C; --gas:#9CA3AB; --store:#A68BE0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1720; --panel:#16212C; --ink:#E4ECF3; --muted:#9AAAB9; --line:#2C3B4A; --soft:#1D2A37;
+  --accent:#5EA3E0; --accent-ink:#0B1520; --ok:#63C48F; --ok-soft:#173326; --warn:#F0B35A; --warn-soft:#3A2A10; --bad:#F07B6F; --bad-soft:#3B1D1A;
+  --won:#5EA3E0; --woff:#3E77B8; --pv:#F2C04E; --bio:#7DBE6C; --gas:#9CA3AB; --store:#A68BE0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:10px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,5vw,54px);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.stamp{font-family:var(--f-mono);font-size:12px;color:var(--muted);border:1.5px dashed var(--line);padding:6px 10px;background:var(--panel)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 10px}
+.panel{background:var(--panel);border:1px solid var(--line);padding:16px;min-width:0}
+.src{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--soft)}
+.src:last-of-type{border-bottom:0}
+.sw{width:14px;height:14px;border-radius:3px}
+.src label{font-weight:600}
+.src .meta{grid-column:2 / -1;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.src input[type=range]{grid-column:2 / -1;width:100%;height:30px;accent-color:var(--accent)}
+.src output{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;min-width:5ch;text-align:right}
+.sum{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px;padding:10px 12px;border-radius:6px;font-weight:600}
+.sum.okay{background:var(--ok-soft);color:var(--ok)} .sum.off{background:var(--warn-soft);color:var(--warn)}
+button{font:inherit;font-weight:600;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:7px 14px;border-radius:6px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.bar{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.bar span{height:100%;transition:width .25s}
+@media (prefers-reduced-motion:reduce){.bar span{transition:none}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px}
+.kpi .l{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-size:40px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:18px;margin-left:4px;color:var(--muted)}
+.kpi .n{font-size:13px;color:var(--muted)}
+.chip{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:20px;margin-top:4px}
+.chip.g{background:var(--ok-soft);color:var(--ok)} .chip.y{background:var(--warn-soft);color:var(--warn)} .chip.r{background:var(--bad-soft);color:var(--bad)}
+.week{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.week p{margin:0 0 8px;color:var(--muted);font-size:14px;max-width:62ch}
+.meter{position:relative;height:30px;border-radius:6px;background:var(--soft);border:1px solid var(--line);overflow:hidden}
+.meter .fill{position:absolute;inset:0 auto 0 0;display:flex}
+.meter .fill span{height:100%}
+.meter .need{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--ink)}
+.verdict{margin-top:8px;font-weight:700}
+.copy{margin-top:14px;font-family:var(--f-mono);font-size:13px;background:var(--soft);padding:10px 12px;border-radius:6px;white-space:pre-wrap;word-break:break-word}
+.foot{font-size:13px;color:var(--muted);max-width:90ch}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Strommix-Planer Bremen</h1>
+      <p class="sub">Stellt ein, aus welchen Quellen Bremen 2035 seinen Strom bekommen soll. Prüft danach CO₂, Kosten und die windstille Winterwoche.</p>
+    </div>
+    <div class="stamp">PHY-ENE-13A / 14A · Strommix für Bremen<br>Werte: Durchschnitt über ein Jahr</div>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-regler">
+      <h2 id="h-regler">Euer Mix</h2>
+      <div class="presets">
+        <button class="ghost" type="button" data-preset="gas">Beispiel: nur Erdgas</button>
+        <button class="ghost" type="button" data-preset="wind">Beispiel: viel Wind</button>
+        <button class="ghost" type="button" data-preset="mix">Beispiel: gemischt</button>
+      </div>
+      <div id="sources"></div>
+      <div class="sum" id="sum"><span id="sumtxt"></span><button type="button" id="norm">Auf 100 % anpassen</button></div>
+      <div class="src" style="margin-top:14px;border-top:2px solid var(--line);padding-top:14px">
+        <span class="sw" style="background:var(--store)"></span>
+        <label for="r-store">Speicher (ab DS 14)</label>
+        <output id="o-store" for="r-store"></output>
+        <input type="range" id="r-store" min="0" max="100" step="5" value="0">
+        <div class="meta">Wie viel Prozent des Bedarfs der Winterwoche können Speicher liefern? Zählt nicht zur 100-%-Summe. Speicher kosten zusätzlich und verlieren beim Speichern Energie.</div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-anzeige">
+      <h2 id="h-anzeige">Anzeige</h2>
+      <div class="bar" id="bar" role="img" aria-label="Anteile am Strommix"></div>
+      <div class="legend" id="legend"></div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">CO₂ pro kWh</div><div class="v" id="co2">–</div><div class="n">über die ganze Lebensdauer der Anlagen</div><span class="chip" id="co2chip"></span></div>
+        <div class="kpi"><div class="l">Stromkosten</div><div class="v" id="cost">–</div><div class="n" id="costrange">Erzeugung, ohne Netze und Speicher</div></div>
+        <div class="kpi"><div class="l">Erneuerbarer Anteil</div><div class="v" id="ren">–</div><div class="n">Wind, Sonne, Biogas</div></div>
+        <div class="kpi"><div class="l">steuerbarer Anteil</div><div class="v" id="ctl">–</div><div class="n">kann Strom liefern, wenn er gebraucht wird</div></div>
+      </div>
+      <div class="week">
+        <h2 style="font-size:20px">Dunkelflaute: eine windstille, trübe Winterwoche</h2>
+        <p>Vereinfachte Annahme: Windräder liefern in dieser Woche nur etwa 10 % ihrer üblichen Menge, Solaranlagen etwa 5 %. Biogas- und Gaskraftwerke laufen normal weiter. Speicher (lila) liefern zusätzlich, was ihr beim Regler „Speicher“ einstellt.</p>
+        <div class="meter" aria-hidden="true"><div class="fill" id="wfill"></div><div class="need" id="need"></div></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <div class="copy" id="copy"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="copybtn" class="ghost">Ergebnis kopieren</button><span id="copied" class="n" style="color:var(--muted);align-self:center"></span></div>
+    </section>
+  </div>
+
+  <p class="foot">Quellen der Rechenwerte: Stromgestehungskosten nach Fraunhofer ISE (2024), Spannen; der Planer rechnet mit der Mitte. CO₂-Werte als Mittelwerte über die Lebensdauer nach IPCC (2014). Die Wasserkraft fehlt, weil sie in Bremen kaum ausgebaut werden kann. Ein echtes Stromsystem braucht zusätzlich Netze, Speicher und Austausch mit den Nachbarn – das kostet extra.</p>
+</div>
+
+<script>
+const S = [
+  {id:'won',  name:'Wind an Land',    co2:11,  lo:4.3,  hi:9.2,  winter:0.10, ren:true,  ctl:false},
+  {id:'woff', name:'Wind auf See',    co2:12,  lo:5.5,  hi:10.3, winter:0.10, ren:true,  ctl:false},
+  {id:'pv',   name:'Photovoltaik',    co2:45,  lo:4.1,  hi:14.4, winter:0.05, ren:true,  ctl:false},
+  {id:'bio',  name:'Biogas (BHKW)',   co2:230, lo:20.2, hi:32.5, winter:1.00, ren:true,  ctl:true},
+  {id:'gas',  name:'Erdgas-Kraftwerk',co2:490, lo:10.9, hi:18.1, winter:1.00, ren:false, ctl:true},
+];
+const PRESETS = {gas:{won:0,woff:0,pv:0,bio:0,gas:100}, wind:{won:30,woff:35,pv:25,bio:5,gas:5}, mix:{won:25,woff:20,pv:20,bio:10,gas:25}};
+let val = {...PRESETS.mix};
+const fmt = (x,d=0) => x.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const box = document.getElementById('sources');
+box.innerHTML = S.map(s => `
+  <div class="src">
+    <span class="sw" style="background:var(--${s.id})"></span>
+    <label for="r-${s.id}">${s.name}</label>
+    <output id="o-${s.id}" for="r-${s.id}"></output>
+    <input type="range" id="r-${s.id}" min="0" max="100" step="5" value="${val[s.id]}">
+    <div class="meta">${fmt(s.co2)} g CO₂/kWh · ${fmt(s.lo,1)}–${fmt(s.hi,1)} ct/kWh · ${s.ctl ? 'steuerbar' : 'wetterabhängig'}</div>
+  </div>`).join('');
+S.forEach(s => document.getElementById('r-'+s.id).addEventListener('input', e => { val[s.id] = +e.target.value; render(); }));
+let store = 0;
+document.getElementById('r-store').addEventListener('input', e => { store = +e.target.value; render(); });
+document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { val = {...PRESETS[b.dataset.preset]}; S.forEach(s => document.getElementById('r-'+s.id).value = val[s.id]); render(); }));
+document.getElementById('norm').addEventListener('click', () => {
+  const t = S.reduce((a,s)=>a+val[s.id],0); if (!t) return;
+  let acc = 0; S.forEach((s,i) => { val[s.id] = i < S.length-1 ? Math.round(val[s.id]*100/t/5)*5 : 0; acc += val[s.id]; });
+  val[S[S.length-1].id] = Math.max(0, 100-acc);
+  if (acc > 100) { const big = S.reduce((m,s)=> val[s.id]>val[m.id]?s:m, S[0]); val[big.id] -= acc-100; }
+  S.forEach(s => document.getElementById('r-'+s.id).value = val[s.id]); render();
+});
+function render(){
+  const tot = S.reduce((a,s)=>a+val[s.id],0);
+  S.forEach(s => document.getElementById('o-'+s.id).textContent = val[s.id] + ' %');
+  const sum = document.getElementById('sum');
+  sum.className = 'sum ' + (tot === 100 ? 'okay' : 'off');
+  document.getElementById('sumtxt').textContent = tot === 100 ? 'Summe: 100 % – passt.' : `Summe: ${tot} % – es müssen genau 100 % sein.`;
+  document.getElementById('norm').hidden = tot === 100 || tot === 0;
+  const sh = s => tot ? val[s.id]/tot : 0;
+  document.getElementById('bar').innerHTML = S.map(s => `<span style="width:${sh(s)*100}%;background:var(--${s.id})"></span>`).join('');
+  document.getElementById('legend').innerHTML = S.filter(s=>val[s.id]).map(s => `<span><i style="background:var(--${s.id})"></i>${s.name} ${fmt(sh(s)*100)} %</span>`).join('');
+  const co2 = S.reduce((a,s)=>a+sh(s)*s.co2,0);
+  const cost = S.reduce((a,s)=>a+sh(s)*(s.lo+s.hi)/2,0);
+  const lo = S.reduce((a,s)=>a+sh(s)*s.lo,0), hi = S.reduce((a,s)=>a+sh(s)*s.hi,0);
+  const ren = S.reduce((a,s)=>a+(s.ren?sh(s):0),0)*100, ctl = S.reduce((a,s)=>a+(s.ctl?sh(s):0),0)*100;
+  document.getElementById('co2').innerHTML = tot ? `${fmt(co2)}<small>g</small>` : '–';
+  const chip = document.getElementById('co2chip');
+  if (!tot) { chip.textContent=''; chip.className='chip'; }
+  else if (co2 <= 50) { chip.textContent='sehr klimafreundlich'; chip.className='chip g'; }
+  else if (co2 <= 150) { chip.textContent='klimafreundlich'; chip.className='chip y'; }
+  else { chip.textContent='viel CO₂'; chip.className='chip r'; }
+  document.getElementById('cost').innerHTML = tot ? `${fmt(cost,1)}<small>ct/kWh</small>` : '–';
+  document.getElementById('costrange').textContent = tot ? `Spanne ${fmt(lo,1)}–${fmt(hi,1)} ct/kWh · Erzeugung, ohne Netze und Speicher` : 'Erzeugung, ohne Netze und Speicher';
+  document.getElementById('ren').innerHTML = tot ? `${fmt(ren)}<small>%</small>` : '–';
+  document.getElementById('ctl').innerHTML = tot ? `${fmt(ctl)}<small>%</small>` : '–';
+  // Dunkelflaute
+  const parts = S.map(s => ({s, v: sh(s)*s.winter*100}));
+  document.getElementById('o-store').textContent = store + ' %';
+  if (tot && store) parts.push({s:{id:'store'}, v: store});
+  const avail = parts.reduce((a,p)=>a+p.v,0);
+  const scale = Math.max(100, avail) * 1.05;
+  document.getElementById('wfill').innerHTML = parts.map(p => `<span style="width:${p.v/scale*100}%;background:var(--${p.s.id})"></span>`).join('');
+  document.getElementById('need').style.left = (100/scale*100) + '%';
+  const v = document.getElementById('verdict');
+  if (!tot) v.textContent = '';
+  else if (avail >= 99.5) { v.textContent = `Gedeckt: ${fmt(avail)} % des Bedarfs.`; v.style.color = 'var(--ok)'; }
+  else { v.textContent = `Lücke: ${fmt(100-avail)} % des Bedarfs fehlen. Sie müssen aus Speichern, aus Nachbarländern oder aus zusätzlichen Kraftwerken kommen.`; v.style.color = 'var(--bad)'; }
+  const txt = `Mix: ${S.map(s=>`${s.name} ${val[s.id]} %`).join(', ')}\nCO₂: ${fmt(co2)} g/kWh · Kosten: ${fmt(cost,1)} ct/kWh · erneuerbar: ${fmt(ren)} % · Speicher: ${store} % · Dunkelflaute: ${avail>=99.5?'gedeckt':'Lücke '+fmt(100-avail)+' %'}`;
+  document.getElementById('copy').textContent = tot ? txt : 'Stellt mit den Reglern euren Mix ein.';
+}
+document.getElementById('copybtn').addEventListener('click', () => {
+  const t = document.getElementById('copy').textContent, out = document.getElementById('copied');
+  navigator.clipboard?.writeText(t).then(() => out.textContent = 'Kopiert.').catch(() => {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById('copy'));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); out.textContent = 'Text markiert – jetzt kopieren.';
+  });
+});
+render();
+</script>
+
+</html>
+
+<!-- Lernseite: Zurück-Leiste und Schloss (Simulation selbst unverändert) -->
+<script>window.SIM_ID = 'strommix';</script>
+<script src="../data/codes.js"></script>
+<script src="../assets/lock.js"></script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>

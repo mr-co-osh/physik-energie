@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Training Klassenarbeit Energie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/fonts/sim-fonts.css">
+<style>
+:root{
+/* Layout: eine ruhige Lernspalte – Überblick, Beispielaufgaben, Rechentrainer */
+--bg:#F5F8FB;--surface:#FFFFFF;--ink:#0E3B5C;--text:#22374A;--muted:#5A6B7B;--line:#C9D8E6;
+--blue:#1F6FB2;--tint:#E2EEF8;--green:#1F7346;--gtint:#E3F2E8;--ok:#1F7346;--bad:#B23A2E;--badtint:#FBE9E6;
+--f-display:'Carlito','Calibri',Arial,sans-serif;--f-body:'Carlito','Calibri',Arial,sans-serif;--f-num:'JetBrains Mono',ui-monospace,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1822;--surface:#13222F;--ink:#DCEAF6;--text:#C8D6E2;--muted:#8DA0B1;--line:#2A3F51;--blue:#6FAEE6;--tint:#183247;--green:#6CC593;--gtint:#163527;--ok:#6CC593;--bad:#F08A7C;--badtint:#3A1F1B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D1822;--surface:#13222F;--ink:#DCEAF6;--text:#C8D6E2;--muted:#8DA0B1;--line:#2A3F51;--blue:#6FAEE6;--tint:#183247;--green:#6CC593;--gtint:#163527;--ok:#6CC593;--bad:#F08A7C;--badtint:#3A1F1B;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:18px;line-height:1.5;
+ padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 64px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:8px;border-bottom:2px solid var(--blue);padding-bottom:16px}
+.eyebrow{font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0}
+h1{font-family:var(--f-display);font-size:38px;line-height:1.1;color:var(--ink);margin:0;text-wrap:balance}
+h2{font-size:26px;color:var(--ink);margin:0 0 12px;padding-bottom:4px;border-bottom:1px solid var(--line);text-wrap:balance}
+h2.star{color:var(--green);border-color:var(--green)}
+p{margin:0;max-width:65ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:15px;font-weight:700;background:var(--tint);color:var(--ink);padding:4px 12px;border-radius:999px}
+section{display:flex;flex-direction:column;gap:14px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:17px}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--tint);color:var(--ink)}
+td.n{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.formulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.f{background:var(--tint);border:1px solid var(--blue);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.f b{font-family:var(--f-num);font-size:17px;color:var(--ink);font-weight:600}
+.f span{font-size:15px;color:var(--muted)}
+.task{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.task.star{border-color:var(--green)}
+.task h3{margin:0;font-size:19px;color:var(--ink)}
+.task.star h3{color:var(--green)}
+details{border-top:1px dashed var(--line);padding-top:8px}
+summary{cursor:pointer;font-weight:700;color:var(--blue)}
+.task.star summary{color:var(--green)}
+details .sol{padding-top:8px;display:flex;flex-direction:column;gap:4px}
+.calc{font-family:var(--f-num);font-size:15.5px;color:var(--ink);white-space:pre-wrap;margin:0}
+.trainer{background:var(--surface);border:2px solid var(--blue);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.types{display:flex;flex-wrap:wrap;gap:8px}
+.types button{font:inherit;font-size:16px;border:1px solid var(--blue);background:var(--surface);color:var(--blue);padding:6px 12px;border-radius:999px;cursor:pointer}
+.types button[aria-pressed="true"]{background:var(--blue);color:var(--surface)}
+.types button.star{border-color:var(--green);color:var(--green)}
+.types button.star[aria-pressed="true"]{background:var(--green);color:var(--surface)}
+.q{font-size:19px;color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row label{font-weight:700}
+input[type=text]{font:inherit;font-family:var(--f-num);font-size:18px;width:9em;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.btn{font:inherit;font-weight:700;border:0;background:var(--blue);color:var(--surface);padding:8px 16px;border-radius:6px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.unit{color:var(--muted)}
+.fb{border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.fb.ok{background:var(--gtint);color:var(--ok)}
+.fb.bad{background:var(--badtint);color:var(--bad)}
+.fb .calc{color:var(--text)}
+.score{font-variant-numeric:tabular-nums;color:var(--muted);font-size:16px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.hint{font-size:16px;color:var(--muted)}
+footer{font-size:15px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+<main>
+<header><p class="eyebrow">Physik 9/10 · Energie · Klassenarbeit Energie</p><h1>Fit für die Klassenarbeit Energie</h1>
+<div class="meta"><span class="chip">45 Minuten</span><span class="chip">Taschenrechner erlaubt</span><span class="chip">24 P Basis + 6 P ★</span></div></header>
+<section><h2>Das kommt dran</h2><p>Die Arbeit prüft die ganze Reihe. Rechnen mit Lageenergie und Stromkosten kam schon im Kurztest dran und kann als Teil einer Aufgabe wieder vorkommen.</p>
+<div class="tw"><table><thead><tr><th>Thema</th><th>DS</th><th>Material</th></tr></thead><tbody><tr><td>Energieflussdiagramme zeichnen</td><td class="n">2, 8</td><td class="n">02C, 08A</td></tr><tr><td>Energieerhaltung und Energieentwertung erklären</td><td class="n">3</td><td class="n">03A</td></tr><tr><td>Umwandlungskette im Kraftwerk, Wirkungsgrad</td><td class="n">10</td><td class="n">10A</td></tr><tr><td>Strahlungshaushalt, Treibhauseffekt, Rückstrahlvermögen</td><td class="n">10</td><td class="n">10B</td></tr><tr><td>Kippelemente, Glaubwürdigkeit prüfen</td><td class="n">9, 11</td><td class="n">09A, 11A</td></tr><tr><td>Vor- und Nachteile erneuerbarer Energien</td><td class="n">11–13</td><td class="n">11B–11G, 12A, 13A</td></tr><tr><td>Speicher und ihr Wirkungsgrad</td><td class="n">14</td><td class="n">14A, 14B</td></tr><tr><td>★ Pumpspeicher in kWh, ★ Aussagen prüfen</td><td class="n">4, 14</td><td class="n">04A, 14A</td></tr></tbody></table></div></section>
+<section><h2>Formeln, die du kennen musst</h2><div class="formulas"><div class="f"><b>η = E<sub>nutz</sub> : E<sub>zu</sub></b><span>Wirkungsgrad, als Prozent angeben</span></div><div class="f"><b>E<sub>verlust</sub> = E<sub>zu</sub> − E<sub>nutz</sub></b><span>meist thermische Energie</span></div><div class="f"><b>E<sub>pot</sub> = m · g · h</b><span>g = 9,81 m/s²; 1 m³ Wasser = 1000 kg</span></div><div class="f"><b>E = P · t</b><span>P in kW, t in h → kWh</span></div><div class="f"><b>1 kWh = 3 600 000 J</b><span>Umrechnen J ↔ kWh</span></div><div class="f"><b>Kosten = E · Preis</b><span>0,37 € pro kWh</span></div></div>
+<p class="hint">Schreibe bei jeder Rechnung: gegeben – gesucht – Formel – Rechnung mit Einheiten – Antwortsatz.</p></section>
+<section><h2>Beispielaufgaben</h2><p>So ähnlich sehen die Aufgaben in der Arbeit aus. Löse sie erst im Heft und klappe dann die Lösung auf.</p><article class="task"><h3>Beispiel 1: Energieflussdiagramm <span class="hint">(5 P)</span></h3><p>Zeichne das Energieflussdiagramm für einen Föhn: Er erhält 100 % elektrische Energie, 90 % werden zu thermischer Energie (warme Luft), 10 % zu Bewegungsenergie des Gebläses.</p><details><summary>Lösung zeigen</summary><div class="sol"><p>Links ein breiter Pfeil EE 100 % → Kasten „Föhn“ → Pfeile TE 90 % (breit) und BE 10 % (schmal). Die Breite der Pfeile passt zu den Prozentwerten, die Summe ist 100 %. Hier ist die thermische Energie erwünscht.</p></div></details></article><article class="task"><h3>Beispiel 2: Energieerhaltung <span class="hint">(3 P)</span></h3><p>Eine Schaukel schwingt jedes Mal ein bisschen weniger hoch. Erkläre mit dem Energieerhaltungssatz, wo die Energie bleibt.</p><details><summary>Lösung zeigen</summary><div class="sol"><p>Durch Reibung (Luft, Aufhängung) wird bei jeder Schwingung ein Teil der Bewegungsenergie in thermische Energie umgewandelt. Die Energie ist nicht weg, sie ist als thermische Energie an die Umgebung abgegeben. Für die Lageenergie oben bleibt weniger übrig.</p></div></details></article><article class="task"><h3>Beispiel 3: Energieumwandlungskette <span class="hint">(4 P)</span></h3><p>Ergänze die Kette für ein Windrad mit den Abkürzungen: ___ (Wind) → [Rotor] → ___ → [Generator] → ___ ; nicht genutzt: ___</p><details><summary>Lösung zeigen</summary><div class="sol"><p>BE (Wind) → [Rotor] → BE (Drehung) → [Generator] → EE; nicht genutzt: TE (Reibung, Wärme im Generator)</p></div></details></article><article class="task"><h3>Beispiel 4: Wirkungsgrad <span class="hint">(4 P)</span></h3><p>Ein Kohlekraftwerk erhält 1000 MWh chemische Energie und liefert 380 MWh elektrische Energie. Berechne den Wirkungsgrad. Wie viel Energie wird nicht als Strom genutzt?</p><details><summary>Lösung zeigen</summary><div class="sol"><p class="calc">η = E<sub>nutz</sub> : E<sub>zu</sub> = 380 MWh : 1000 MWh = 0,38 = 38 %
+nicht genutzt: 1000 MWh − 380 MWh = 620 MWh</p><p>Die 620 MWh werden als thermische Energie an Kühlturm, Fluss und Luft abgegeben.</p></div></details></article><article class="task"><h3>Beispiel 5: Strahlungshaushalt <span class="hint">(4 P)</span></h3><p>Beschreibe in vier Schritten, wie der Treibhauseffekt funktioniert.</p><details><summary>Lösung zeigen</summary><div class="sol"><p>1. Sonnenlicht trifft auf die Erde. 2. Ein Teil wird zurückgeworfen, der Rest erwärmt den Boden. 3. Der Boden gibt Wärmestrahlung ab, ein Teil gelangt ins Weltall. 4. Treibhausgase (z. B. CO₂) schicken einen Teil der Wärmestrahlung zur Erde zurück. Mehr Treibhausgase → mehr Wärmestrahlung bleibt → es wird wärmer.</p></div></details></article><article class="task"><h3>Beispiel 6: Rückstrahlvermögen <span class="hint">(4 P)</span></h3><p>a) Warum erwärmt sich ein schwarzes T-Shirt in der Sonne stärker als ein weißes? b) Was hat das mit schmelzendem Meereis zu tun?</p><details><summary>Lösung zeigen</summary><div class="sol"><p>a) Weiß hat ein hohes Rückstrahlvermögen und wirft viel Sonnenlicht zurück. Schwarz nimmt mehr Strahlung auf und wird wärmer.<br>b) Eis ist hell und wirft viel zurück. Schmilzt es, kommt dunkles Wasser zum Vorschein, das mehr Strahlung aufnimmt. Dadurch schmilzt noch mehr Eis (selbstverstärkend). Ab einem Punkt kann es nicht mehr zurück: ein Kippelement.</p></div></details></article><article class="task"><h3>Beispiel 7: Erneuerbare Energien <span class="hint">(4 P)</span></h3><p>Nenne für Solarthermie und für die Wärmepumpe je einen Vorteil und einen Nachteil.</p><details><summary>Lösung zeigen</summary><div class="sol"><p>Solarthermie: + kostenlose Sonnenenergie, kein CO₂ im Betrieb; − im Winter wenig Ertrag.<br>Wärmepumpe: + holt den Großteil der Energie aus der Umgebung (aus 1 kWh Strom werden etwa 3–4 kWh Wärme); − braucht Strom, teuer in der Anschaffung.</p></div></details></article><article class="task"><h3>Beispiel 8: Speicher <span class="hint">(4 P)</span></h3><p>In einen Hausspeicher werden 10 kWh geladen, 8,8 kWh kommen wieder heraus. a) Berechne den Wirkungsgrad. b) Warum braucht man Speicher, wenn man viel Wind- und Solarstrom nutzt?</p><details><summary>Lösung zeigen</summary><div class="sol"><p class="calc">a) η = 8,8 kWh : 10 kWh = 0,88 = 88 %</p><p>b) Wind und Sonne liefern nicht immer dann Strom, wenn er gebraucht wird (Nacht, Windstille, Dunkelflaute). Speicher nehmen überschüssigen Strom auf und geben ihn später wieder ab.</p></div></details></article><article class="task star"><h3>★ Beispiel 9: Pumpspeicher <span class="hint">(3 P)</span></h3><p>Ein Pumpspeicher hebt 2000 m³ Wasser 250 m an. Berechne die Lageenergie in J und in kWh.</p><details><summary>Lösung zeigen</summary><div class="sol"><p class="calc">m = 2000 m³ · 1000 kg/m³ = 2 000 000 kg
+E<sub>pot</sub> = 2 000 000 kg · 9,81 m/s² · 250 m = 4 905 000 000 J
+E = 4 905 000 000 J : 3 600 000 J/kWh ≈ 1362,5 kWh ≈ 1363 kWh</p></div></details></article><article class="task star"><h3>★ Beispiel 10: Glaubwürdigkeit <span class="hint">(3 P)</span></h3><p>Ein Video behauptet: „Dieser kleine Akku lädt sich selbst wieder auf – unendlich Strom!“ Ist das glaubwürdig? Nenne zwei Gründe, einer davon physikalisch.</p><details><summary>Lösung zeigen</summary><div class="sol"><p>Nicht glaubwürdig. Physikalisch: Energie kann nicht aus dem Nichts entstehen (Energieerhaltung); ein Akku kann nur abgeben, was vorher hineingesteckt wurde – minus Verluste. Weiterer Grund: unbekannte Quelle ohne Belege, will etwas verkaufen bzw. Klicks bekommen.</p></div></details></article></section>
+<section><h2>Rechentrainer</h2><p>Wähle eine Aufgabenart. Jede neue Aufgabe hat neue Zahlen. Gib nur die Zahl ein; kleine Rundungsunterschiede zählen als richtig.</p>
+<div class="trainer"><div class="types" role="group" aria-label="Aufgabenart"><button type="button" data-t="epot" aria-pressed="false">Lageenergie</button><button type="button" data-t="kosten" aria-pressed="false">Stromkosten</button><button type="button" data-t="kw" aria-pressed="false">Wirkungsgrad Kraftwerk</button><button type="button" data-t="speicher" aria-pressed="false">Wirkungsgrad Speicher</button><button type="button" data-t="pump" aria-pressed="false" class="star">★ Pumpspeicher</button><button type="button" data-t="v" aria-pressed="false" class="star">★ Geschwindigkeit</button></div>
+<p class="q" id="q"></p>
+<form id="f" class="row"><label for="ans">Ergebnis:</label><input type="text" id="ans" inputmode="decimal" autocomplete="off"><span class="unit" id="unit"></span>
+<button class="btn" type="submit">Prüfen</button><button class="btn ghost" type="button" id="next">Neue Aufgabe</button></form>
+<div class="fb" id="fb" hidden></div><p class="score" id="score">0 von 0 richtig</p></div></section>
+<footer>Physik 9/10 · Thema Energie · Vorbereitung auf die Klassenarbeit (DS 15). Ergebnisse werden in Komma-Schreibweise angegeben, „≈“ bedeutet gerundet.</footer>
+</main>
+<script>const GEN={
+epot(){const m=pick([0.5,2,5,8,12,15,20,25,40,60]),h=pick([0.8,1.2,1.5,2,2.5,3,4,6,10,25]);const E=m*9.81*h;
+ return {q:`Ein Körper mit der Masse <b>${fmtN(m)} kg</b> wird <b>${fmtN(h)} m</b> hoch gehoben. Wie groß ist seine Lageenergie? (g = 9,81 m/s²)`,unit:'J',a:E,d:2,
+ s:`geg.: m = ${fmtN(m)} kg; h = ${fmtN(h)} m; g = 9,81 m/s²\nges.: E<sub>pot</sub>\nE<sub>pot</sub> = m · g · h\nE<sub>pot</sub> = ${fmtN(m)} kg · 9,81 m/s² · ${fmtN(h)} m\nE<sub>pot</sub> = ${fmtN(E,2)} J ≈ ${E>=1000?fmtN(E/1000,1)+' kJ':fmtN(E,0)+' J'}`};},
+kosten(){const P=pick([60,80,100,120,150,200]),t=pick([1,2,3,4,5]),pr=0.37;const E=P/1000*t*365,K=E*pr;
+ return {q:`Ein Gerät mit <b>${P} W</b> läuft jeden Tag <b>${t} h</b>. Was kostet das in einem Jahr (365 Tage) bei <b>0,37 € pro kWh</b>?`,unit:'€',a:K,d:2,tol:0.05,
+ s:`geg.: P = ${P} W = ${fmtN(P/1000,3)} kW; t = ${t} h · 365 = ${t*365} h; Preis 0,37 €/kWh\nE = P · t = ${fmtN(P/1000,3)} kW · ${t*365} h = ${fmtN(E,2)} kWh\nKosten = ${fmtN(E,2)} kWh · 0,37 €/kWh = ${fmtN(K,2)} €`};},
+kw(){const k=pick([['Kohlekraftwerk',[400,500,800,1000],[0.36,0.38,0.4,0.42]],['Gaskraftwerk',[300,600,800],[0.55,0.58,0.6]],['Biogas-Motor',[100,200,250],[0.38,0.4]]]);const Z=pick(k[1]),N=Math.round(Z*pick(k[2]));const eta=N/Z*100;
+ return {q:`Ein ${k[0]} erhält <b>${Z} MWh</b> chemische Energie und liefert <b>${N} MWh</b> elektrische Energie. Wie groß ist der Wirkungsgrad?`,unit:'%',a:eta,d:1,tol:0.5,
+ s:`geg.: E<sub>zu</sub> = ${Z} MWh; E<sub>nutz</sub> = ${N} MWh\nη = E<sub>nutz</sub> : E<sub>zu</sub>\nη = ${N} MWh : ${Z} MWh = ${fmtN(N/Z,3)} = ${fmtN(eta,1)} %\nnicht als Strom genutzt: ${Z} MWh − ${N} MWh = ${Z-N} MWh (thermische Energie)`};},
+speicher(){const c=pick([['Batteriespeicher',[10,20,40,100],[0.85,0.88,0.9,0.92],'kWh'],['iPad-Akku',[12,30,35],[0.8,0.82,0.85],'Wh'],['Pumpspeicher',[100,500,1000],[0.7,0.75,0.8],'MWh']]);const Z=pick(c[1]),N=Math.round(Z*pick(c[2])*10)/10;const eta=N/Z*100;
+ return {q:`In einen ${c[0]} werden <b>${fmtN(Z)} ${c[3]}</b> hineingesteckt, später kommen <b>${fmtN(N)} ${c[3]}</b> wieder heraus. Wie groß ist der Wirkungsgrad des Speichers?`,unit:'%',a:eta,d:1,tol:0.5,
+ s:`η = E<sub>heraus</sub> : E<sub>hinein</sub>\nη = ${fmtN(N)} ${c[3]} : ${fmtN(Z)} ${c[3]} = ${fmtN(N/Z,3)} = ${fmtN(eta,1)} %\nVerlust: ${fmtN(Z-N,1)} ${c[3]} (meist als thermische Energie)`};},
+pump(){const V=pick([200,500,1000,2000,5000]),h=pick([100,150,200,300,400]);const m=V*1000,E=m*9.81*h,kwh=E/3600000;
+ return {q:`★ Ein Pumpspeicher pumpt <b>${fmtN(V)} m³</b> Wasser (1 m³ = 1000 kg) <b>${h} m</b> hoch. Wie viel Lageenergie ist gespeichert – in kWh? (1 kWh = 3 600 000 J)`,unit:'kWh',a:kwh,d:1,tol:0.5,
+ s:`m = ${fmtN(V)} m³ · 1000 kg/m³ = ${fmtN(m)} kg\nE<sub>pot</sub> = m · g · h = ${fmtN(m)} kg · 9,81 m/s² · ${h} m = ${fmtN(E,0)} J\nin kWh: ${fmtN(E,0)} J : 3 600 000 J/kWh = ${fmtN(kwh,2)} kWh${Math.abs(kwh-Math.round(kwh))>0.001?' ≈ '+fmtN(kwh,0)+' kWh':''}`};},
+v(){const h=pick([0.8,1.25,2,3.2,5,7.2,10,20]);const v=Math.sqrt(2*9.81*h);
+ return {q:`★ Ein Ball fällt aus <b>${fmtN(h)} m</b> Höhe. Wie schnell ist er unten, wenn keine Energie verloren geht?`,unit:'m/s',a:v,d:1,tol:0.05,
+ s:`Energieerhaltung: E<sub>pot</sub> oben = E<sub>kin</sub> unten\nm · g · h = ½ · m · v²   (m kürzt sich)\nv = √<span style="border-top:1.5px solid currentColor;padding:0 2px">2 · g · h</span>\nv = √<span style="border-top:1.5px solid currentColor;padding:0 2px">2 · 9,81 m/s² · ${fmtN(h)} m</span>\nv = √<span style="border-top:1.5px solid currentColor;padding:0 2px">${fmtN(2*9.81*h,2)} m²/s²</span> ≈ ${fmtN(v,1)} m/s`};}
+};
+
+const fmtN=(x,d=2)=>{const neg=x<0;x=Math.abs(x);let [i,f]=(Math.round(x*10**d)/10**d).toFixed(d).split('.');f=(f||'').replace(/0+$/,'');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (neg?'−':'')+i+(f?','+f:'');};
+const rnd=(a,b,s=1)=>a+s*Math.floor(Math.random()*((b-a)/s+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+let cur=null,typ=null,right=0,total=0;
+const $=id=>document.getElementById(id);
+function newTask(){cur=GEN[typ]();$('q').innerHTML=cur.q;$('unit').textContent=cur.unit;$('ans').value='';$('fb').hidden=true;$('ans').focus({preventScroll:true});}
+function parse(s){s=s.trim().replace(/\s/g,'').replace(',', '.');const v=parseFloat(s);return isNaN(v)?null:v;}
+function check(e){e.preventDefault();const v=parse($('ans').value);const fb=$('fb');
+ if(v===null){fb.className='fb bad';fb.innerHTML='<b>Bitte eine Zahl eingeben</b> (Komma oder Punkt sind beide erlaubt).';fb.hidden=false;return;}
+ const ok=Math.abs(v-cur.a)<=Math.max(Math.abs(cur.a)*0.02,cur.tol||0);total++;if(ok)right++;
+ fb.className='fb '+(ok?'ok':'bad');
+ fb.innerHTML=(ok?'<b>Richtig!</b>':'<b>Noch nicht.</b> Richtig ist: '+fmtN(cur.a,cur.d??2)+' '+cur.unit)+'<p class="calc">'+cur.s+'</p>';
+ fb.hidden=false;$('score').textContent=right+' von '+total+' richtig';}
+function setType(t){typ=t;document.querySelectorAll('.types button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===t));newTask();}
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.types button').forEach(b=>b.addEventListener('click',()=>setType(b.dataset.t)));
+ $('f').addEventListener('submit',check);$('next').addEventListener('click',newTask);setType(Object.keys(GEN)[0]);});
+</script>
+
+</html>
+
+<!-- Lernseite: Zurück-Leiste und Schloss (Simulation selbst unverändert) -->
+<script>window.SIM_ID = 'test-training';</script>
+<script src="../data/codes.js"></script>
+<script src="../assets/lock.js"></script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p>[Name]<br>[Anschrift]<br>[E-Mail-Adresse]</p>
+<p class="stdfuss-hint">Die Angaben werden nachgetragen.</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
