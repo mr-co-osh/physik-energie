@@ -1,5 +1,6 @@
 /* Übungen in den Themenbereichen – Energie (Physik 9/10). Alle Texte, Zahlen und Abbildungen selbst erstellt.
    Typen: zuordnen · sortieren · quiz · luecke · schaetzen
+   grafik (bei sortieren) = Umwandlungskette, die nach richtigem Sortieren erscheint; nurEin: true = nur im Niveau Einstieg.
    ohneMarke: true = Fragetexte nicht hervorheben (wenn die Hervorhebung die Antwort verraten würde).
    zuordnen mit modus: 'stapel' = eine Karte nach der anderen, Rückmeldung sofort (sonst alle Karten auf einmal).
    n = 'basis' | 'stern' | 'beide' (Übung);  bei Fragen/Elementen: stern: true = nur „Basis + ★“, ein: true = auch im Einstieg
@@ -30,23 +31,36 @@ window.UEBUNGEN = [
   { id: 'umwandlungsketten', r: 'formen', typ: 'sortieren', n: 'beide', titel: 'Umwandlungsketten sortieren',
     intro: 'Bringe die Schritte jeder Kette in die richtige Reihenfolge.',
     ketten: [
-      { titel: 'Wasserkraftwerk', schritte: [
+      { titel: 'Wasserkraftwerk', grafik: ['LE', 'Lageenergie (Wasser oben)', [['Turbine', 'BE', ''], ['Generator', 'EE', ''], ['Lampe', 'StE', 'Strahlungsenergie (Licht)']]], schritte: [
         'Das Wasser im Stausee hat Lageenergie.',
-        'Das Wasser strömt nach unten und gewinnt Bewegungsenergie.',
+        'Das Wasser strömt nach unten: Lageenergie wird zu Bewegungsenergie.',
         'Das strömende Wasser dreht die Turbine.',
         'Der Generator wandelt Bewegungsenergie in elektrische Energie um.',
-        'Eine Lampe wandelt elektrische Energie in Licht und thermische Energie um.'] },
-      { titel: 'Fahrrad mit Dynamo', schritte: [
+        'Eine Lampe wandelt elektrische Energie in Strahlungsenergie (Licht) und thermische Energie um.'] },
+      { titel: 'Fahrrad mit Dynamo', grafik: ['CE', 'chemische Energie (Nahrung)', [['Muskeln', 'BE', ''], ['Dynamo', 'EE', ''], ['Fahrradlicht', 'StE', 'Strahlungsenergie (Licht)']]], schritte: [
         'In der Nahrung steckt chemische Energie.',
         'Die Muskeln treten die Pedale: Das Rad bekommt Bewegungsenergie.',
         'Der Dynamo wandelt Bewegungsenergie in elektrische Energie um.',
         'Das Fahrradlicht gibt Strahlungsenergie ab.'] },
-      { titel: '★ Vom Sonnenlicht zum Kohlestrom', stern: true, schritte: [
+      { titel: '★ Vom Sonnenlicht zum Kohlestrom', stern: true, grafik: ['StE', 'Strahlungsenergie (Sonne)', [['Pflanzen', 'CE', 'chemische Energie (Kohle)'], ['Kessel', 'TE', 'thermische Energie (Dampf)'], ['Turbine und\nGenerator', 'EE', '']]], schritte: [
         'Die Sonne strahlt Strahlungsenergie ab.',
         'Pflanzen speichern die Energie als chemische Energie.',
         'Über Millionen Jahre entsteht aus den Pflanzen Kohle.',
-        'Im Kraftwerk verbrennt die Kohle: Es entsteht thermische Energie.',
-        'Turbine und Generator erzeugen daraus elektrische Energie.'] }
+        'Im Kraftwerk verbrennt die Kohle: chemische Energie wird zu thermischer Energie.',
+        'Turbine und Generator wandeln die thermische Energie in elektrische Energie um.'] },
+      /* nur im Niveau Einstieg: kurze Ketten mit Bild */
+      { titel: 'Taschenlampe', ein: true, nurEin: true, grafik: ['CE', 'chemische Energie (Batterie)', [['Batterie', 'EE', ''], ['Lampe', 'StE', 'Strahlungsenergie (Licht)']]], schritte: [
+        { t: 'Die Batterie hat chemische Energie.', b: 'batterie' },
+        { t: 'Im Kabel fließt elektrische Energie.', b: 'ladekabel' },
+        { t: 'Die Lampe leuchtet: Strahlungsenergie.', b: 'lampe' }] },
+      { titel: 'Fahrrad', ein: true, nurEin: true, grafik: ['CE', 'chemische Energie (Brot)', [['Muskeln', 'BE', ''], ['Dynamo', 'EE', '']]], schritte: [
+        { t: 'Ich esse ein Brot: chemische Energie.', b: 'butterbrot' },
+        { t: 'Ich trete in die Pedale: Bewegungsenergie.', b: 'radfahrer' },
+        { t: 'Der Dynamo liefert elektrische Energie für das Licht.', b: 'dynamo' }] },
+      { titel: 'Wasserkraftwerk', ein: true, nurEin: true, grafik: ['LE', 'Lageenergie (Wasser oben)', [['Turbine', 'BE', ''], ['Generator', 'EE', '']]], schritte: [
+        { t: 'Das Wasser ist oben im Stausee: Lageenergie.', b: 'stausee' },
+        { t: 'Das Wasser fließt nach unten: Bewegungsenergie.', b: 'wasserfall' },
+        { t: 'Der Generator liefert elektrische Energie.', b: 'generator' }] }
     ] },
 
   { id: 'alltag-physik', r: 'formen', typ: 'quiz', ohneMarke: true, n: 'basis', ein: true, titel: 'Alltag oder Physik?',

@@ -106,5 +106,18 @@
     P.sort(function (a, b) { return a[0] - b[0]; });
     return '<svg class="fluss" width="' + Wd.toFixed(0) + '" style="width:' + Wd.toFixed(0) + 'px;max-width:100%;height:auto" viewBox="0 0 ' + Wd.toFixed(0) + ' ' + H.toFixed(0) + '" role="img" aria-label="Energieflussdiagramm">' + P.map(function (p) { return p[1]; }).join('') + L.join('') + '</svg>';
   }
-  window.Fluss = { svg: svg, F: F, AB: AB };
+  /* Energieumwandlungskette (ohne Werte): kt = [form, 'Langform (Herkunft)', [[Wandler, form, 'Langform (Herkunft)'], ...]]
+     Liefert den Inhalt für ein Element mit class="kette" (CSS in style.css). */
+  function kette(kt) {
+    function ph(f, t) {
+      var m = /\(([^)]+)\)/.exec(t || ''), c = F[f][1], a = AB[f], P = ' fill="' + c + '" stroke="#1f1f1f" stroke-width="1.5" stroke-linejoin="round"';
+      return '<div class="ka"><svg class="ah" width="92" height="36" viewBox="0 0 92 36" aria-hidden="true"><polygon points="1,1 76,1 91,18 76,35 1,35"' + P + '/><text x="38.5" y="24" text-anchor="middle">' + a + '</text></svg>' +
+        '<svg class="av" width="96" height="58" viewBox="0 0 96 58" aria-hidden="true"><polygon points="1,1 95,1 95,38 48,57 1,38"' + P + '/><text x="48" y="27" text-anchor="middle">' + a + '</text></svg>' +
+        '<div class="kc"><span class="sr-only">' + a + ': </span>' + esc(F[f][0]) + (m ? '<br>' + esc(m[1]) : '') + '</div></div>';
+    }
+    /* alle Wandler so breit wie die längste Zeile; Zeilenumbruch im Namen mit \n */
+    var ml = Math.max.apply(null, kt[2].map(function (w) { return Math.max.apply(null, w[0].split('\n').map(function (l) { return l.length; })); })), wd = Math.round(ml * 8.4 + 20);
+    return ph(kt[0], kt[1]) + kt[2].map(function (w) { return '<div class="kw" style="width:' + wd + 'px">' + w[0].split('\n').map(esc).join('<br>') + '</div>' + ph(w[1], w[2]); }).join('');
+  }
+  window.Fluss = { svg: svg, kette: kette, F: F, AB: AB };
 })();

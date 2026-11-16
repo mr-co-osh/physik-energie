@@ -33,5 +33,17 @@ window.BILDER = {
     '<path d="M22 15 V9.5 M27 18.5 L33 16.5 M25 24.5 L28.5 30 M19 24.5 L15.5 30 M17 18.5 L11 16.5" stroke="currentColor" stroke-width="1.2"/>' +
     '<path d="M2 14 H7 M1 20 H6 M2 26 H7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".6"/><path d="M4 36 H38" stroke="currentColor" stroke-width="1.4"/>',
   holz: '<path d="M6 30 L30 22 L33 30 L9 38 Z" fill="#C9935A" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="7.5" cy="34" rx="3.2" ry="4.2" fill="#E9C98F" stroke="currentColor" stroke-width="1.4"/>' +
-    '<path d="M8 18 L32 10 L35 18 L11 26 Z" fill="#B57B45" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="9.5" cy="22" rx="3.2" ry="4.2" fill="#E9C98F" stroke="currentColor" stroke-width="1.4"/>'
+    '<path d="M8 18 L32 10 L35 18 L11 26 Z" fill="#B57B45" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="9.5" cy="22" rx="3.2" ry="4.2" fill="#E9C98F" stroke="currentColor" stroke-width="1.4"/>',
+  lampe: '<path d="M20 4 C11 4 7 11 9 17 C10.5 21 14 23 14.5 27 H25.5 C26 23 29.5 21 31 17 C33 11 29 4 20 4 Z" fill="#FFF3C9" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+    '<path d="M15 30 H25 M16 33 H24 M17.5 36 H22.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 26 L18 17 L20 20 L22 17 L23 26" fill="none" stroke="currentColor" stroke-width="1.2"/>' +
+    '<path d="M3 13 H6 M34 13 H37 M7 4 L9 6 M33 4 L31 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".6"/>',
+  dynamo: '<circle cx="12" cy="26" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="26" r="2" fill="currentColor"/>' +
+    '<rect x="21" y="7" width="9" height="16" rx="4" fill="#E8ECF0" stroke="currentColor" stroke-width="1.6" transform="rotate(-20 25 15)"/><circle cx="21.5" cy="21" r="2.6" fill="currentColor"/>' +
+    '<path d="M30 9 C34 9 36 11 37 14" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M35 15 L37 14 L38 17" fill="none" stroke="currentColor" stroke-width="1.2"/>',
+  generator: '<rect x="12" y="10" width="22" height="20" rx="4" fill="#E8ECF0" stroke="currentColor" stroke-width="1.6"/><circle cx="23" cy="20" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
+    '<path d="M20 20 C21 17 22 23 23 20 C24 17 25 23 26 20" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2 20 H12" stroke="currentColor" stroke-width="3"/>' +
+    '<path d="M14 30 L12 36 H34 L32 30" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M34 14 H38 V6" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  wasserfall: '<path d="M2 8 H16 V36 H2 Z" fill="#B9C7B0" stroke="currentColor" stroke-width="1.5"/><path d="M16 8 C24 8 26 14 27 36" fill="none" stroke="#5B9BD5" stroke-width="5"/>' +
+    '<path d="M2 8 H16" stroke="#5B9BD5" stroke-width="3"/><path d="M22 36 C26 31 30 31 36 36" fill="#9CC8EA" stroke="currentColor" stroke-width="1.3"/>' +
+    '<path d="M31 14 V24 M29 21 L31 24 L33 21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
 };

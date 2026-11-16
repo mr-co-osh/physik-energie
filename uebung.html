@@ -93,7 +93,11 @@
   /* Sortieren: Karten von links nach rechts mit Pfeilen dazwischen, Umbruch wie Text */
   .sort { list-style: none; margin: 0; padding: 0 22px 0 0; display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 12px 26px; }
   .sort li { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr; gap: 6px 8px; position: relative; cursor: default; user-select: none; -webkit-user-select: none; align-content: start; background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 16px; line-height: 1.35; min-width: 0; }
-  .sort li > .tx { grid-column: 1 / -1; overflow-wrap: anywhere; hyphens: auto; }
+  .sort li > .tx { grid-column: 1 / -1; overflow-wrap: anywhere; hyphens: auto; display: flex; gap: 8px; align-items: flex-start; }
+  .sort .sic { width: 40px; height: 40px; flex: none; color: var(--ink); }
+  .card .kette { flex-wrap: wrap; justify-content: flex-start; row-gap: 12px; overflow-x: visible; }
+  .card .fb { min-width: 0; }
+  .kg-t { margin: 14px 0 6px; font-size: 14px; font-weight: 700; color: var(--muted); }
   .sort li:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: -23px; width: 20px; height: 18px; margin-top: -9px; background: var(--blue); clip-path: polygon(0 30%, 55% 30%, 55% 0, 100% 50%, 55% 100%, 55% 70%, 0 70%); }
   .sort li.drag::after { display: none; }
   .sort .nr { font-weight: 700; color: var(--blue); text-align: center; font-variant-numeric: tabular-nums; }
@@ -215,7 +219,7 @@
   var cur = null;
 
   function pick() { var h = location.hash.slice(1); return U.filter(function (u) { return u.id === h; })[0] || U[0]; }
-  function vis(x) { if (niveau === 'ein') return !!x.ein; if (niveau === 'basis') return !x.stern; return true; }
+  function vis(x) { if (x.nurEin && niveau !== 'ein') return false; if (niveau === 'ein') return !!x.ein; if (niveau === 'basis') return !x.stern; return true; }
   function filt(list) { var f = list.filter(vis); if (!f.length && niveau === 'ein') f = list.filter(function (x) { return !x.stern; }); return f; }
   function done(pct) { var old = status[cur.id] || 0; if (pct > old) { status[cur.id] = pct; A.save('uebungen-status', status); } }
   function score(el, ok, n) {
@@ -405,13 +409,18 @@
       return o;
     });
     var sel = ks.map(function () { return null; }), justDragged = false;
+    function st(s) { return typeof s === 'string' ? { t: s } : s; }
+    function icon(b) { return b && window.BILDER && BILDER[b] ? '<svg class="sic" viewBox="0 0 40 40" aria-hidden="true">' + BILDER[b] + '</svg>' : ''; }
+    /* nach richtigem Sortieren: Umwandlungskette als Grafik (Webseiten-Standard 9a) */
+    function grafik(i, show) { var k = ks[i], fb = $('k' + i).querySelector('.fb'); fb.innerHTML = show && k.grafik && window.Fluss ? '<p class="kg-t">Als Umwandlungskette:</p><div class="kette">' + Fluss.kette(k.grafik) + '</div>' : ''; }
     function move(i, from, to) { var o = orders[i], v = o.splice(from, 1)[0]; o.splice(to, 0, v); }
     function draw(i, mark, focus) {
       var ol = $('k' + i).querySelector('ol'), k = ks[i], o = orders[i];
+      if (!mark) grafik(i, false);
       ol.className = 'sort' + (sel[i] != null ? ' picking' : '');
       ol.innerHTML = o.map(function (v, p) {
         var cls = (mark ? (v === p ? 'right' : 'wrong') : '') + (sel[i] === p ? ' sel' : '');
-        return '<li class="' + cls + '" data-p="' + p + '" tabindex="0" role="button" aria-pressed="' + (sel[i] === p) + '" aria-label="Karte ' + (p + 1) + ': ' + A.esc(k.schritte[v]) + '"><span class="nr">' + (p + 1) + '</span><span class="grip" aria-hidden="true">⠿</span><span class="tx">' + A.fmtM(k.schritte[v]) + '</span></li>';
+        return '<li class="' + cls + '" data-p="' + p + '" tabindex="0" role="button" aria-pressed="' + (sel[i] === p) + '" aria-label="Karte ' + (p + 1) + ': ' + A.esc(st(k.schritte[v]).t) + '"><span class="nr">' + (p + 1) + '</span><span class="grip" aria-hidden="true">⠿</span><span class="tx">' + icon(st(k.schritte[v]).b) + '<span>' + A.fmtM(st(k.schritte[v]).t) + '</span></span></li>';
       }).join('');
       ol.querySelectorAll('li').forEach(function (li) {
         var p = +li.dataset.p;
@@ -477,10 +486,10 @@
     cols(); window.addEventListener('resize', cols);
     $('check').onclick = function () {
       var ok = 0, n = 0;
-      ks.forEach(function (k, i) { draw(i, true); var good = orders[i].every(function (v, p) { return v === p; }); n++; if (good) ok++; $('k' + i).className = 'card ' + (good ? 'ok' : 'bad'); });
+      ks.forEach(function (k, i) { draw(i, true); var good = orders[i].every(function (v, p) { return v === p; }); n++; if (good) ok++; $('k' + i).className = 'card ' + (good ? 'ok' : 'bad'); grafik(i, good); });
       score($('sc'), ok, n);
     };
-    $('sol').onclick = function () { orders = ks.map(function (k) { return k.schritte.map(function (_, j) { return j; }); }); ks.forEach(function (_, i) { draw(i, true); $('k' + i).className = 'card'; }); };
+    $('sol').onclick = function () { orders = ks.map(function (k) { return k.schritte.map(function (_, j) { return j; }); }); ks.forEach(function (_, i) { draw(i, true); $('k' + i).className = 'card'; grafik(i, true); }); };
   }
 
   /* ---------- Quiz ---------- */
