@@ -1,5 +1,14 @@
 /* Kurzadressen der QR-Codes auf Arbeitsblättern (Reihenstandard Abschnitt 9). Nicht auf der Lernseite verlinken.
    Kürzel → { blatt, ziel, url } */
 window.QR = {
-  zsct: { blatt: 'PHY-ENE-01A_CYU', ziel: 'Check your understanding 01A – Hilfen und Lösungen', url: 'cyu/01a.html' }
+  "zsct": {
+    "blatt": "PHY-ENE-01A_CYU",
+    "ziel": "Check your understanding 01A – Hilfen und Lösungen",
+    "url": "cyu/01a.html"
+  },
+  "zv3j": {
+    "blatt": "PHY-ENE-02B_CYU",
+    "ziel": "Check your understanding 02B – Hilfen und Lösungen",
+    "url": "cyu/02b.html"
+  }
 };
