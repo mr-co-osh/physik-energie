@@ -2,6 +2,7 @@
    Typen: zuordnen · sortieren · quiz · luecke · schaetzen
    grafik (bei sortieren) = Umwandlungskette, die nach richtigem Sortieren erscheint; nurEin: true = nur im Niveau Einstieg.
    ohneMarke: true = Fragetexte nicht hervorheben (wenn die Hervorhebung die Antwort verraten würde).
+   quiz mit modus: 'stapel' = eine Frage nach der anderen; z = zweiter Schritt (nicht im Niveau Einstieg).
    zuordnen mit modus: 'stapel' = eine Karte nach der anderen, Rückmeldung sofort (sonst alle Karten auf einmal).
    n = 'basis' | 'stern' | 'beide' (Übung);  bei Fragen/Elementen: stern: true = nur „Basis + ★“, ein: true = auch im Einstieg
    Schreibweise: E_pot -> tiefgestellt, √{…} -> Wurzel. */
@@ -63,25 +64,38 @@ window.UEBUNGEN = [
         { t: 'Der Generator liefert elektrische Energie.', b: 'generator' }] }
     ] },
 
-  { id: 'alltag-physik', r: 'formen', typ: 'quiz', ohneMarke: true, n: 'basis', ein: true, titel: 'Alltag oder Physik?',
-    intro: 'Ist der Satz physikalisch richtig oder Alltagssprache? Lies danach die Erklärung.',
+  { id: 'alltag-physik', r: 'formen', typ: 'quiz', modus: 'stapel', ohneMarke: true, n: 'basis', ein: true, titel: 'Alltag oder Physik?',
+    intro: 'Ist der Satz physikalisch richtig oder nicht? Lies danach die Erklärung.',
     fragen: [
-      { f: '„Mein Handy-Akku ist leer, die Energie ist weg.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 1, ein: true,
-        e: 'Die Energie ist nicht weg. Sie wurde in Licht, Schall und thermische Energie umgewandelt.' },
-      { f: '„Ein Föhn wandelt elektrische Energie in thermische Energie und Bewegungsenergie um.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 0, ein: true,
-        e: 'Richtig: Die Heizdrähte werden heiß, der Motor bewegt die Luft.' },
-      { f: '„Solarzellen erzeugen Energie aus dem Nichts.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 1, ein: true,
-        e: 'Energie entsteht nie aus dem Nichts. Solarzellen wandeln Strahlungsenergie in elektrische Energie um.' },
-      { f: '„Beim Bremsen wird Bewegungsenergie in thermische Energie umgewandelt.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 0, ein: true,
-        e: 'Richtig: Die Bremsen und Reifen werden warm.' },
-      { f: '„Der Kühlschrank verbraucht Strom.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 1, ein: true,
-        e: 'Physikalisch: Der Kühlschrank wandelt elektrische Energie um. Am Ende wird sie zu thermischer Energie in der Küche.' },
-      { f: '„Energie misst man in Joule.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 0,
-        e: 'Richtig: Die Einheit der Energie ist das Joule (J).' },
-      { f: '„Heute bin ich total energielos.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 1,
-        e: 'Gemeint ist: Ich bin müde. Ein Mensch hat immer Energie, zum Beispiel thermische und chemische Energie.' },
-      { f: '„Bei jeder Umwandlung bleibt die Gesamtenergie erhalten.“', o: ['physikalisch richtig', 'Alltagssprache'], r: 0,
-        e: 'Richtig: Das ist der Energieerhaltungssatz.' }
+      { f: '„Mein Handy-Akku ist leer, die Energie ist weg.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1, ein: true,
+        e: 'Das ist Alltagssprache. Die Energie ist nicht weg. Sie wurde in Licht, Schall und thermische Energie umgewandelt.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Die chemische Energie im Akku wurde in andere Energieformen umgewandelt.', 'Die Energie im Akku wurde verbraucht und ist verschwunden.', 'Der Akku hat seine Energie an das Ladekabel zurückgegeben.'], r: 0 } },
+      { f: '„Ein Föhn wandelt elektrische Energie in thermische Energie und Bewegungsenergie um.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 0, ein: true,
+        e: 'Die Heizdrähte werden heiß, der Motor bewegt die Luft.' },
+      { f: '„Solarzellen erzeugen Energie aus dem Nichts.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1, ein: true,
+        e: 'Das ist Alltagssprache. Energie entsteht nie aus dem Nichts. Solarzellen wandeln Strahlungsenergie in elektrische Energie um.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Solarzellen wandeln Strahlungsenergie in elektrische Energie um.', 'Solarzellen erzeugen elektrische Energie aus Licht.', 'Solarzellen speichern die Energie der Sonne.'], r: 0 } },
+      { f: '„Beim Bremsen wird Bewegungsenergie in thermische Energie umgewandelt.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 0, ein: true,
+        e: 'Die Bremsen und Reifen werden warm.' },
+      { f: '„Der Kühlschrank verbraucht Strom.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1, ein: true,
+        e: 'Das ist Alltagssprache. Physikalisch: Der Kühlschrank wandelt elektrische Energie um. Am Ende wird sie zu thermischer Energie in der Küche.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Der Kühlschrank wandelt elektrische Energie um, am Ende in thermische Energie.', 'Der Kühlschrank verbraucht elektrische Energie.', 'Der Kühlschrank erzeugt Kälte aus Strom.'], r: 0 } },
+      { f: '„Energie misst man in Joule.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 0,
+        e: 'Die Einheit der Energie ist das Joule (J).' },
+      { f: '„Heute bin ich total energielos.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1,
+        e: 'Das ist Alltagssprache. Gemeint ist: Ich bin müde. Ein Mensch hat immer Energie, zum Beispiel thermische und chemische Energie.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Ich bin müde. In meinem Körper steckt trotzdem chemische und thermische Energie.', 'In meinem Körper ist keine Energie mehr.', 'Meine Energie wurde vernichtet.'], r: 0 } },
+      { f: '„Bei jeder Umwandlung bleibt die Gesamtenergie erhalten.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 0,
+        e: 'Das ist der Energieerhaltungssatz.' },
+      { f: '„Wenn ein Ball liegen bleibt, ist seine Bewegungsenergie verloren gegangen.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1,
+        e: 'Energie geht nie verloren. Die Bewegungsenergie wird zu thermischer Energie: Ball, Boden und Luft werden ein wenig wärmer.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Die Bewegungsenergie des Balls wurde in thermische Energie umgewandelt.', 'Der Boden hat die Bewegungsenergie verbraucht.', 'Der Ball hat seine Bewegungsenergie in Lageenergie umgewandelt.'], r: 0 } },
+      { f: '„Eine Solarzelle wandelt die gesamte Strahlungsenergie in elektrische Energie um.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1, stern: true,
+        e: 'Nur ein Teil wird zu elektrischer Energie. Der Rest wird zu thermischer Energie, die Solarzelle wird warm.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Eine Solarzelle wandelt einen Teil der Strahlungsenergie in elektrische Energie um, der Rest wird zu thermischer Energie.', 'Eine Solarzelle wandelt die gesamte Strahlungsenergie in Licht um.', 'Eine Solarzelle speichert die gesamte Strahlungsenergie.'], r: 0 } },
+      { f: '„Ein Perpetuum mobile läuft ewig, ohne dass man Energie zuführt.“', o: ['physikalisch richtig', 'physikalisch nicht richtig'], r: 1,
+        e: 'So eine Maschine gibt es nicht. Bei jeder Umwandlung wird ein Teil zu thermischer Energie der Umgebung, deshalb bleibt jede Maschine irgendwann stehen.',
+        z: { f: 'Wie sagt man es physikalisch richtig?', o: ['Jede Maschine braucht Energiezufuhr, weil bei jeder Umwandlung ein Teil zu thermischer Energie der Umgebung wird.', 'Ein Perpetuum mobile braucht nur am Anfang einmal Energie.', 'Ein Perpetuum mobile wandelt thermische Energie vollständig zurück.'], r: 0 } }
     ] },
 
   { id: 'flussdiagramm', r: 'formen', typ: 'quiz', n: 'beide', titel: 'Energieflussdiagramm ergänzen',

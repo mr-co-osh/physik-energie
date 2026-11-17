@@ -25,7 +25,8 @@
       if (!App._re) {
         var B = ((window.SITE && SITE.begriffe) || []).slice().sort(function (a, b) { return b.length - a.length; })
           .map(function (w) { return w.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'); });
-        App._ref = /\b((?:chemisch|elektrisch|thermisch|potenziell|kinetisch)(?:e|en|er|es)? Energie|(?:Lage|Bewegungs|Spann|Strahlungs)energie)\b/;
+        /* auch „chemische und thermische Energie“: das erste Adjektiv wird ebenfalls gefärbt */
+        App._ref = /\b((?:chemisch|elektrisch|thermisch|potenziell|kinetisch)(?:e|en|er|es)?(?: Energie|(?= und (?:chemisch|elektrisch|thermisch)\w* Energie))|(?:Lage|Bewegungs|Spann|Strahlungs)energie)\b/;
         App._re = new RegExp('(' + App._ref.source.slice(2, -2) + ')' + (B.length ? '|\\b(' + B.join('|') + ')(?:n|s|en|es|e)?\\b' : ''), 'g');
       }
       return html.split(/(<[^>]+>)/).map(function (part, i, all) {

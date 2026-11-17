@@ -49,6 +49,20 @@
   .zbox .zcard { padding: 6px 8px 6px 6px; gap: 6px; font-size: 15px; }
   .zcard .zt { min-width: 0; flex: 1; }
   .zcard .grip { touch-action: none; color: var(--muted); font-size: 20px; padding: 6px 2px; margin: -6px 0; cursor: default; }
+  /* Quiz als Stapel: eine Frage nach der anderen */
+  .qs-q { max-width: 640px; margin: 0 auto 14px; padding: 18px 20px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); font-size: 21px; line-height: 1.35; font-weight: 600; color: var(--ink); text-align: center; }
+  .qs-step { max-width: 640px; margin: 0 auto 8px; font-size: 15px; font-weight: 700; color: var(--muted); text-align: center; }
+  .qs-opts { max-width: 640px; margin: 0 auto; display: grid; gap: 10px; }
+  .qs-opts.zwei { grid-template-columns: 1fr 1fr; }
+  .qs-opts .opt { min-height: 56px; font-size: 17px; text-align: center; }
+  .qs-opts.drei .opt { text-align: left; font-weight: 600; }
+  .qs-fb { max-width: 640px; margin: 12px auto 0; }
+  .qs-end { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .qs-row { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: start; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 15px; line-height: 1.35; }
+  .qs-row.falsch { border-color: var(--bad); background: var(--bad-soft); }
+  .qs-row .ic { font-weight: 800; font-size: 18px; }
+  .qs-row .ic.ok { color: var(--green-d); } .qs-row .ic.no { color: var(--bad); }
+  .qs-row small { grid-column: 2; color: var(--muted); }
   /* Zuordnen als Stapel: eine Karte nach der anderen */
   .st-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 15px; color: var(--muted); }
   .st-bar { flex: 1; max-width: 260px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
@@ -238,7 +252,7 @@
     $('meta').innerHTML = '<span>Phase ' + b.phase + ' · ' + b.ds + '</span>' +
       (cur.n !== 'stern' ? '<span class="tag">Basis</span>' : '') + (cur.n !== 'basis' ? '<span class="tag star">★</span>' : '') + (cur.ein ? '<span class="tag ein">Einstieg</span>' : '');
     $('niveau').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.v === niveau)); });
-    ({ zuordnen: cur.modus === 'stapel' ? stapel : zuordnen, sortieren: sortieren, quiz: quiz, luecke: luecke, schaetzen: schaetzen })[cur.typ]();
+    ({ zuordnen: cur.modus === 'stapel' ? stapel : zuordnen, sortieren: sortieren, quiz: cur.modus === 'stapel' ? quizStapel : quiz, luecke: luecke, schaetzen: schaetzen })[cur.typ]();
     $('more').innerHTML = U.filter(function (u) { return u.r === cur.r && u.id !== cur.id; }).map(function (u) {
       return '<a class="chip" href="#' + u.id + '">' + A.fmt(u.titel) + (status[u.id] === 100 ? ' ✓' : '') + '</a>'; }).join('') +
       '<a class="chip" href="./">Alle Bereiche</a>';
@@ -334,6 +348,67 @@
   }
 
 
+
+  /* ---------- Quiz als Stapel (modus: 'stapel'): eine Frage nach der anderen, z = zweiter Schritt ---------- */
+  function quizStapel() {
+    var qs = filt(cur.fragen), queue, pos, res, stufe, wahl, mix;
+    function zOn(q) { return q.z && niveau !== 'ein'; }
+    function start(list) { queue = A.shuffle(list); pos = 0; res = res || {}; list.forEach(function (n) { delete res[n]; }); frage(); }
+    function frage() {
+      if (pos >= queue.length) return ende();
+      stufe = 1; wahl = null; zeigen();
+    }
+    function zeigen() {
+      var n = queue[pos], q = qs[n], r = res[n] || {}, total = qs.length, fertig = Object.keys(res).filter(function (k) { return res[k].fertig; }).length;
+      var html = '<div class="st-top"><span>Frage ' + (pos + 1) + ' von ' + queue.length + '</span><span class="st-bar" aria-hidden="true"><i style="width:' + Math.round(fertig / total * 100) + '%"></i></span></div>' +
+        '<div class="qs-q">' + (cur.ohneMarke ? A.fmt(q.f) : A.fmtM(q.f)) + '</div>';
+      if (stufe === 1) {
+        html += '<div class="qs-opts zwei">' + q.o.map(function (o, j) {
+          var cl = wahl == null ? '' : j === q.r ? ' right' : j === wahl ? ' wrong' : '';
+          return '<button class="opt' + cl + '" type="button" data-j="' + j + '"' + (wahl != null ? ' disabled' : '') + '>' + A.fmt(o) + '</button>'; }).join('') + '</div>';
+        if (wahl != null) html += '<div class="qs-fb"><p class="expl' + (wahl === q.r ? '' : ' bad') + '">' + (wahl === q.r ? '<b>Richtig.</b> ' : '<b>Nicht ganz.</b> ') + A.fmtM(q.e) + '</p></div>' +
+          '<div class="st-weiter"><button class="btn" id="qs-next" type="button">' + (zOn(q) ? 'Weiter: richtig formulieren' : 'Weiter') + '</button></div>';
+      } else {
+        html += '<p class="qs-step">Schritt 2: ' + A.esc(q.z.f) + '</p><div class="qs-opts drei">' + mix.map(function (j) {
+          var cl = wahl == null ? '' : j === q.z.r ? ' right' : j === wahl ? ' wrong' : '';
+          return '<button class="opt' + cl + '" type="button" data-j="' + j + '"' + (wahl != null ? ' disabled' : '') + '>' + A.fmt(q.z.o[j]) + '</button>';   /* Antworten nie hervorheben */ }).join('') + '</div>';
+        if (wahl != null) html += '<div class="qs-fb"><p class="expl' + (wahl === q.z.r ? '' : ' bad') + '">' + (wahl === q.z.r ? '<b>Richtig.</b> So ist es physikalisch korrekt.' : '<b>Nicht ganz.</b> Richtig ist der grün markierte Satz.') + '</p></div>' +
+          '<div class="st-weiter"><button class="btn" id="qs-next" type="button">Weiter</button></div>';
+      }
+      html += '<div class="actions"><button class="linkbtn" id="qs-reset" type="button">Neu mischen</button></div>';
+      $('body').innerHTML = html;
+      $('body').querySelectorAll('.qs-opts .opt').forEach(function (b) { b.onclick = function () { antwort(+b.dataset.j); }; });
+      if ($('qs-next')) { $('qs-next').onclick = weiter; $('qs-next').focus(); }
+      $('qs-reset').onclick = function () { res = {}; start(qs.map(function (_, i) { return i; })); };
+    }
+    function antwort(j) {
+      var n = queue[pos], q = qs[n]; res[n] = res[n] || {};
+      wahl = j;
+      if (stufe === 1) { res[n].a = j === q.r; if (!zOn(q)) res[n].fertig = true; }
+      else { res[n].b = j === q.z.r; res[n].fertig = true; }
+      zeigen();
+    }
+    function weiter() {
+      var q = qs[queue[pos]];
+      if (stufe === 1 && zOn(q)) { stufe = 2; wahl = null; mix = A.shuffle(q.z.o.map(function (_, j) { return j; })); zeigen(); return; }
+      pos++; frage();
+    }
+    function ende() {
+      var pkt = 0, max = 0, falsch = [];
+      qs.forEach(function (q, n) { var r = res[n] || {}; max += zOn(q) ? 2 : 1; pkt += (r.a ? 1 : 0) + (zOn(q) && r.b ? 1 : 0); if (!r.a || (zOn(q) && !r.b)) falsch.push(n); });
+      $('body').innerHTML = '<div class="st-top"><span>Fertig!</span><span class="st-bar" aria-hidden="true"><i style="width:100%"></i></span></div><p class="score" id="sc" aria-live="polite"></p>' +
+        '<div class="qs-end">' + qs.map(function (q, n) {
+          var r = res[n] || {}, ok = r.a && (!zOn(q) || r.b);
+          return '<div class="qs-row' + (ok ? '' : ' falsch') + '"><span class="ic ' + (ok ? 'ok">✓' : 'no">✗') + '</span><span>' + A.fmt(q.f) + ' – <b>' + A.esc(q.o[q.r]) + '</b></span>' +
+            (zOn(q) ? '<small>Richtig formuliert: ' + A.fmtM(q.z.o[q.z.r]) + '</small>' : '') + '</div>';
+        }).join('') + '</div>' +
+        '<div class="actions">' + (falsch.length ? '<button class="btn" id="qs-wdh" type="button">Nur die falschen nochmal (' + falsch.length + ')</button>' : '') + '<button class="' + (falsch.length ? 'linkbtn' : 'btn') + '" id="qs-reset" type="button">Neu mischen</button></div>';
+      score($('sc'), pkt, max); $('sc').textContent = $('sc').textContent.replace(' richtig', ' Punkten').replace('Alles richtig!', 'Alles richtig!');
+      if (falsch.length) $('qs-wdh').onclick = function () { start(falsch); };
+      $('qs-reset').onclick = function () { res = {}; start(qs.map(function (_, i) { return i; })); };
+    }
+    res = {}; start(qs.map(function (_, i) { return i; }));
+  }
   /* ---------- Zuordnen als Stapel (modus: 'stapel') ---------- */
   function stapel() {
     var els = filt(cur.elemente), used = {};
