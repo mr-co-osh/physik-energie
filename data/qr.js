@@ -15,5 +15,10 @@ window.QR = {
     "blatt": "PHY-ENE-04A_CYU",
     "ziel": "Check your understanding 04A – Hilfen und Lösungen",
     "url": "cyu/04a.html"
+  },
+  "mven": {
+    "blatt": "PHY-ENE-05A_ACHTERBAHN",
+    "ziel": "Achterbahn-Prüfstand (Simulation, Freischalt-Code aus 05A)",
+    "url": "sim/achterbahn.html"
   }
 };
