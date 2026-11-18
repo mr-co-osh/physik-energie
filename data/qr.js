@@ -25,5 +25,10 @@ window.QR = {
     "blatt": "PHY-ENE-05A_ACHTERBAHN",
     "ziel": "★ Herleitung der fertigen Formeln (Werkzeug-Kasten 05A)",
     "url": "herleitung/formeln.html"
+  },
+  "cfkd": {
+    "blatt": "PHY-ENE-02B_MERKW_MASCHINE",
+    "ziel": "Merkwürdige Maschine (Simulation)",
+    "url": "sim/maschine.html"
   }
 };

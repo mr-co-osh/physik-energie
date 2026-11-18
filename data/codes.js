@@ -63,6 +63,11 @@ window.LOCKS = {
     "gx1d846na8"
    ]
   },
+  "maschine": {
+   "name": "Merkwürdige Maschine",
+   "ds": "DS 2",
+   "locked": false
+  },
   "geraete-duell": {
    "name": "Geräte-Duell",
    "ds": "DS 7",

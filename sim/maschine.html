@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Merkwürdige Maschine</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="../assets/fonts/sim-fonts.css">
+<style>
+/* Layout wie Achterbahn-Prüfstand: links die Maschine, rechts der Auftrag, darunter die Energieumwandlungskette */
+:root{
+  --paper:#F2F5F3; --grid:#D9E3DE; --panel:#FFFFFF; --line:#C9D6D0;
+  --ink:#16262A; --muted:#55686B; --accent:#E3A11B; --accent-ink:#2E2200; --accent-soft:#FBEFD2;
+  --ok:#23845A; --ok-soft:#DDF1E6;
+  --le:#4BAA6F; --be:#3D8BD0; --ee:#F2C230; --te:#E0605B; --box:#FFFFFF; --box-line:#16262A;
+  --f-display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0E191C; --grid:#172A2E; --panel:#132226; --line:#284045;
+  --ink:#E3EDEA; --muted:#93A8A8; --accent:#F0B43E; --accent-ink:#241A00; --accent-soft:#3A2F14;
+  --ok:#4CC08A; --ok-soft:#163528; --box:#1B2E33; --box-line:#CFDAD6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0E191C; --grid:#172A2E; --panel:#132226; --line:#284045;
+  --ink:#E3EDEA; --muted:#93A8A8; --accent:#F0B43E; --accent-ink:#241A00; --accent-soft:#3A2F14;
+  --ok:#4CC08A; --ok-soft:#163528; --box:#1B2E33; --box-line:#CFDAD6; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,5vw,54px);line-height:.95;letter-spacing:.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h1 span{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:0 .18em;margin-left:.12em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:62ch}
+.stamp-id{font-family:var(--f-mono);font-size:12px;color:var(--muted);border:1.5px solid var(--line);padding:6px 10px;background:var(--panel);text-align:right;line-height:1.4}
+.main{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.stage,.card{background:var(--panel);border:1.5px solid var(--line);min-width:0}
+.stage-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1.5px solid var(--line);font-family:var(--f-mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.stage-head b{color:var(--ink);font-weight:600}
+.scene{width:100%;height:auto;display:block;background:#DCEBF7}
+.scene text{font:700 13px var(--f-body);fill:#10324D}
+.scene text.w{fill:#fff}
+.tele{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1.5px solid var(--line)}
+.gauge{padding:10px 12px}
+.gauge+.gauge{border-left:1.5px solid var(--line)}
+.gauge .lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gauge .val{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.gauge .val small{font-size:13px;color:var(--muted);font-weight:400}
+.card-head{padding:10px 14px;border-bottom:1.5px solid var(--line)}
+.card-head .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.card-head h2{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.card-body{padding:14px;display:grid;gap:12px}
+.card-body p{margin:0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1.5px solid var(--line);background:var(--panel);cursor:pointer}
+.opt input{margin-top:5px;accent-color:var(--ink)}
+.opt:has(input:checked){border-color:var(--ink)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font-family:var(--f-body);font-weight:600;font-size:15px;cursor:pointer;border:2px solid var(--ink);padding:10px 14px;background:var(--panel);color:var(--ink)}
+button.go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 180px;font-family:var(--f-display);font-size:22px;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px}
+button.ghost{border-color:var(--line)}
+button[disabled]{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.msg{padding:10px 12px;border-left:5px solid var(--muted);background:var(--paper);font-size:14px}
+.msg.ok{border-color:var(--ok);background:var(--ok-soft)}
+.msg.hint{border-color:var(--accent);background:var(--accent-soft)}
+.kette{overflow-x:auto}
+.kette svg{display:block;width:100%;min-width:640px;height:auto}
+.kette text{font-family:var(--f-body)}
+.k-box{fill:var(--box);stroke:var(--box-line);stroke-width:2}
+.k-name{fill:var(--ink);font-weight:700;font-size:15px}
+.k-lab{fill:var(--muted);font-size:12px}
+.k-kz{font-weight:700;font-size:15px;fill:#16262A}
+.te{opacity:0;transition:opacity .6s}
+.te.an{opacity:1}
+.te.puls path{animation:puls 1.4s ease-in-out infinite}
+@keyframes puls{50%{opacity:.45}}
+@media (prefers-reduced-motion: reduce){.te.puls path{animation:none}}
+.foot{font-size:12px;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Merkwürdige <span>Maschine</span></h1>
+      <p class="sub">Wasser aus dem oberen Becken treibt ein Wasserrad an. Das Wasserrad dreht einen Generator, der Generator versorgt einen Motor, und der Motor treibt eine Pumpe, die das Wasser wieder nach oben pumpt.</p>
+    </div>
+    <div class="stamp-id">ARBEITSBLATT PHY-ENE-02B<br>Energieumwandlungskette</div>
+  </header>
+
+  <div class="main">
+    <section class="stage" aria-label="Maschine">
+      <div class="stage-head"><span>VERSUCHSAUFBAU · <b>Wasserrad · Generator · Motor · Pumpe</b></span></div>
+      <svg class="scene" id="scene" viewBox="0 0 940 430" role="img" aria-label="Merkwürdige Maschine: oberes Becken, Wasserrad, Generator, Motor, Pumpe, unteres Becken"></svg>
+      <div class="tele">
+        <div class="gauge"><div class="lab">Laufzeit</div><div class="val"><span id="zeit">0,0</span> <small>s</small></div></div>
+        <div class="gauge"><div class="lab">Wasser im oberen Becken</div><div class="val"><span id="stand">100</span> <small>%</small></div></div>
+      </div>
+    </section>
+
+    <aside class="card" aria-live="polite">
+      <div class="card-head"><div class="no">Erst vermuten, dann starten</div><h2>Läuft sie ewig?</h2></div>
+      <div class="card-body">
+        <label class="opt"><input type="radio" name="verm" value="a"> Ja, sie läuft immer weiter.</label>
+        <label class="opt"><input type="radio" name="verm" value="b"> Nein, sie wird langsamer und bleibt irgendwann stehen.</label>
+        <label class="opt"><input type="radio" name="verm" value="c"> Sie wird sogar immer schneller.</label>
+        <div class="btns"><button class="go" id="start" disabled>Maschine starten</button><button class="ghost" id="fuellen">Becken füllen</button></div>
+        <div class="msg" id="hinweis">Wähle zuerst eine Vermutung aus.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card" aria-label="Energieumwandlungskette">
+    <div class="card-head"><div class="no">Verfolge die Energie</div><h2>Energieumwandlungskette</h2></div>
+    <div class="card-body">
+      <div class="kette" id="kette"></div>
+      <p class="foot" id="kettetext">Starte die Maschine und beobachte, wo es warm wird.</p>
+      <div class="btns"><button class="ghost" id="aufdecken">Energieformen aufdecken</button></div>
+      <p class="foot">Erst aufdecken, wenn du die Kette auf dem Arbeitsblatt selbst aufgeschrieben hast.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var WATER = '#5B9BD5', WATER_L = '#8FBFE8', STEEL = '#8C99A6', STEEL_D = '#5B6B7A', WOOD = '#A9825A', WOOD_D = '#7A5A3A', HEAT = '#E0605B';
+  var ETA = [0.70, 0.85, 0.85, 0.70];      // Anteil, den jedes Gerät weitergibt (nur für den Ablauf, wird nicht angezeigt)
+  var W = { cx: 330, cy: 228, r: 84 };
+
+  /* ------------------------------------------------------------ Szene (unverändert) */
+  var s = '';
+  s += '<rect x="0" y="378" width="940" height="52" fill="#B08A5E"/><rect x="0" y="374" width="940" height="6" fill="#6FA35A"/>';
+  s += '<rect x="30" y="318" width="880" height="62" rx="4" fill="' + STEEL + '"/><rect x="38" y="328" width="864" height="46" fill="' + WATER + '"/>';
+  s += '<path d="M38 328 H902" stroke="' + WATER_L + '" stroke-width="4"/>';
+  s += '<text x="470" y="362" text-anchor="middle" class="w">unteres Becken</text>';
+  s += '<path d="M78 132 V318 M226 132 V318 M78 230 L226 180" stroke="' + STEEL_D + '" stroke-width="8"/>';
+  s += '<rect x="60" y="66" width="184" height="70" rx="4" fill="' + STEEL + '"/><rect x="68" y="72" width="168" height="58" fill="#EAF2FA"/>';
+  s += '<rect id="wasser" x="68" y="76" width="168" height="54" fill="' + WATER + '"/>';
+  s += '<text x="120" y="58" text-anchor="middle">oberes Becken</text>';
+  s += '<path d="M236 118 H352" stroke="' + STEEL_D + '" stroke-width="10" stroke-linecap="round"/><path id="rinne" d="M236 114 H350" stroke="' + WATER + '" stroke-width="5"/>';
+  s += '<path id="strahl" d="M352 122 C356 132 358 140 358 150" stroke="' + WATER + '" stroke-width="8" stroke-linecap="round"/>';
+  s += '<path id="strahl2" d="M352 122 C356 132 358 140 358 150" stroke="#fff" stroke-width="2.4" stroke-dasharray="4 7"/>';
+  s += '<path d="M' + (W.cx - 46) + ' 318 L' + W.cx + ' ' + W.cy + ' L' + (W.cx + 46) + ' 318" stroke="' + WOOD_D + '" stroke-width="9" fill="none"/>';
+  var rad = '<circle r="' + W.r + '" fill="none" stroke="' + WOOD_D + '" stroke-width="9"/><circle r="' + (W.r - 16) + '" fill="none" stroke="' + WOOD + '" stroke-width="5"/>';
+  for (var k = 0; k < 12; k++) {
+    var a = k * Math.PI / 6, c = Math.cos(a), si = Math.sin(a);
+    rad += '<path d="M' + (14 * c).toFixed(1) + ' ' + (14 * si).toFixed(1) + ' L' + ((W.r - 16) * c).toFixed(1) + ' ' + ((W.r - 16) * si).toFixed(1) + '" stroke="' + WOOD + '" stroke-width="4"/>';
+    var x1 = (W.r - 16) * c, y1 = (W.r - 16) * si, x2 = (W.r + 6) * c, y2 = (W.r + 6) * si;
+    var bx = x2 + 12 * Math.cos(a + Math.PI / 2), by = y2 + 12 * Math.sin(a + Math.PI / 2);
+    rad += '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' L' + x2.toFixed(1) + ' ' + y2.toFixed(1) + ' L' + bx.toFixed(1) + ' ' + by.toFixed(1) + '" stroke="' + WOOD_D + '" stroke-width="5" fill="none" stroke-linejoin="round"/>';
+  }
+  s += '<g transform="translate(' + W.cx + ' ' + W.cy + ')"><g id="rad">' + rad + '</g><circle r="16" fill="' + STEEL + '" stroke="' + STEEL_D + '" stroke-width="3"/></g>';
+  s += '<text x="' + (W.cx + 96) + '" y="' + (W.cy - 72) + '" text-anchor="start">Wasserrad</text>';
+  s += '<rect x="440" y="284" width="450" height="14" rx="3" fill="' + WOOD + '"/><path d="M458 298 V318 M872 298 V318" stroke="' + WOOD_D + '" stroke-width="8"/>';
+  s += '<path d="M' + W.cx + ' ' + (W.cy - 16) + ' L470 236 M470 264 L' + W.cx + ' ' + (W.cy + 16) + '" stroke="#3A3A3A" stroke-width="4"/>';
+  s += '<path id="riemen1" d="M' + W.cx + ' ' + (W.cy - 16) + ' L470 236 M470 264 L' + W.cx + ' ' + (W.cy + 16) + '" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 9"/>';
+  s += '<circle cx="470" cy="250" r="14" fill="' + STEEL + '" stroke="' + STEEL_D + '" stroke-width="3"/><path id="m1" d="M470 250 L480 250" stroke="#fff" stroke-width="3"/>';
+  s += '<rect x="484" y="214" width="96" height="70" rx="12" fill="#1F6FB2"/><text x="532" y="254" text-anchor="middle" class="w">Generator</text>';
+  s += '<path d="M520 214 C530 160 690 160 700 214" stroke="#3A3A3A" stroke-width="5" fill="none"/>';
+  s += '<path id="kabel" d="M520 214 C530 160 690 160 700 214" stroke="#F2C230" stroke-width="3" stroke-dasharray="3 8" fill="none"/>';
+  s += '<text x="610" y="164" text-anchor="middle">Kabel</text>';
+  s += '<rect x="660" y="214" width="96" height="70" rx="12" fill="' + STEEL_D + '"/><path d="M672 228 H744 M672 240 H744 M672 252 H744 M672 264 H744" stroke="#7F8E9C" stroke-width="3"/>';
+  s += '<text x="708" y="252" text-anchor="middle" class="w" style="paint-order:stroke" stroke="' + STEEL_D + '" stroke-width="4">Motor</text>';
+  s += '<circle cx="772" cy="250" r="12" fill="' + STEEL + '" stroke="' + STEEL_D + '" stroke-width="3"/><path id="m2" d="M772 250 L781 250" stroke="#fff" stroke-width="3"/>';
+  s += '<path d="M772 238 L836 248 M836 272 L772 262" stroke="#3A3A3A" stroke-width="4"/>';
+  s += '<path id="riemen2" d="M772 238 L836 248 M836 272 L772 262" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 9"/>';
+  var ROHR = 'M836 352 V40 H206 V72';
+  s += '<path d="' + ROHR + '" stroke="' + STEEL_D + '" stroke-width="14" fill="none" stroke-linejoin="round"/><path d="' + ROHR + '" stroke="' + WATER + '" stroke-width="8" fill="none" stroke-linejoin="round"/>';
+  s += '<path id="rohrfluss" d="' + ROHR + '" stroke="#fff" stroke-width="2.4" stroke-dasharray="5 12" fill="none" stroke-linejoin="round"/>';
+  s += '<text x="500" y="30" text-anchor="middle">Rohr</text>';
+  s += '<circle cx="836" cy="260" r="26" fill="#fff" stroke="' + STEEL_D + '" stroke-width="5"/><text x="836" y="265" text-anchor="middle">P</text>';
+  s += '<path id="m3" d="M836 260 L852 260" stroke="#1F6FB2" stroke-width="3"/>';
+  s += '<text x="872" y="230" text-anchor="start">Pumpe</text>';
+  s += '<g id="waerme"></g><g id="tropfen"></g>';
+  $('scene').innerHTML = s;
+
+  /* ------------------------------------------------------------ Energieumwandlungskette (ohne Werte) */
+  var FARBE = { LE: '#4BAA6F', BE: '#3D8BD0', EE: '#F2C230', TE: '#E0605B' };
+  var LANG = { LE: 'Lageenergie', BE: 'Bewegungsenergie', EE: 'elektrische Energie', TE: 'thermische Energie' };
+  var WANDLER = ['Wasserrad', 'Generator', 'Motor', 'Pumpe'];
+  var FORM = ['LE', 'BE', 'EE', 'BE', 'LE'];
+  var offen = false;   // Energieformen erst nach eigener Lösung (Arbeitsblatt 02B) aufdecken
+  function pfeil(x, y, w, kz, unter) {
+    var h = 34, sp = 16;
+    return '<path d="M' + x + ' ' + y + ' H' + (x + w - sp) + ' V' + (y - 7) + ' L' + (x + w) + ' ' + (y + h / 2) + ' L' + (x + w - sp) + ' ' + (y + h + 7) + ' V' + (y + h) + ' H' + x + ' Z" fill="' + (offen ? FARBE[kz] : '#E3E8E6') + '" stroke="#16262A" stroke-width="1.5"/>' +
+      '<text x="' + (x + (w - sp) / 2) + '" y="' + (y + 22) + '" text-anchor="middle" class="k-kz">' + (offen ? kz : '?') + '</text>' +
+      (offen ? '<text x="' + (x + w / 2) + '" y="' + (y + h + 24) + '" text-anchor="middle" class="k-lab">' + LANG[kz] + '</text>' : '') +
+      (unter ? '<text x="' + (x + w / 2) + '" y="' + (y + h + (offen ? 40 : 24)) + '" text-anchor="middle" class="k-lab">' + unter + '</text>' : '');
+  }
+  function kette() {
+    var g = '', pw = 92, bw = 104, x = 6, y = 40, by = 30, bh = 54;
+    for (var i = 0; i < 5; i++) {
+      g += pfeil(x, y, pw, FORM[i], i === 0 ? '(Wasser oben)' : (i === 4 ? '(Wasser oben)' : ''));
+      x += pw + 4;
+      if (i < 4) {
+        g += '<rect x="' + x + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="5" class="k-box"/>';
+        g += '<text x="' + (x + bw / 2) + '" y="' + (by + 32) + '" text-anchor="middle" class="k-name">' + WANDLER[i] + '</text>';
+        // nicht genutzte Energie: rechter Rand des Wandlers, nach unten
+        var tx = x + bw - 22;
+        g += '<g class="te" data-i="' + i + '"><path d="M' + tx + ' ' + (by + bh) + ' v26 h-8 l14 16 l14 -16 h-8 v-26 Z" fill="' + FARBE.TE + '" stroke="#16262A" stroke-width="1.2"/>' +
+             '<text x="' + (tx + 6) + '" y="' + (by + bh + 58) + '" text-anchor="middle" class="k-kz" style="fill:' + FARBE.TE + '">TE</text></g>';
+        x += bw + 4;
+      }
+    }
+    var W2 = x + 6;
+    $('kette').innerHTML = '<svg viewBox="0 0 ' + W2 + ' 160" role="img" aria-label="Energieumwandlungskette: Lageenergie, Wasserrad, Bewegungsenergie, Generator, elektrische Energie, Motor, Bewegungsenergie, Pumpe, Lageenergie; an jedem Gerät geht thermische Energie an die Umgebung">' + g + '</svg>';
+  }
+  kette();
+
+  /* ------------------------------------------------------------ Ablauf */
+  var L = 1, running = false, speed = 0, ang = 0, done = false, zeit = 0, verm = null, tropfen = [], t = 0, warm = 0;
+  var Q = 0.045, ETOT = ETA.reduce(function (p, e) { return p * e; }, 1);
+  var VT = { a: 'Ja, sie läuft immer weiter.', b: 'Nein, sie wird langsamer und bleibt irgendwann stehen.', c: 'Sie wird sogar immer schneller.' };
+  function heat(x, y, o) {
+    var h = '';
+    for (var i = 0; i < 3; i++) h += '<path d="M' + (x + i * 9) + ' ' + y + ' q-4 -6 0 -12 q4 -6 0 -12" stroke="' + HEAT + '" stroke-width="2.4" fill="none" opacity="' + o.toFixed(2) + '"/>';
+    return h;
+  }
+  function draw() {
+    var h = 54 * L;
+    $('wasser').setAttribute('y', (76 + 54 - h).toFixed(1)); $('wasser').setAttribute('height', h.toFixed(1));
+    var flowing = running && L > 0.001;
+    ['strahl', 'strahl2', 'rinne'].forEach(function (id) { $(id).setAttribute('opacity', flowing ? 1 : 0); });
+    $('rad').setAttribute('transform', 'rotate(' + (ang * 180 / Math.PI).toFixed(1) + ')');
+    var off = (-ang * 34).toFixed(1);
+    $('riemen1').setAttribute('stroke-dashoffset', off); $('riemen2').setAttribute('stroke-dashoffset', off);
+    $('kabel').setAttribute('stroke-dashoffset', (-ang * 44).toFixed(1)); $('kabel').setAttribute('opacity', speed > 0.03 ? 1 : 0.15);
+    $('rohrfluss').setAttribute('stroke-dashoffset', (-ang * 40).toFixed(1)); $('rohrfluss').setAttribute('opacity', speed > 0.03 ? 1 : 0);
+    $('strahl2').setAttribute('stroke-dashoffset', (-t * 60).toFixed(1));
+    function rot(id, cx, cy, r, f, r0) { var a = ang * f; r0 = r0 || 0; $(id).setAttribute('d', 'M' + (cx + r0 * Math.cos(a)).toFixed(1) + ' ' + (cy + r0 * Math.sin(a)).toFixed(1) + ' L' + (cx + r * Math.cos(a)).toFixed(1) + ' ' + (cy + r * Math.sin(a)).toFixed(1)); }
+    rot('m1', 470, 250, 10, 6); rot('m2', 772, 250, 9, 6); rot('m3', 836, 260, 21, 6, 12);
+    var o = Math.min(1, speed) * (0.55 + 0.45 * Math.sin(t * 5));
+    $('waerme').innerHTML = o > 0.02 ? heat(W.cx - 10, W.cy - 24, o) + heat(522, 206, o * 0.8) + heat(698, 206, o * 0.8) + heat(826, 228, o) : '';
+    $('tropfen').innerHTML = tropfen.map(function (d) { return '<circle cx="' + d.x.toFixed(1) + '" cy="' + d.y.toFixed(1) + '" r="3" fill="' + WATER + '"/>'; }).join('');
+    $('stand').textContent = Math.round(Math.max(0, L) * 100);
+    $('zeit').textContent = zeit.toFixed(1).replace('.', ',');
+  }
+  function zeigeWaerme() {
+    // die roten Pfeile erscheinen nacheinander, sobald die Maschine eine Weile läuft
+    document.querySelectorAll('.te').forEach(function (e, i) {
+      e.classList.toggle('an', warm > 1 + i * 0.8);
+      e.classList.toggle('puls', warm > 1 + i * 0.8 && speed > 0.2);
+    });
+    if (warm > 4.2 && !done) $('kettetext').innerHTML = 'Jedes Gerät wird warm: An <b>jeder</b> Stelle der Kette geht ein Teil der Energie als <b>thermische Energie</b> an die Umgebung.';
+  }
+  var last = performance.now();
+  function tick(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    var flowing = running && L > 0.001;
+    if (flowing) {
+      var out = Q * dt;
+      L = L - out + out * ETOT; if (L < 0) L = 0;
+      zeit += dt; warm += dt;
+    }
+    speed += ((flowing ? 1 : 0) - speed) * (1 - Math.exp(-dt / (flowing ? 0.7 : 1.6)));
+    if (!flowing && speed < 0.01) speed = 0;
+    ang += speed * 1.8 * dt;
+    if (speed > 0.15 && Math.random() < dt * 14 * speed) tropfen.push({ x: W.cx + 30 + Math.random() * 40, y: W.cy + 70, vy: 20 });
+    tropfen.forEach(function (d) { d.vy += 300 * dt; d.y += d.vy * dt; });
+    tropfen = tropfen.filter(function (d) { return d.y < 330; });
+    if (running && L <= 0.001 && !done) {
+      done = true;
+      $('hinweis').className = 'msg ok';
+      $('hinweis').innerHTML = 'Das obere Becken ist leer – die Maschine bleibt stehen. In jedem Gerät wird ein Teil der Energie zu thermischer Energie der Umgebung. Diese Energie kann die Maschine nicht mehr nutzen: <b>Energieentwertung</b>.' +
+        (verm ? '<br><br>Deine Vermutung war: „' + VT[verm] + '“ ' + (verm === 'b' ? '– das stimmt.' : '– vergleiche mit deiner Beobachtung.') : '');
+      $('kettetext').innerHTML = 'An <b>jeder</b> Stelle der Kette geht ein Teil der Energie als thermische Energie an die Umgebung. Deshalb kommt oben weniger Wasser an, als herunterfließt.';
+    }
+    zeigeWaerme(); draw(); requestAnimationFrame(tick);
+  }
+  document.querySelectorAll('input[name=verm]').forEach(function (r) {
+    r.addEventListener('change', function () { verm = r.value; $('start').disabled = false; $('hinweis').className = 'msg hint'; $('hinweis').textContent = 'Deine Vermutung ist notiert. Starte jetzt die Maschine.'; });
+  });
+  $('start').addEventListener('click', function () {
+    running = !running;
+    this.textContent = running ? 'Anhalten' : 'Maschine starten';
+    if (running && !done) { $('hinweis').className = 'msg'; $('hinweis').textContent = 'Beobachte das obere Becken und die Energieumwandlungskette unten.'; }
+  });
+  $('fuellen').addEventListener('click', function () { L = 1; done = false; zeit = 0; $('hinweis').className = 'msg'; $('hinweis').textContent = 'Das obere Becken ist wieder voll.'; });
+  $('aufdecken').addEventListener('click', function () {
+    offen = !offen; this.textContent = offen ? 'Energieformen verdecken' : 'Energieformen aufdecken';
+    kette(); zeigeWaerme();
+  });
+  draw(); requestAnimationFrame(tick);
+})();
+</script>
+
+<!-- Lernseite: Zurück-Leiste (Simulation ohne Sperre) -->
+<script>window.SIM_ID = 'maschine';</script>
+<script src="../data/codes.js"></script>
+<script src="../assets/lock.js"></script>
+
+<!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
+<style>
+.stdfuss{display:block;clear:both;margin:32px 0 0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-top:1px solid rgba(128,128,128,.35);font:12.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:inherit;text-align:left;position:relative;z-index:1}
+.stdfuss *{box-sizing:border-box}
+.stdfuss p{margin:0 0 8px;max-width:72ch}
+.stdfuss .stdfuss-row{display:flex;flex-wrap:wrap;gap:0 24px;align-items:center}
+.stdfuss .stdfuss-row button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:5px 0;min-height:30px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.stdfuss .stdfuss-row button::before{content:"";border:4.5px solid transparent;border-left:6px solid currentColor;border-right:0;transition:transform .15s}
+.stdfuss .stdfuss-row button[aria-expanded="true"]::before{transform:rotate(90deg)}
+.stdfuss .stdfuss-row button[aria-expanded="true"]{text-decoration:underline;text-underline-offset:3px}
+.stdfuss .stdfuss-panel{max-width:72ch;margin-top:4px}
+.stdfuss .stdfuss-panel[hidden]{display:none}
+.stdfuss ul{margin:4px 0 8px;padding-left:20px}
+.stdfuss li{margin:3px 0}
+.stdfuss a{color:inherit;text-decoration:underline}
+.stdfuss .stdfuss-hint{opacity:.75;font-size:12px}
+</style>
+<footer class="stdfuss" lang="de">
+<p>Eigenes Unterrichtsmaterial. Kein offizielles Material der Bremer Bildungsbehörde. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+<div class="stdfuss-row">
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p1">Datenschutz</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p2">Impressum</button>
+<button type="button" aria-expanded="false" aria-controls="stdfuss-p3">Schriftlizenzen</button>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p1" hidden>
+<ul>
+<li><b>Keine Datensammlung:</b> Diese Seite erhebt keine personenbezogenen Daten. Keine Anmeldung, keine Cookies, kein Tracking, keine Formulare, die Daten verschicken.</li>
+<li><b>Speicherung nur im Browser:</b> Fortschritt und Eingaben werden höchstens im Speicher deines Browsers auf diesem Gerät abgelegt (localStorage) und nicht übertragen. Du kannst sie in den Einstellungen deines Browsers löschen.</li>
+<li><b>Hosting:</b> Die Seite liegt bei GitHub Pages (GitHub, Inc., USA). GitHub verarbeitet beim Aufruf technisch notwendige Daten wie deine IP-Adresse. <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a></li>
+<li><b>Nichts von fremden Servern:</b> Schriften, Skripte und Bilder werden von dieser Seite selbst geladen.</li>
+<li><b>Deine Rechte:</b> Nach der DSGVO hast du das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</li>
+<li><b>Verantwortlich:</b> siehe Impressum.</li>
+<li><b>Datenschutzbeauftragter:</b> datenschutz nord GmbH, Konsul-Smidt-Straße 88, 28217 Bremen, office@datenschutz-nord.de</li>
+</ul> <a href="../datenschutz.html">Ausführliche Fassung</a>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p2" hidden>
+<p><b>Oberschule an der Hermannsburg</b><br>Hermannsburg 32f<br>28259 Bremen<br>E-Mail: 505@schule.bremen.de</p>
+<p>Vertreten durch den Schulleiter Achim Kaschub</p>
+</div>
+<div class="stdfuss-panel" id="stdfuss-p3" hidden>
+<p>Alle Schriften werden von dieser Seite selbst geladen, ohne Verbindung zu Google oder anderen Schriftdiensten. Sie stehen unter der SIL Open Font License 1.1 und wurden nicht verändert.</p>
+<ul><li><b>Carlito</b> – Copyright 2013 The Carlito Project Authors, with Reserved Font Name &quot;Carlito&quot;</li><li><b>Big Shoulders Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>Big Shoulders Stencil Display</b> – Copyright 2019 The Big Shoulders Project Authors</li><li><b>IBM Plex Sans</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>IBM Plex Mono</b> – Copyright © 2017 IBM Corp. with Reserved Font Name &quot;Plex&quot;</li><li><b>Barlow Condensed</b> – Copyright 2017 The Barlow Project Authors</li><li><b>JetBrains Mono</b> – Copyright 2020 The JetBrains Mono Project Authors</li><li><b>Source Sans 3</b> – Copyright 2010-2024 Adobe, with Reserved Font Name &#x27;Source&#x27;. All Rights Reserved. Source is a trademark of Adobe in the United States and/or other countries.</li></ul>
+<a href="../assets/fonts/LIZENZEN.txt" target="_blank" rel="noopener">Vollständiger Lizenztext</a> (öffnet in neuem Tab)
+</div>
+<noscript><style>.stdfuss .stdfuss-panel[hidden]{display:block}.stdfuss .stdfuss-row{display:none}</style></noscript>
+<script>(function(){var b=document.querySelectorAll('.stdfuss-row button');b.forEach(function(x){x.addEventListener('click',function(){var on=x.getAttribute('aria-expanded')!=='true';b.forEach(function(y){y.setAttribute('aria-expanded','false');document.getElementById(y.getAttribute('aria-controls')).hidden=true;});if(on){x.setAttribute('aria-expanded','true');document.getElementById(x.getAttribute('aria-controls')).hidden=false;}});});})();</script>
+</footer>
+</body>
+</html>
