@@ -9,6 +9,12 @@ Carlito
   Bezug: Debian-Paket fonts-crosextra-carlito, unveränderte Originaldateien (TTF)
   Dateien: Carlito-Bold.ttf, Carlito-Regular.ttf
 
+Caveat
+  Copyright 2014 The Caveat Project Authors (https://github.com/googlefonts/caveat)
+  Reserved Font Name: nein
+  Bezug: Fontsource (@fontsource/caveat 5.3.0), Web-Teilmenge aus Google Fonts
+  Dateien: caveat-latin-500-normal.woff2
+
 Big Shoulders Display
   Copyright 2019 The Big Shoulders Project Authors (https://github.com/xotypeco/big_shoulders)
   Reserved Font Name: nein

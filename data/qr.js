@@ -20,5 +20,10 @@ window.QR = {
     "blatt": "PHY-ENE-05A_ACHTERBAHN",
     "ziel": "Achterbahn-Prüfstand (Simulation, Freischalt-Code aus 05A)",
     "url": "sim/achterbahn.html"
+  },
+  "s49b": {
+    "blatt": "PHY-ENE-05A_ACHTERBAHN",
+    "ziel": "★ Herleitung der fertigen Formeln (Werkzeug-Kasten 05A)",
+    "url": "herleitung/formeln.html"
   }
 };
