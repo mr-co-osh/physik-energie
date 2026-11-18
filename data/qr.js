@@ -35,5 +35,10 @@ window.QR = {
     "blatt": "PHY-ENE-07A_STROMKOSTEN",
     "ziel": "Das Rechendreieck (Erklärung)",
     "url": "herleitung/rechendreieck.html"
+  },
+  "t7dk": {
+    "blatt": "PHY-ENE-07C_DETEKTIV",
+    "ziel": "Stromkosten-Detektiv (Simulation, Freischalt-Code aus 07A)",
+    "url": "sim/stromkosten-detektiv.html"
   }
 };

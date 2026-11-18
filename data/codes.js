@@ -29,7 +29,7 @@ window.LOCKS = {
    "ds": "DS 7",
    "locked": true,
    "minSig": 3,
-   "task": "Arbeitsblatt <b>07A Stromkosten</b>, Übung 1: Handy-Ladegerät. Deine Kosten pro Jahr in Euro sind der Code.",
+   "task": "Arbeitsblatt <b>07A Stromkosten</b>, Aufgabe 1: Handy-Ladegerät. Deine Kosten pro Jahr in Euro sind der Code.",
    "hints": [
     "Noch nicht richtig. Prüfe deine Rechnung noch einmal.",
     "Noch nicht. Hast du die Leistung in kW umgerechnet (15 W = 0,015 kW)?",
