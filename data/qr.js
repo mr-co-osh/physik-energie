@@ -30,5 +30,10 @@ window.QR = {
     "blatt": "PHY-ENE-02B_MERKW_MASCHINE",
     "ziel": "Merkwürdige Maschine (Simulation)",
     "url": "sim/maschine.html"
+  },
+  "g9sn": {
+    "blatt": "PHY-ENE-07A_STROMKOSTEN",
+    "ziel": "Das Rechendreieck (Erklärung)",
+    "url": "herleitung/rechendreieck.html"
   }
 };
