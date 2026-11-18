@@ -25,7 +25,7 @@
   .tri .bs { stroke: var(--blue); stroke-width: 4; }
   .tri .zone { fill: transparent; cursor: pointer; }
   .tri .cover { fill: #A9B4BF; }
-  .step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
   .erg { min-height: 1.6em; font-size: 22px; font-weight: 700; color: var(--ink); }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; }
   .btns button { font: inherit; font-weight: 700; min-height: 44px; min-width: 56px; padding: 6px 14px; border: 2px solid var(--blue); border-radius: 10px; background: var(--surface); color: var(--ink); cursor: pointer; }
@@ -40,7 +40,7 @@
 
   <details class="panel" open><summary>1 · Für welche Formeln?</summary><div class="in">
     <p>Für Formeln, in denen <b>eine Größe allein</b> auf der einen Seite steht und auf der anderen Seite <b>zwei Größen malgenommen</b> werden:</p>
-    <div class="row"><span class="f">E = P · t</span><span class="f">P = U · I</span><span class="f">Kosten = Energie · Preis</span></div>
+    <div class="row"><span class="f">E = P · t</span><span class="f">P = U · I</span><span class="f">U = R · I</span><span class="f">s = v · t</span><span class="f">Kosten = Energie · Preis</span></div>
     <p>Nicht für Formeln mit Quadrat, Wurzel oder mehr als zwei Faktoren, z. B. E<sub>kin</sub> = ½ · m · v² oder E<sub>pot</sub> = m · g · h.</p>
   </div></details>
 
@@ -103,8 +103,10 @@
   zeige(null);
   // 5 · Weitere
   document.getElementById('weitere').innerHTML =
-    '<div class="step">' + tri('P', 'U', 'I', null) + '<span class="f">P = U · I</span></div>' +
-    '<div class="step">' + tri('K', 'E', 'p', null) + '<span class="f">K = E · p</span><span class="hand">K: Kosten, p: Preis pro kWh</span></div>';
+    '<div class="step">' + tri('P', 'U', 'I', null) + '<span class="f">P = U · I</span><span class="hand">P in W<br>U in V<br>I in A</span></div>' +
+    '<div class="step">' + tri('U', 'R', 'I', null) + '<span class="f">U = R · I</span><span class="hand">U in V<br>R in Ω<br>I in A</span></div>' +
+    '<div class="step">' + tri('s', 'v', 't', null) + '<span class="f">s = v · t</span><span class="hand">s in m<br>v in m/s<br>t in s</span></div>' +
+    '<div class="step">' + tri('K', 'E', 'p', null) + '<span class="f">K = E · p</span><span class="hand">K: Kosten in €<br>E in kWh<br>p: Preis in € pro kWh</span></div>';
 })();
 </script>
 <!-- STANDARDS.md Abschnitt 4: Seitenfuß -->
