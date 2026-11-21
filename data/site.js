@@ -22,8 +22,8 @@ window.SITE = {
     { id: 'formeln', titel: 'Formelsammlung', text: 'Formeln, Einheiten und Beispielrechnungen', href: 'formeln.html' },
     { id: 'formeltrainer', titel: 'Formel-Trainer', text: 'Rechnen mit Zufallswerten und Lösungsweg', href: 'formel-trainer.html' },
     { id: 'fachwort', titel: 'Fachwort-Trainer', text: 'Vokabelkasten mit fünf Fächern', href: 'fachwort-trainer.html' },
-    { id: 'checkliste', titel: 'Checkliste', text: 'Bin ich fit für Kurztest und Klassenarbeit?', href: 'checkliste.html' },
-    { id: 'test', titel: 'Test-Training', text: 'Beispielaufgaben für Kurztest und Klassenarbeit', href: 'test-training/kurztest.html' }
+    { id: 'checkliste', titel: 'Checkliste', text: 'Bin ich fit für Lernkontrolle 1 und 2?', href: 'checkliste.html' },
+    { id: 'test', titel: 'Fit für die Lernkontrolle', text: 'Beispielaufgaben für Lernkontrolle 1 und 2', href: 'test-training/kurztest.html' }
   ],
   bereiche: [
     { id: 'formen', phase: 1, ds: 'DS 1–3', titel: 'Energieformen & Umwandlung',

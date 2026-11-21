@@ -74,16 +74,16 @@ window.LOCKS = {
    "locked": false
   },
   "test-training": {
-   "name": "Training Klassenarbeit",
+   "name": "Fit für die Lernkontrolle 2",
    "ds": "DS 15",
    "locked": false,
    "tabs": [
     [
-     "Kurztest (DS 9)",
+     "Lernkontrolle 1 (DS 9)",
      "kurztest.html"
     ],
     [
-     "Klassenarbeit (DS 15)",
+     "Lernkontrolle 2 (DS 15)",
      "index.html",
      true
     ]

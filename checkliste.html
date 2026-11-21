@@ -45,7 +45,7 @@
   <section class="page-intro"><nav class="tabs" id="tabs" aria-label="Prüfung wählen"></nav><h2 id="titel" style="font-size:26px"></h2><p id="info"></p><div class="sum" id="sum"></div></section>
   <div id="gruppen" style="display:flex;flex-direction:column;gap:28px"></div>
   <section class="tips" aria-labelledby="h-tipps"><h2 id="h-tipps">So bereitest du dich vor</h2><ol id="tipps"></ol>
-    <p><a id="trainlink" href="test-training/index.html">Zum Test-Training mit Beispielaufgaben →</a></p></section>
+    <p><a id="trainlink" href="test-training/index.html">Zu „Fit für die Lernkontrolle“ mit Beispielaufgaben →</a></p></section>
   <p class="muted" style="font-size:14px">Deine Einschätzung bleibt nur auf diesem Gerät. <button class="linkbtn" id="reset" type="button">Alle zurücksetzen</button></p>
 </main>
 <script src="data/site.js"></script>
@@ -54,7 +54,8 @@
 <script>
 (function () {
   var A = window.App, ALL = window.CHECKLISTEN, $ = function (id) { return document.getElementById(id); };
-  var key = location.hash.slice(1); if (!ALL[key]) key = 'klassenarbeit';
+  var ALT = { kurztest: 'lk1', klassenarbeit: 'lk2' };
+  var key = location.hash.slice(1); key = ALT[key] || key; if (!ALL[key]) key = 'lk1';
   var C = ALL[key];
   var LBL = { 1: 'sicher', 2: 'fast', 3: 'noch nicht' };
   var st = A.load('checkliste', {});
