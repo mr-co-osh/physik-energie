@@ -17,13 +17,13 @@
   var css = d.createElement('style');
   css.textContent =
     '.vb-knopf{position:fixed;z-index:9999;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);' +
-    'width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:rgba(14,59,92,.78);color:#fff;' +
+    'width:36px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,.35);background:rgba(14,59,92,.78);color:#fff;' +
     'display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.18);' +
     '-webkit-tap-highlight-color:transparent;opacity:.85;transition:opacity .15s}' +
     '.vb-knopf:hover,.vb-knopf:focus-visible{opacity:1}' +
     '.vb-knopf:focus-visible{outline:3px solid #F2C230;outline-offset:2px}' +
-    '.vb-knopf svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}' +
-    '.vb-knopf.vb-inline{position:static;width:40px;height:40px;margin-left:auto;flex:none;box-shadow:none;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.35)}' +
+    '.vb-knopf svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}' +
+    '.vb-knopf.vb-inline{position:static;width:32px;height:32px;margin-left:auto;flex:none;box-shadow:none;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.35)}' +
     '.lk-bar .vb-knopf.vb-inline{margin-left:4px}' +
     '@media print{.vb-knopf{display:none}}';
   d.head.appendChild(css);
