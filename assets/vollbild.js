@@ -24,6 +24,9 @@
     '.vb-knopf:focus-visible{outline:3px solid #F2C230;outline-offset:2px}' +
     '.vb-knopf svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}' +
     '.vb-knopf.vb-inline{position:static;width:32px;height:32px;margin-left:auto;flex:none;box-shadow:none;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.35)}' +
+    'header.band.vb-hat{position:relative}' +
+    'header.band.vb-hat > .wrap{padding-right:max(60px,calc(env(safe-area-inset-right,0px) + 52px))}' +
+    'header.band .vb-knopf.vb-band{position:absolute;top:12px;right:max(16px,env(safe-area-inset-right,0px));width:32px;height:32px;box-shadow:none;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.35)}' +
     '.lk-bar .vb-knopf.vb-inline{margin-left:12px}' +
     '@media (max-width:640px){.lk-bar .vb-knopf.vb-inline{margin-left:auto}}' +
     '@media print{.vb-knopf{display:none}}';
@@ -47,10 +50,22 @@
   d.addEventListener('webkitfullscreenchange', zeigen);
   zeigen();
 
-  /* Ort: in der Navigationsleiste der Simulationen (.lk-bar), sonst im blauen Kopfband (.band .wrap), sonst schwebend oben rechts */
-  function einsetzen() {
-    var ziel = d.querySelector('.lk-bar') || d.querySelector('header.band .wrap');
-    if (ziel) { b.classList.add('vb-inline'); ziel.appendChild(b); } else d.body.appendChild(b);
+  /* Ort: in der Navigationsleiste der Simulationen (.lk-bar, wird von lock.js eingefügt), sonst oben rechts im blauen Kopfband,
+     sonst schwebend oben rechts. Die Leiste kann später entstehen, deshalb wird kurz nachgeschaut. */
+  function platzieren() {
+    var bar = d.querySelector('.lk-bar'), band = d.querySelector('header.band');
+    b.className = 'vb-knopf';
+    if (bar) { b.classList.add('vb-inline'); if (b.parentNode !== bar) bar.appendChild(b); return true; }
+    if (band) { band.classList.add('vb-hat'); b.classList.add('vb-band'); if (b.parentNode !== band) band.appendChild(b); return false; }
+    if (b.parentNode !== d.body) d.body.appendChild(b);
+    return false;
   }
-  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', einsetzen); else setTimeout(einsetzen, 0);
+  function start() {
+    if (platzieren()) return;
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function () { if (platzieren()) mo.disconnect(); });
+    mo.observe(d.body, { childList: true, subtree: true });
+    setTimeout(function () { mo.disconnect(); }, 4000);
+  }
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', start); else setTimeout(start, 0);
 })();
