@@ -87,7 +87,7 @@
   function bar() {
     var b = document.createElement('div'); b.className = 'lk-bar';
     var tabs = SIM && SIM.tabs ? SIM.tabs.map(function (t) { return '<a href="' + t[1] + '"' + (t[2] ? ' class="on" aria-current="page"' : '') + '>' + t[0] + '</a>'; }).join('') : '';
-    b.innerHTML = '<a href="' + (CFG.home || '../') + '">← ' + (CFG.homeLabel || 'Übersicht') + '</a>' + tabs + '<span>' + (SIM ? SIM.name : '') + '</span><a href="' + (CFG.home || '../') + 'datenschutz.html" style="font-weight:400">Datenschutz</a>';
+    b.innerHTML = '<a href="' + (CFG.home || '../') + '">← ' + (CFG.homeLabel || 'Übersicht') + '</a>' + tabs + '<span>' + (SIM ? SIM.name : '') + '</span>';   /* Datenschutz steht im Seitenfuß */
     document.body.insertBefore(b, document.body.firstChild);
   }
 

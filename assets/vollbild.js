@@ -24,7 +24,8 @@
     '.vb-knopf:focus-visible{outline:3px solid #F2C230;outline-offset:2px}' +
     '.vb-knopf svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}' +
     '.vb-knopf.vb-inline{position:static;width:32px;height:32px;margin-left:auto;flex:none;box-shadow:none;background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.35)}' +
-    '.lk-bar .vb-knopf.vb-inline{margin-left:4px}' +
+    '.lk-bar .vb-knopf.vb-inline{margin-left:12px}' +
+    '@media (max-width:640px){.lk-bar .vb-knopf.vb-inline{margin-left:auto}}' +
     '@media print{.vb-knopf{display:none}}';
   d.head.appendChild(css);
 
