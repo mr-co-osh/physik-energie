@@ -48,6 +48,19 @@
   .lang { background: var(--sky); border-radius: 10px; padding: 10px 14px; font-size: 16px; }
   .lang b { color: var(--ink); }
   .new { font-size: 13px; font-weight: 700; color: var(--blue); }
+  .kettel { display: flex; flex-wrap: wrap; gap: 8px 6px; align-items: center; font-size: 17px; }
+  .kettel .ef { font-weight: 700; padding: 8px 10px; border-radius: 8px; background: #9B7BC8; color: #1f1f1f; border: 1.5px solid #1f1f1f; }
+  .kettel .ef small { font-weight: 400; }
+  .kettel .wd { padding: 8px 10px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--surface); color: var(--ink); }
+  .kettel .pf { color: var(--blue); font-weight: 700; }
+  .kettel select { font: 700 17px var(--f-text); min-height: 44px; min-width: 76px; padding: 6px 8px; border: 2px solid var(--blue); border-radius: 8px; background: var(--surface); color: var(--ink); }
+  .kettel select.right { border-color: var(--green-d); background: var(--mint); } .kettel select.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  figure.dia { border-color: var(--line); max-width: 560px; overflow-x: auto; }
+  figure.dia svg { display: block; width: 100%; min-width: 320px; height: auto; }
+  .tw { overflow-x: auto; }
+  table.vgl { border-collapse: collapse; font-size: 17px; min-width: 300px; }
+  table.vgl th, table.vgl td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
+  table.vgl thead th { background: var(--sky); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -65,99 +78,144 @@
   </section>
 
   <article class="task">
-    <div class="task-head"><h2>Aufgabe 1: Energiebegriff</h2><span>4 P</span></div>
+    <div class="task-head"><h2>Aufgabe 1: Alltag oder Physik?</h2><span>4 P</span></div>
     <div class="task-body">
       <p>Welche Sätze verwenden den Begriff Energie <b>nicht</b> im physikalischen Sinn? Kreuze an.</p>
       <div class="checks" id="a1">
-        <label><input type="checkbox" data-ok="1"> „Meine Energie ist völlig verbraucht.“</label>
+        <label><input type="checkbox" data-ok="1"> „Ich habe heute keine Energie mehr.“</label>
+        <label><input type="checkbox" data-ok="0"> „Eine Solarzelle wandelt Strahlungsenergie in elektrische Energie um.“</label>
+        <label><input type="checkbox" data-ok="1"> „Das Solarfeld produziert Energie.“</label>
         <label><input type="checkbox" data-ok="0"> „Beim Bremsen wird Bewegungsenergie in thermische Energie umgewandelt.“</label>
-        <label><input type="checkbox" data-ok="1"> „Ein Wasserkraftwerk erzeugt Energie.“</label>
-        <label><input type="checkbox" data-ok="0"> „Die Sonne überträgt Energie durch Strahlung zur Erde.“</label>
       </div>
-      <div class="answer"><button class="btn" type="button" id="a1-check">Prüfen</button><span class="fb" id="a1-fb" aria-live="polite"></span></div>
+      <div class="answer"><button class="btn" type="button" data-check="a1">Prüfen</button><span class="fb" id="a1-fb" aria-live="polite"></span></div>
       <p>Formuliere einen der angekreuzten Sätze physikalisch korrekt.</p>
       <label class="sr" for="a1-text">Deine Formulierung</label><textarea id="a1-text" placeholder="Schreibe deinen Satz hier oder ins Heft."></textarea>
-      <p class="lang"><b>Satzanfänge:</b> „Die … Energie wird in … umgewandelt.“ · „Das Kraftwerk wandelt … in … um.“</p>
+      <p class="lang"><b>Satzanfänge:</b> „Die … Energie wird in … umgewandelt.“ | „Das Solarfeld wandelt … in … um.“</p>
       <details><summary>Lösung anzeigen</summary><div>
-        <p>Angekreuzt: „Meine Energie ist völlig verbraucht.“ und „Ein Wasserkraftwerk erzeugt Energie.“ (je 1 P)</p>
-        <p>Zum Beispiel: „Ich habe die chemische Energie aus meiner Nahrung in Bewegungsenergie und thermische Energie umgewandelt.“ oder „Ein Wasserkraftwerk wandelt die Lageenergie des Wassers in elektrische Energie um.“ (2 P)</p>
+        <p>Angekreuzt: „Ich habe heute keine Energie mehr.“ und „Das Solarfeld produziert Energie.“ (je 1 P)</p>
+        <p>Zum Beispiel: „Das Solarfeld wandelt Strahlungsenergie in elektrische Energie um.“ oder „Ich habe die chemische Energie aus meiner Nahrung in Bewegungsenergie und thermische Energie umgewandelt.“ (2 P)</p>
       </div></details>
     </div>
   </article>
 
   <article class="task">
-    <div class="task-head"><h2>Aufgabe 2: Energieflussdiagramm</h2><span>6 P · ★ 2 P</span></div>
+    <div class="task-head"><h2>Aufgabe 2: Lageenergie</h2><span>3 P</span></div>
     <div class="task-body">
-      <p>Eine Solarzelle treibt einen Elektromotor an. Der Motor hebt über ein Seil ein Gewicht an.</p>
-      <figure><img src="../assets/img/solar_motor.png" alt="Solarzelle, die über Kabel einen Elektromotor antreibt; der Motor zieht über eine Seilrolle ein Gewicht nach oben." width="1129" height="670"><figcaption><b>Abbildung:</b> Solarzelle, Motor und Gewicht</figcaption></figure>
-      <div class="sub"><b>a)</b><span>Zeichne das Energieflussdiagramm ins Heft. Beschrifte die Kästen mit den Energiewandlern und die Pfeile mit den Energieformen. (4 P)</span></div>
-      <div class="sub"><b>b)</b><span>Ergänze die Energie, die nicht genutzt wird, als Pfeile nach unten. (2 P)</span></div>
-      <figure><img src="../assets/img/fl_geruest3b.png" alt="Gerüst eines Energieflussdiagramms mit drei leeren Kästen und leeren Pfeilen." width="1400" height="442"><figcaption><b>Gerüst:</b> drei Kästen für die Energiewandler</figcaption></figure>
-      <div class="sub star"><b>★ c)</b><span>Die Solarzelle wandelt nur etwa 20 % der Strahlungsenergie in elektrische Energie um. Was bedeutet das für die Breite der Pfeile in deinem Diagramm? (2 P)</span></div>
+      <p>Du stellst eine Getränkekiste (m = 18 kg) auf ein Regal in 1,20 m Höhe. Berechne die Lageenergie, die die Kiste dabei gewinnt. Notiere gegeben – gesucht – Formel – Rechnung – Antwortsatz.</p>
+      <form class="answer" data-wert="211.896" data-einheit="J"><label for="a2-in">Dein Ergebnis:</label><input id="a2-in" inputmode="decimal" autocomplete="off"><span class="unit">J</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
       <details><summary>Lösung anzeigen</summary><div>
-        <ul>
-          <li><b>a)</b> Wandler: Solarzelle → Elektromotor → Seilrolle. Energieformen: Strahlungsenergie → elektrische Energie → Bewegungsenergie → Lageenergie.</li>
-          <li><b>b)</b> Pfeile mit thermischer Energie nach unten an Solarzelle und Motor; ein Pfeil an der Seilrolle (Reibung) ist ebenfalls richtig.</li>
-          <li><b>★ c)</b> Der Pfeil der elektrischen Energie ist nur etwa ein Fünftel so breit wie der Pfeil der Strahlungsenergie. Der Pfeil der thermischen Energie an der Solarzelle ist entsprechend breit, etwa vier Fünftel.</li>
-        </ul>
-        <figure><img src="../assets/img/fl_kurztest_lsg.png" alt="Musterlösung: Energieflussdiagramm Solarzelle, Motor, Seilrolle mit geschätzten Prozentwerten und Pfeilen für thermische Energie." width="1400" height="478"><figcaption><b>Musterlösung</b> (Prozentwerte geschätzt)</figcaption></figure>
+        <p><b>gegeben:</b> m = 18 kg; h = 1,20 m; g = 9,81 m/s² | <b>gesucht:</b> E<sub>pot</sub></p>
+        <p>E<sub>pot</sub> = m · g · h = 18 kg · 9,81 m/s² · 1,20 m = 211,896 J ≈ <b>212 J</b></p>
+        <p><b>Antwort:</b> Die Kiste gewinnt etwa 212 J Lageenergie.</p>
       </div></details>
     </div>
   </article>
 
   <article class="task">
-    <div class="task-head"><h2>Aufgabe 3: Energieerhaltung</h2><span>4 P</span></div>
+    <div class="task-head"><h2>Aufgabe 3: Energieumwandlungskette</h2><span>4 P</span></div>
     <div class="task-body">
-      <p>Ein Flummi wird aus 1,20 m Höhe fallen gelassen. Er springt nur 0,90 m hoch. Erkläre diese Beobachtung mit dem <b>Energieerhaltungssatz</b> und dem Begriff <b>Energieentwertung</b>.</p>
-      <label class="sr" for="a3-text">Deine Erklärung</label><textarea id="a3-text" placeholder="Schreibe deine Erklärung hier oder ins Heft."></textarea>
-      <p class="lang"><b>Satzanfänge:</b> „Oben hat der Flummi …“ · „Beim Fallen wird … in … umgewandelt.“ · „Beim Aufprall …“ · „Diese Energie fehlt …, weil …“</p>
-      <details><summary>Lösung anzeigen</summary><div><ul>
-        <li>Oben hat der Flummi Lageenergie; beim Fallen wird sie in Bewegungsenergie umgewandelt. (1 P)</li>
-        <li>Die Gesamtenergie bleibt erhalten (Energieerhaltungssatz). (1 P)</li>
-        <li>Beim Aufprall wird ein Teil in thermische Energie umgewandelt (Flummi und Boden erwärmen sich). (1 P)</li>
-        <li>Diese Energie ist entwertet und fehlt für den Rücksprung. Deshalb erreicht er nur 0,90 m. (1 P)</li>
-      </ul></div></details>
-    </div>
-  </article>
-
-  <article class="task">
-    <div class="task-head"><h2>Aufgabe 4: Lageenergie berechnen</h2><span>4 P</span></div>
-    <div class="task-body">
-      <p>Der Motor aus Aufgabe 2 hebt das Gewicht (m = 1 kg) um 1,5 m an. Berechne die Lageenergie, die das Gewicht dabei gewinnt. Notiere gegeben – gesucht – Formel – Rechnung – Antwortsatz.</p>
-      <form class="answer" data-wert="14.715" data-einheit="J"><label for="a4-in">Dein Ergebnis:</label><input id="a4-in" inputmode="decimal" autocomplete="off"><span class="unit">J</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <p>Ein Fahrrad mit Dynamo: Die Muskeln treten die Pedale, der Dynamo am Rad versorgt das Fahrradlicht.</p>
+      <div class="sub"><b>a)</b><span>Ergänze die fehlenden Energieformen der Energieumwandlungskette mit ihren Abkürzungen. (3 P)</span></div>
+      <div class="kettel" id="a3">
+        <span class="ef">CE <small>(Nahrung)</small></span><span class="pf">→</span><span class="wd">Muskeln</span><span class="pf">→</span>
+        <label class="sr" for="a3-1">Energieform nach den Muskeln</label><select id="a3-1" data-ok="BE"></select><span class="pf">→</span><span class="wd">Dynamo</span><span class="pf">→</span>
+        <label class="sr" for="a3-2">Energieform nach dem Dynamo</label><select id="a3-2" data-ok="EE"></select><span class="pf">→</span><span class="wd">Fahrradlicht</span><span class="pf">→</span>
+        <label class="sr" for="a3-3">genutzte Energieform am Ende</label><select id="a3-3" data-ok="StE"></select>
+      </div>
+      <div class="answer"><button class="btn" type="button" data-check="a3">Prüfen</button><span class="fb" id="a3-fb" aria-live="polite"></span></div>
+      <div class="sub"><b>b)</b><span>Nenne eine Stelle in der Kette, an der Energie nicht genutzt wird, und die Energieform. (1 P)</span></div>
       <details><summary>Lösung anzeigen</summary><div>
-        <p><b>gegeben:</b> m = 1 kg; h = 1,5 m; g = 9,81 m/s² · <b>gesucht:</b> E<sub>pot</sub></p>
-        <p>E<sub>pot</sub> = m · g · h = 1 kg · 9,81 m/s² · 1,5 m = 14,715 J ≈ <b>14,7 J</b></p>
-        <p><b>Antwort:</b> Das Gewicht gewinnt etwa 14,7 J Lageenergie.</p>
+        <div class="kette" id="a3-lsg"></div>
+        <p><b>b)</b> Zum Beispiel: Im Dynamo, in den Lagern des Rades oder im Fahrradlicht entsteht thermische Energie, die nicht genutzt wird.</p>
       </div></details>
     </div>
   </article>
 
   <article class="task">
-    <div class="task-head"><h2>Aufgabe 5: Stromkosten</h2><span>3 P</span></div>
+    <div class="task-head"><h2>Aufgabe 4: Energieflussdiagramm lesen</h2><span>3 P</span></div>
     <div class="task-body">
-      <p class="new">In der Lernkontrolle 1 kommen auch Stromkosten dran.</p>
-      <p>Ein Fernseher (100 W) läuft jeden Tag 3 Stunden. Berechne die Stromkosten für ein Jahr. Strompreis: 0,37 € pro kWh.</p>
-      <form class="answer" data-wert="40.515" data-einheit="€"><label for="a5-in">Dein Ergebnis:</label><input id="a5-in" inputmode="decimal" autocomplete="off"><span class="unit">€</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <p>Das Energieflussdiagramm zeigt eine LED-Lampe.</p>
+      <figure class="dia" id="a4-dia"></figure>
+      <div class="sub"><b>a)</b><span>Welche Energieform ist die genutzte Energie? (1 P)</span></div>
+      <div class="sub"><b>b)</b><span>Wie viel Prozent der Energie werden nicht genutzt? (1 P)</span></div>
+      <form class="answer" data-wert="60" data-einheit="%"><label for="a4-in">Dein Ergebnis:</label><input id="a4-in" inputmode="decimal" autocomplete="off"><span class="unit">%</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <div class="sub"><b>c)</b><span>Begründe, warum der Eingangspfeil so breit ist wie die beiden anderen Pfeile zusammen. (1 P)</span></div>
       <details><summary>Lösung anzeigen</summary><div>
-        <p><b>gegeben:</b> P = 100 W = 0,1 kW; t = 3 h pro Tag · 365 Tage; Preis = 0,37 €/kWh · <b>gesucht:</b> Kosten</p>
-        <p>E pro Tag = 0,1 kW · 3 h = 0,3 kWh · E pro Jahr = 0,3 kWh · 365 = 109,5 kWh</p>
-        <p>Kosten = 109,5 kWh · 0,37 €/kWh = 40,515 € ≈ <b>40,52 €</b></p>
-        <p><b>Antwort:</b> Der Fernseher kostet im Jahr etwa 40,52 € Strom.</p>
+        <p><b>a)</b> Strahlungsenergie (Licht).</p>
+        <p><b>b)</b> 100 % − 40 % = 60 %; sie werden als thermische Energie abgegeben.</p>
+        <p><b>c)</b> Energie geht nicht verloren (Energieerhaltung): Die zugeführte Energie ist genauso groß wie die genutzte und die nicht genutzte Energie zusammen.</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 5: Läuft das ewig?</h2><span>3 P</span></div>
+    <div class="task-body">
+      <p>Ein Video zeigt ein Rad mit Magneten. Es soll sich nach einem kleinen Schubs <b>ewig</b> drehen und dabei noch eine Lampe leuchten lassen. Begründe mit dem Energieerhaltungssatz, warum das nicht möglich ist.</p>
+      <label class="sr" for="a5-text">Deine Begründung</label><textarea id="a5-text" placeholder="Schreibe deine Begründung hier oder ins Heft."></textarea>
+      <p class="lang"><b>Satzanfänge:</b> „Nach dem Energieerhaltungssatz …“ | „Bei jeder Umwandlung wird ein Teil …“ | „Deshalb …“</p>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p>Energie kann nicht erzeugt werden, sie wird nur umgewandelt (1 P). Bei jeder Umdrehung wird durch Reibung ein Teil der Bewegungsenergie in thermische Energie umgewandelt, die nicht genutzt wird; die Lampe gibt zusätzlich Energie als Licht ab (1 P). Ohne Energiezufuhr nimmt die Bewegungsenergie also ab, und das Rad bleibt stehen (1 P).</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 6: Energie und Leistung</h2><span>3 P</span></div>
+    <div class="task-body">
+      <p>Nutze E = P · t und das Rechendreieck.</p>
+      <div class="sub"><b>a)</b><span>Eine Spielkonsole (P = 150 W) läuft 4 Stunden. Berechne die elektrische Energie in kWh. (2 P)</span></div>
+      <form class="answer" data-wert="0.6" data-einheit="kWh"><label for="a6a-in">Dein Ergebnis:</label><input id="a6a-in" inputmode="decimal" autocomplete="off"><span class="unit">kWh</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <div class="sub"><b>b)</b><span>Ein Ladegerät nimmt in 5 Stunden 0,1 kWh auf. Berechne seine Leistung in Watt. (1 P)</span></div>
+      <form class="answer" data-wert="20" data-einheit="W"><label for="a6b-in">Dein Ergebnis:</label><input id="a6b-in" inputmode="decimal" autocomplete="off"><span class="unit">W</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>a)</b> P = 150 W = 0,15 kW; E = P · t = 0,15 kW · 4 h = <b>0,6 kWh</b></p>
+        <p><b>b)</b> Im Rechendreieck P abdecken: P = E : t = 0,1 kWh : 5 h = 0,02 kW = <b>20 W</b></p>
+        <p><a href="../herleitung/rechendreieck.html">So funktioniert das Rechendreieck →</a></p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task">
+    <div class="task-head"><h2>Aufgabe 7: Energielabel vergleichen</h2><span>4 P</span></div>
+    <div class="task-body">
+      <p>Familie Demir braucht einen neuen Gefrierschrank. Strompreis: 0,37 € pro kWh.</p>
+      <div class="tw"><table class="vgl"><thead><tr><th></th><th>Gefrierschrank A</th><th>Gefrierschrank E</th></tr></thead>
+        <tbody><tr><th>Preis</th><td>650 €</td><td>450 €</td></tr><tr><th>Energie pro Jahr (Energielabel)</th><td>180 kWh</td><td>300 kWh</td></tr></tbody></table></div>
+      <div class="sub"><b>a)</b><span>Berechne für beide Geräte die Gesamtkosten (Kaufpreis + Stromkosten) für 10 Jahre. (3 P)</span></div>
+      <form class="answer" data-wert="1316" data-einheit="€"><label for="a7a-in">Gefrierschrank A:</label><input id="a7a-in" inputmode="decimal" autocomplete="off"><span class="unit">€</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <form class="answer" data-wert="1560" data-einheit="€"><label for="a7b-in">Gefrierschrank E:</label><input id="a7b-in" inputmode="decimal" autocomplete="off"><span class="unit">€</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <div class="sub"><b>b)</b><span>Welches Gerät empfiehlst du? Begründe mit deinen Ergebnissen. (1 P)</span></div>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>A:</b> 180 kWh · 10 = 1800 kWh; 1800 kWh · 0,37 €/kWh = 666 €; 650 € + 666 € = <b>1316 €</b></p>
+        <p><b>E:</b> 300 kWh · 10 = 3000 kWh; 3000 kWh · 0,37 €/kWh = 1110 €; 450 € + 1110 € = <b>1560 €</b></p>
+        <p><b>b)</b> Gefrierschrank A: Er ist zwar 200 € teurer, kostet aber in 10 Jahren insgesamt 244 € weniger und braucht weniger Energie.</p>
       </div></details>
     </div>
   </article>
 
   <article class="task star">
-    <div class="task-head"><h2>★ Aufgabe 6: Der Absturz</h2><span>4 P</span></div>
+    <div class="task-head"><h2>★ Aufgabe 8: Wie hoch fährt der Aufzug?</h2><span>3 P</span></div>
     <div class="task-body">
-      <p>Oben reißt das Seil, und das Gewicht aus Aufgabe 4 fällt 1,5 m tief auf den Boden.</p>
-      <div class="sub star"><b>a)</b><span>Berechne, wie schnell das Gewicht beim Aufprall ist, wenn man den Luftwiderstand vernachlässigt. (3 P)</span></div>
-      <form class="answer" data-wert="5.425" data-einheit="m/s"><label for="a6-in">Dein Ergebnis:</label><input id="a6-in" inputmode="decimal" autocomplete="off"><span class="unit">m/s</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
-      <div class="sub star"><b>b)</b><span>Begründe, warum das Gewicht in Wirklichkeit etwas langsamer ist. (1 P)</span></div>
+      <p>Ein Aufzug hebt eine Person (m = 75 kg). Ihre Lageenergie nimmt dabei um 8829 J zu. Stelle E<sub>pot</sub> = m · g · h nach h um und berechne die Höhe.</p>
+      <form class="answer" data-wert="12" data-einheit="m"><label for="a8-in">Dein Ergebnis:</label><input id="a8-in" inputmode="decimal" autocomplete="off"><span class="unit">m</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
       <details><summary>Lösung anzeigen</summary><div>
-        <p><b>a)</b> Unten gilt E<sub>kin</sub> = E<sub>pot</sub> = 14,715 J.</p>
-        <p>v = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · E<sub>kin</sub> : m</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · 14,715 J : 1 kg</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">29,43 m²/s²</span></span> ≈ <b>5,4 m/s</b></p>
+        <p>h = E<sub>pot</sub> : (m · g) (1 P)</p>
+        <p>h = 8829 J : (75 kg · 9,81 m/s²) = 8829 J : 735,75 N = <b>12 m</b> (2 P)</p>
+      </div></details>
+    </div>
+  </article>
+
+  <article class="task star">
+    <div class="task-head"><h2>★ Aufgabe 9: Der Blumentopf</h2><span>3 P</span></div>
+    <div class="task-body">
+      <p>Ein Blumentopf fällt von einer Fensterbank 3,2 m tief auf den Boden.</p>
+      <div class="sub star"><b>a)</b><span>Berechne mit der Formelsammlung, wie schnell er beim Aufprall ist, wenn man den Luftwiderstand vernachlässigt. (2 P)</span></div>
+      <form class="answer" data-wert="7.924" data-einheit="m/s"><label for="a9-in">Dein Ergebnis:</label><input id="a9-in" inputmode="decimal" autocomplete="off"><span class="unit">m/s</span><button class="btn" type="submit">Prüfen</button><span class="fb" aria-live="polite"></span></form>
+      <div class="sub star"><b>b)</b><span>Begründe, warum der Blumentopf in Wirklichkeit etwas langsamer ist. (1 P)</span></div>
+      <details><summary>Lösung anzeigen</summary><div>
+        <p><b>a)</b> Unten ist die ganze Lageenergie in Bewegungsenergie umgewandelt: E<sub>kin</sub> = E<sub>pot</sub>. Daraus folgt</p>
+        <p>v = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · g · h</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">2 · 9,81 m/s² · 3,2 m</span></span> = <span class="rad"><span class="rad-s">√</span><span class="rad-b">62,784 m²/s²</span></span> ≈ <b>7,9 m/s</b></p>
         <p><b>b)</b> Durch den Luftwiderstand wird ein Teil der Energie in thermische Energie umgewandelt. Unten ist E<sub>kin</sub> deshalb kleiner als E<sub>pot</sub> oben.</p>
       </div></details>
     </div>
@@ -165,15 +223,16 @@
 
   <section class="page-intro" style="gap:8px">
     <h2 style="font-size:20px">Weiter üben</h2>
-    <p><a href="../formel-trainer.html#berechnen">Formel-Trainer: Energie berechnen →</a> · <a href="../formel-trainer.html#strom">Formel-Trainer: Stromkosten →</a> · <a href="../fachwort-trainer.html">Fachwort-Trainer →</a></p>
+    <p><a href="../formel-trainer.html#berechnen">Formel-Trainer: Energie berechnen →</a> · <a href="../formel-trainer.html#strom">Formel-Trainer: Stromkosten →</a> · <a href="../herleitung/rechendreieck.html">Rechendreieck →</a> · <a href="../fachwort-trainer.html">Fachwort-Trainer →</a></p>
   </section>
 </main>
 <script src="../data/site.js"></script>
 <script src="../assets/app.js"></script>
+<script src="../assets/fluss.js"></script>
 <script>
 (function () {
   var A = window.App;
-  document.getElementById('a1-check').onclick = function () {
+  document.querySelector('[data-check="a1"]').onclick = function () {
     var all = document.querySelectorAll('#a1 input'), ok = 0;
     all.forEach(function (i) {
       var lab = i.parentNode, should = i.dataset.ok === '1';
@@ -184,6 +243,19 @@
     fb.className = 'fb ' + (ok === 4 ? 'ok' : 'bad');
     fb.textContent = ok === 4 ? 'Richtig! Beide Sätze sind Alltagssprache.' : 'Noch nicht ganz. Rot markiert ist, was du ändern solltest.';
   };
+  /* Aufgabe 3: Auswahl der Energieformen */
+  var F = window.Fluss.F, opts = '<option value="">?</option>' + ['CE', 'EE', 'BE', 'LE', 'TE', 'StE', 'SpE'].map(function (k) { return '<option value="' + k + '" title="' + F[k][0] + '">' + k + '</option>'; }).join('');
+  document.querySelectorAll('#a3 select').forEach(function (s) { s.innerHTML = opts; });
+  document.querySelector('[data-check="a3"]').onclick = function () {
+    var ok = 0, sel = document.querySelectorAll('#a3 select');
+    sel.forEach(function (s) { s.classList.remove('right', 'wrong'); if (s.value === s.dataset.ok) { ok++; s.classList.add('right'); } else s.classList.add('wrong'); });
+    var fb = document.getElementById('a3-fb'); fb.className = 'fb ' + (ok === 3 ? 'ok' : 'bad');
+    fb.textContent = ok === 3 ? 'Richtig!' : ok + ' von 3 richtig. Rot markiert ist, was du ändern solltest.';
+  };
+  document.getElementById('a3-lsg').innerHTML = Fluss.kette(['CE', 'chemische Energie (Nahrung)', [['Muskeln', 'BE', ''], ['Dynamo', 'EE', ''], ['Fahrradlicht', 'StE', 'Strahlungsenergie (Licht)']]]);
+  /* Aufgabe 4: Energieflussdiagramm LED-Lampe */
+  document.getElementById('a4-dia').innerHTML = Fluss.svg({ zu: [['EE', 100]], steps: [{ name: 'LED-Lampe', out: [['StE', 40, 'Strahlungsenergie (Licht)']], loss: [['TE', 60]] }], unit: '%' }) +
+    '<figcaption><b>Abbildung:</b> Energieflussdiagramm einer LED-Lampe</figcaption>';
   document.querySelectorAll('form.answer').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       e.preventDefault();
